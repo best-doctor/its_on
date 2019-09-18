@@ -3,7 +3,7 @@ from aiohttp import web
 from config import SERVER_PORT
 
 
-async def hello_world_handler(request):
+async def hello_world_handler(request: web.Request) -> web.Response:
     name = request.match_info.get('name', 'Anonymous')
     text = 'Hello, ' + name
     return web.Response(text=text)
