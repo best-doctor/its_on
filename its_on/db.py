@@ -12,6 +12,7 @@ switches = sa.Table(
     sa.Column('is_active', sa.Boolean, default=True),
     sa.Column('name', sa.String(255), unique=True),
     sa.Column('group', sa.String(255)),
+    sa.Column('version', sa.Integer, nullable=True),
     sa.Column('comment', sa.Text),
 )
 
