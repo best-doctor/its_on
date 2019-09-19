@@ -1,4 +1,5 @@
 import logging
+from asyncio import AbstractEventLoop
 
 from aiohttp import web
 from aiohttp_apispec import setup_aiohttp_apispec
@@ -10,8 +11,8 @@ from its_on.routes import setup_routes
 from its_on.utils import setup_cache
 
 
-async def init_app() -> web.Application:
-    app = web.Application()
+def init_app(loop: AbstractEventLoop = None) -> web.Application:
+    app = web.Application(loop=loop)
 
     app['config'] = get_config()
 

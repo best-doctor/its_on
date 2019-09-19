@@ -6,4 +6,4 @@ It's on
 HOW TO
 ------
 
-`python server.py` – запуск сервера.
+`python -m its_on` – запуск сервера.
