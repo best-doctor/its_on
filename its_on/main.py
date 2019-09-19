@@ -7,6 +7,7 @@ from its_on.settings import get_config
 from its_on.db import init_pg, close_pg
 from its_on.middlewares import setup_middlewares
 from its_on.routes import setup_routes
+from its_on.utils import setup_cache
 
 
 async def init_app() -> web.Application:
@@ -20,6 +21,7 @@ async def init_app() -> web.Application:
     setup_routes(app)
     setup_aiohttp_apispec(app=app, request_data_name='validated_data')
     setup_middlewares(app)
+    setup_cache(app)
 
     return app
 
