@@ -33,7 +33,7 @@ class SwitchListView(web.View):
         data = await self.get_response_data()
         return web.json_response(data)
 
-    @cached(ttl=60, key_builder=switch_list_cache_key_builder)
+    @cached(ttl=300, key_builder=switch_list_cache_key_builder)
     async def get_response_data(self) -> Dict:
         objects = await self.load_objects()
         data = [obj.name for obj in objects]
