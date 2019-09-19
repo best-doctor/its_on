@@ -1,19 +1,12 @@
 import logging
 
 from aiohttp import web
-from aiohttp_apispec import setup_aiohttp_apispec, validation_middleware
-# from aiohttp_cache import RedisConfig, setup_cache
+from aiohttp_apispec import setup_aiohttp_apispec
 
 from its_on.settings import get_config
 from its_on.db import init_pg, close_pg
 from its_on.middlewares import setup_middlewares
 from its_on.routes import setup_routes
-
-
-async def hello_world_handler(request: web.Request) -> web.Response:
-    name = request.match_info.get('name', 'Anonymous')
-    text = 'Hello, ' + name
-    return web.Response(text=text)
 
 
 async def init_app() -> web.Application:

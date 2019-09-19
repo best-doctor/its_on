@@ -22,14 +22,7 @@ class RecordNotFound(Exception):
 
 
 async def init_pg(app: web.Application) -> None:
-    conf = app['config']['postgres']
-    engine = await create_engine(
-        database=conf['name'],
-        user=conf['user'],
-        password=conf['password'],
-        host=conf['host'],
-        port=conf['port'],
-    )
+    engine = await create_engine(dsn=app['config']['database_dsn'])
     app['db'] = engine
 
 
