@@ -19,7 +19,7 @@ class ResponseSchema(Schema):
     result = fields.List(fields.String)
 
 
-def switch_list_key_builder(method: Callable, view: web.View) -> str:
+def switch_list_cache_key_builder(method: Callable, view: web.View) -> str:
     validated_data = view.request['validated_data']
     group_name = validated_data['group']
     version = validated_data.get('version')
@@ -33,7 +33,7 @@ class SwitchListView(web.View):
         data = await self.get_response_data()
         return web.json_response(data)
 
-    @cached(ttl=60, key_builder=switch_list_key_builder)
+    @cached(ttl=60, key_builder=switch_list_cache_key_builder)
     async def get_response_data(self) -> Dict:
         objects = await self.load_objects()
         data = [obj.name for obj in objects]
@@ -51,6 +51,7 @@ class SwitchListView(web.View):
 
     async def get_queryset(self) -> Select:
         qs = switches.select()
+        qs = qs.with_only_columns([switches.c.name])
         qs = await self.filter_queryset(qs)
         return qs
 
