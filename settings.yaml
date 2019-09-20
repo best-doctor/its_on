@@ -7,11 +7,13 @@ default:
   enable_db_logging: false
 
   cache_url: memory://
+  cache_ttl: 300
 
 development:
   environment: Dev
   debug: true
   enable_db_logging: true
+  cache_ttl: 0
 
 production:
   environment: Prod
@@ -24,3 +26,4 @@ testing:
   database:
     dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/test_its_on
     superuser_dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/its_on
+  cache_ttl: 0
