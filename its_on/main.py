@@ -5,10 +5,10 @@ from aiohttp import web
 from aiohttp_apispec import setup_aiohttp_apispec
 from dynaconf import settings
 
+from its_on.cache import setup_cache
 from its_on.db_utils import init_pg, close_pg
 from its_on.middlewares import setup_middlewares
 from its_on.routes import setup_routes
-from its_on.utils import setup_cache
 
 
 def init_app(loop: AbstractEventLoop = None) -> web.Application:
