@@ -6,7 +6,7 @@ from aiohttp_apispec import request_schema, response_schema
 from marshmallow import Schema, fields
 from sqlalchemy.sql import and_, true, Select
 
-from its_on.db import switches
+from its_on.models import switches
 
 
 class RequestSchema(Schema):

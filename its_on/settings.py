@@ -3,7 +3,7 @@ import pathlib
 from copy import copy
 from typing import Dict, Any
 
-from its_on.db import parse_dsn, make_dsn
+from its_on.db_utils import parse_dsn, make_dsn
 
 BASE_DIR = pathlib.Path(__file__).parent.parent
 

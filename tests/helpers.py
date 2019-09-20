@@ -3,7 +3,7 @@ from typing import Dict
 
 from sqlalchemy.engine.strategies import EngineStrategy
 
-from its_on.db import switches
+from its_on.models import switches
 
 
 def setup_db(config: Dict) -> None:

@@ -5,7 +5,7 @@ from aiohttp import web
 from aiohttp_apispec import setup_aiohttp_apispec
 
 from its_on.settings import get_config
-from its_on.db import init_pg, close_pg
+from its_on.db_utils import init_pg, close_pg
 from its_on.middlewares import setup_middlewares
 from its_on.routes import setup_routes
 from its_on.utils import setup_cache
