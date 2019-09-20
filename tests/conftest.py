@@ -1,8 +1,9 @@
 import pytest
 from typing import Callable, Generator
 
+from dynaconf import settings
+
 from its_on.main import init_app
-from its_on.settings import get_config
 from .helpers import (setup_db, teardown_db, create_tables, drop_tables, create_sample_data)
 
 
@@ -13,19 +14,16 @@ async def client(aiohttp_client: Callable) -> None:
 
 @pytest.fixture(scope='session')
 def database() -> Generator:
-    config = get_config()
-    setup_db(config=config)
+    setup_db(config=settings)
     yield
-    teardown_db(config=config)
+    teardown_db(config=settings)
 
 
 @pytest.fixture(scope='function')
 def tables_and_data(database: Callable) -> Generator:
-    config = get_config()
-
-    create_tables(config=config)
-    create_sample_data(config=config)
+    create_tables(config=settings)
+    create_sample_data(config=settings)
 
     yield
 
-    drop_tables(config=config)
+    drop_tables(config=settings)

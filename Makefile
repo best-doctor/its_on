@@ -1,5 +1,5 @@
 test:
-	TESTING=True pytest -q
+	PROJECT_ENV=TESTING pytest -q
 
 style:
 	flake8 .

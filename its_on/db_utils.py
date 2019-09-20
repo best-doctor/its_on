@@ -11,11 +11,10 @@ metadata = sa.MetaData()
 
 async def init_pg(app: web.Application) -> None:
     config = app['config']
-    dsn = config['test_database_dsn'] if config['testing'] else config['database_dsn']
 
     engine = await create_engine(
-        dsn=dsn,
-        echo=app['config']['enable_debug_db_logging'],
+        dsn=config.DATABASE.DSN,
+        echo=config.ENABLE_DB_LOGGING,
     )
     app['db'] = engine
 

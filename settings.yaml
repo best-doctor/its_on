@@ -1,0 +1,26 @@
+default:
+  debug: false
+  host: localhost
+  port: 8081
+  database:
+    dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/its_on
+  enable_db_logging: false
+
+  cache_url: memory://
+
+development:
+  environment: Dev
+  debug: true
+  enable_db_logging: true
+
+production:
+  environment: Prod
+
+staging:
+  environment: Staging
+
+testing:
+  environment: Test
+  database:
+    dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/test_its_on
+    superuser_dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/its_on
