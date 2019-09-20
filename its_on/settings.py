@@ -1,7 +1,7 @@
 import os
 import pathlib
 from copy import copy
-from typing import Dict
+from typing import Dict, Any
 
 from its_on.db import parse_dsn, make_dsn
 
@@ -29,8 +29,8 @@ def get_config() -> Dict:
         'enable_debug_db_logging': ENABLE_DEBUG_DB_LOGGING,
     }
     database = parse_dsn(DATABASE_DSN)
-    test_database_dsn: str
-    test_database: Dict
+    test_database_dsn = ''
+    test_database: Dict[str, Any] = {}
 
     if TESTING:
         test_database = copy(database)
