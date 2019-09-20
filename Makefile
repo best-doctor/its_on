@@ -8,7 +8,7 @@ typos:
 	rozental .
 
 types:
-	python scripts/run_mypy.py
+	mypy .
 
 check:
 	make -j4 test style types typos

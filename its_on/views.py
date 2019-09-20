@@ -31,8 +31,7 @@ class SwitchListView(web.View):
         async with self.request.app['db'].acquire() as conn:
             queryset = await self.get_queryset()
             result = await conn.execute(queryset)
-            objects = await result.fetchall()
-            return objects
+            return await result.fetchall()
 
     async def get_queryset(self) -> Select:
         qs = switches.select().with_only_columns([switches.c.name])
