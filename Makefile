@@ -1,3 +1,6 @@
+test:
+	PROJECT_ENV=TESTING pytest -q
+
 style:
 	flake8 .
 
@@ -8,4 +11,4 @@ types:
 	mypy .
 
 check:
-	make -j4 style types typos
+	make -j4 test style types typos
