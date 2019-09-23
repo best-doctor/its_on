@@ -3,10 +3,6 @@ from urllib.parse import urlparse
 
 from aiohttp import web
 from aiopg.sa import create_engine
-import sqlalchemy as sa
-
-
-metadata = sa.MetaData()
 
 
 async def init_pg(app: web.Application) -> None:

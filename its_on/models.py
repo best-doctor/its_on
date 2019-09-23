@@ -1,6 +1,7 @@
 import sqlalchemy as sa
 
-from its_on.db_utils import metadata
+
+metadata = sa.MetaData()
 
 
 switches = sa.Table(
@@ -12,3 +13,6 @@ switches = sa.Table(
     sa.Column('version', sa.Integer, nullable=True),
     sa.Column('comment', sa.Text),
 )
+
+sa.Index('idx_group_is_active', switches.c.group, switches.c.is_active)
+sa.Index('idx_group_version_is_active', switches.c.group, switches.c.version, switches.c.is_active)
