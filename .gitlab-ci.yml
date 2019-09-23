@@ -32,7 +32,7 @@ build:
     refs:
       - master
 
-run_android:
+deploy:
   stage: execute
   when: manual
   allow_failure: false
