@@ -22,10 +22,10 @@ def init_app(loop: AbstractEventLoop = None) -> web.Application:
     setup_routes(app)
     setup_aiohttp_apispec(
         app=app,
-        title="Flags Bestdoctor",
-        version="v1",
-        url="/api/docs/swagger.json",
-        swagger_path="/api/docs",
+        title='Flags Bestdoctor',
+        version='v1',
+        url='/api/docs/swagger.json',
+        swagger_path='/api/docs',
         request_data_name='validated_data')
     setup_middlewares(app)
     setup_cache(app)
