@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.gitignore
+.gitlab-ci.yml
+.coverage.*
+coverage.xml
+.*cache/
+.python-version
+.rozental.sqlite
+.coverage
+.git/
+Dockerfile

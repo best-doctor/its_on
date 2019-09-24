@@ -1,0 +1,45 @@
+stages:
+- test
+- build
+- execute
+
+variables:
+  IMAGE: registry.gitlab.com/bestdoctor/backend/its_on
+
+tests_only:
+  tags:
+    - autoqa-builder
+  stage: test
+  script:
+    - sudo docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - sudo docker build -t $IMAGE:$CI_COMMIT_SHORT_SHA .
+    - sudo docker run --rm -i $IMAGE:$CI_COMMIT_SHORT_SHA check
+  except:
+    refs:
+      - master
+
+build:
+  tags:
+    - autoqa-builder
+  stage: build
+  script:
+    - sudo docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - sudo docker build -t $IMAGE:$CI_COMMIT_SHORT_SHA -t $IMAGE:latest .
+    # - sudo docker run --rm -i $IMAGE:$CI_COMMIT_SHORT_SHA check
+    - sudo docker push $IMAGE:$CI_COMMIT_SHORT_SHA
+    - sudo docker push $IMAGE:latest
+  only:
+    refs:
+      - master
+
+deploy:
+  stage: execute
+  when: manual
+  allow_failure: false
+  tags:
+    - deploy-autoqa
+  script:
+    - ~/scm/deploy/run-deploy-its-on.sh -e "target=deploy commit_sha=$CI_COMMIT_SHORT_SHA registry_token=$CI_JOB_TOKEN"
+  only:
+    refs:
+      - master

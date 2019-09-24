@@ -1,9 +1,10 @@
 import logging
-from asyncio import AbstractEventLoop
+import asyncio
 
 from aiohttp import web
 from aiohttp_apispec import setup_aiohttp_apispec
 from dynaconf import settings
+import uvloop
 
 from its_on.cache import setup_cache
 from its_on.db_utils import init_pg, close_pg
@@ -11,7 +12,7 @@ from its_on.middlewares import setup_middlewares
 from its_on.routes import setup_routes
 
 
-def init_app(loop: AbstractEventLoop = None) -> web.Application:
+async def init_app(loop: asyncio.AbstractEventLoop = None) -> web.Application:
     app = web.Application(loop=loop)
 
     app['config'] = settings
@@ -35,7 +36,8 @@ def init_app(loop: AbstractEventLoop = None) -> web.Application:
 
 def main() -> None:
     logging.basicConfig(level=logging.DEBUG)
-    app = init_app()
+    app = asyncio.run(init_app())
+    uvloop.install()
     web.run_app(app, host=settings.HOST, port=settings.PORT)
 
 
