@@ -9,7 +9,8 @@ from .helpers import (setup_db, teardown_db, create_tables, drop_tables, create_
 
 @pytest.fixture
 async def client(aiohttp_client: Callable) -> None:
-    return await aiohttp_client(init_app)
+    app = await init_app()
+    return await aiohttp_client(app)
 
 
 @pytest.fixture(scope='session')
