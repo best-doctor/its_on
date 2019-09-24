@@ -34,7 +34,7 @@ class SwitchListView(web.View):
             return await result.fetchall()
 
     async def get_queryset(self) -> Select:
-        qs = switches.select().with_only_columns([switches.c.name])
+        qs = switches.select().with_only_columns([switches.c.name]).order_by(switches.c.name)
         return await self.filter_queryset(qs)
 
     async def filter_queryset(self, queryset: Select) -> Select:

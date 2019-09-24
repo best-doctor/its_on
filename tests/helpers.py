@@ -36,7 +36,7 @@ def teardown_db(config: Settings) -> None:
             SELECT pg_terminate_backend(pg_stat_activity.pid)
             FROM pg_stat_activity
             WHERE pg_stat_activity.datname = '{0}' AND pid <> pg_backend_pid();
-            """.format(test_db_name)
+            """.format(test_db_name),
         )
         # Удаляем базу
         conn.execute('DROP DATABASE IF EXISTS {0}'.format(test_db_name))
