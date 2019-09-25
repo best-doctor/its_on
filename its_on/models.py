@@ -14,5 +14,6 @@ switches = sa.Table(
     sa.Column('comment', sa.Text),
 )
 
-sa.Index('idx_group_is_active', switches.c.group, switches.c.is_active)
-sa.Index('idx_group_version_is_active', switches.c.group, switches.c.version, switches.c.is_active)
+sa.Index('idx_name_group_is_active', switches.c.name, switches.c.group, switches.c.is_active)
+sa.Index('idx_name_group_version_is_active',
+         switches.c.name, switches.c.group, switches.c.version, switches.c.is_active)

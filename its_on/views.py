@@ -2,7 +2,7 @@ from typing import List, Dict
 
 from aiocache import cached
 from aiohttp import web
-from aiohttp_apispec import request_schema, response_schema
+from aiohttp_apispec import request_schema, response_schema, docs
 from dynaconf import settings
 from sqlalchemy.sql import and_, true, Select
 
@@ -12,7 +12,11 @@ from its_on.schemes import SwitchListRequestSchema, SwitchListResponseSchema
 
 
 class SwitchListView(web.View):
-    @request_schema(SwitchListRequestSchema(strict=True))
+    @docs(
+        summary='Список активных флагов группы.',
+        description='Возвращает список активных флагов для переданной группы.',
+    )
+    @request_schema(SwitchListRequestSchema(strict=True), locations=['query'])
     @response_schema(SwitchListResponseSchema(), 200)
     async def get(self) -> web.Response:
         data = await self.get_response_data()
@@ -34,7 +38,7 @@ class SwitchListView(web.View):
             return await result.fetchall()
 
     async def get_queryset(self) -> Select:
-        qs = switches.select().with_only_columns([switches.c.name])
+        qs = switches.select().with_only_columns([switches.c.name]).order_by(switches.c.name)
         return await self.filter_queryset(qs)
 
     async def filter_queryset(self, queryset: Select) -> Select:
