@@ -2,6 +2,7 @@ from dynaconf.base import Settings
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.engine.strategies import EngineStrategy
 
+from auth.models import users
 from its_on.db_utils import parse_dsn
 from its_on.models import switches
 
@@ -46,14 +47,14 @@ def create_tables(config: Settings) -> None:
     engine = get_engine(config.DATABASE.DSN)
 
     meta = MetaData()
-    meta.create_all(bind=engine, tables=[switches])
+    meta.create_all(bind=engine, tables=[switches, users])
 
 
 def drop_tables(config: Settings) -> None:
     engine = get_engine(config.DATABASE.DSN)
 
     meta = MetaData()
-    meta.drop_all(bind=engine, tables=[switches])
+    meta.drop_all(bind=engine, tables=[switches, users])
 
 
 def create_sample_data(config: Settings) -> None:
@@ -68,5 +69,16 @@ def create_sample_data(config: Settings) -> None:
                 {'name': 'switch3', 'is_active': False, 'group': 'group1', 'version': 4},
                 {'name': 'switch4', 'is_active': True, 'group': 'group1', 'version': 4},
                 {'name': 'switch5', 'is_active': True, 'group': 'group2', 'version': 4},
+            ],
+        )
+        conn.execute(
+            users.insert(),
+            [
+                {
+                    'login': 'admin',
+                    'passwd': '$5$rounds=535000$WLLTOp3BDURUJCpA$W0CZSO1mR8/OfIPKj/piXv9cBIXBhlnDpQcORnnQR5/',
+                    'is_superuser': True,
+                    'disabled': False,
+                },
             ],
         )

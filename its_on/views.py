@@ -16,7 +16,7 @@ class SwitchListView(web.View):
         summary='Список активных флагов группы.',
         description='Возвращает список активных флагов для переданной группы.',
     )
-    @request_schema(SwitchListRequestSchema(strict=True), locations=['query'])
+    @request_schema(SwitchListRequestSchema(), locations=['query'])
     @response_schema(SwitchListResponseSchema(), 200)
     async def get(self) -> web.Response:
         data = await self.get_response_data()
