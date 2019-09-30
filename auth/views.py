@@ -16,7 +16,7 @@ class LoginView(web.View):
         return {'context': ''}
 
     async def post(self) -> web.Response:
-        response = web.HTTPFound('/admin/switches')
+        response = web.HTTPFound('/zbs/switches')
         form_data = await self.request.post()
         validated_data = self.validate_form_data(form_data)
 
@@ -38,7 +38,7 @@ class LoginView(web.View):
 
 class LogoutView(web.View):
     async def get(self) -> web.Response:
-        response = web.HTTPFound('/zbs')
+        response = web.HTTPFound('/zbs/login')
 
         await forget(self.request, response)
         return response

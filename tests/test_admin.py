@@ -4,13 +4,13 @@ from its_on.models import switches
 
 
 async def test_switches_list_without_auhtorize(tables_and_data, client):
-    response = await client.get('/admin/switches')
+    response = await client.get('/zbs/switches')
 
     assert response.status == 401
 
 
 async def test_update_switch_without_login(tables_and_data, client):
-    response = await client.post('/admin/switches/1', data={'version': 'some_shit'})
+    response = await client.post('/zbs/switches/1', data={'version': 'some_shit'})
 
     assert response.status == 401
 
@@ -21,7 +21,7 @@ async def test_update_switch_without_login(tables_and_data, client):
     ('switch1488', False),
 ])
 async def test_switches_list(tables_and_data, client, login, switch_title, expected_result):
-    response = await client.get('/admin/switches')
+    response = await client.get('/zbs/switches')
 
     content = await response.content.read()
 
@@ -29,7 +29,7 @@ async def test_switches_list(tables_and_data, client, login, switch_title, expec
 
 
 async def test_switch_detail(tables_and_data, client, login, switch):
-    response = await client.get('/admin/switches/1')
+    response = await client.get('/zbs/switches/1')
 
     content = await response.content.read()
 
@@ -37,7 +37,7 @@ async def test_switch_detail(tables_and_data, client, login, switch):
 
 
 async def test_switch_update(tables_and_data, client, login, switch):
-    await client.post('/admin/switches/1', data={'is_active': False})
+    await client.post('/zbs/switches/1', data={'is_active': False})
 
     async with client.server.app['db'].acquire() as conn:
         result = await conn.execute(switches.select().where(switches.c.id == 1))

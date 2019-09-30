@@ -15,7 +15,7 @@
 <div class="col-sm-9">
   <h2>Flag editing</h2>
   <br><br>
-  
+
   {% if updated %}
     <div class="well well-sm success">Updated</div>
   {% endif %}
@@ -23,10 +23,10 @@
   {% if errors %}
     <div class="well well-sm error">{{ errors }}</div>
   {% endif %}
-  
+
   <label>Name: </label> {{ object.name }}
-  
-  <form action="/admin/switches/{{ object.id }}" method="post">
+
+  <form action="/zbs/switches/{{ object.id }}" method="post">
     <br>
     <div class="form-group">
       <!-- Грязный хак. Нужно для переключения активности флага https://stackoverflow.com/questions/1809494/post-unchecked-html-checkboxes -->

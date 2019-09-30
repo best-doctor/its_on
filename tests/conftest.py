@@ -23,7 +23,7 @@ async def switch(client):
 
 @pytest.fixture
 async def login(client):
-    await client.post('/zbs', data={'login': 'admin', 'password': 'password'})
+    await client.post('/zbs/login', data={'login': 'admin', 'password': 'password'})
 
 
 @pytest.fixture(scope='session')
