@@ -22,3 +22,12 @@ HOW TO
         - пароль - bestdoctor
     2. Переопределение настроек БД - `export DYNACONF_DATABASE__dsn=postgresql://bestdoctor:bestdoctor@127.0.0.1:5432/its_on_test`
 4. Накатить миграции `alembic upgrade head`
+
+
+Админка
+------
+
+* Админка доступна на `/zbs`
+* Авторизация через внутренний впн с логином `zbsadmin` и паролем `zbsadmin123`
+* Основная страница `/admin/switches` -- список флагов и их состояние активности
+* Редактирование на `/admin/switches/{switch_id}`
