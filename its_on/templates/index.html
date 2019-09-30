@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+  .green {
+    color: green;
+  }
+  .red {
+    color: red;
+  }
+</style>
+
+<div class="col-sm-9">
+  <br><br>
+  {% for flag in flags %}
+    <div class="col-sm-3">
+      <a href="/admin/switches/{{ flag.id }}">{{ flag.name }}</a>
+    </div>
+    <div class="col-sm-9">
+      {% if flag.is_active %}
+        <span class="glyphicon glyphicon-ok green"></span>
+        Enabled
+      {% else %}
+        <span class="glyphicon glyphicon-remove red"></span>
+        Disabled
+      {% endif %}
+    </div>
+    <br><br>
+  {% endfor %}
+</div>
+
+{% endblock %}

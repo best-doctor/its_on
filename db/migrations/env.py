@@ -22,8 +22,13 @@ fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
+from auth import models as auth_models
 from its_on import models
-target_metadata = models.metadata
+
+target_metadata = [
+    models.metadata,
+    auth_models,
+]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
