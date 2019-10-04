@@ -8,7 +8,7 @@ variables:
 
 tests_only:
   tags:
-    - autoqa-builder
+    - itson-tests
   stage: test
   script:
     - sudo docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
@@ -20,7 +20,7 @@ tests_only:
 
 build:
   tags:
-    - autoqa-builder
+    - itson-build
   stage: build
   script:
     - sudo docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
@@ -37,7 +37,7 @@ deploy:
   when: manual
   allow_failure: false
   tags:
-    - deploy-autoqa
+    - itson-deploy
   script:
     - ~/scm/deploy/run-deploy-its-on.sh -e "target=deploy commit_sha=$CI_COMMIT_SHORT_SHA registry_token=$CI_JOB_TOKEN"
   only:
