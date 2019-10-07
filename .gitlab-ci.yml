@@ -5,6 +5,7 @@ stages:
 
 variables:
   IMAGE: registry.gitlab.com/bestdoctor/backend/its_on
+  DB_CONTAINER_NAME: pg-for-its_on-$CI_COMMIT_SHORT_SHA
 
 tests_only:
   tags:
@@ -13,7 +14,8 @@ tests_only:
   script:
     - sudo docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     - sudo docker build -t $IMAGE:$CI_COMMIT_SHORT_SHA .
-    - sudo docker run --rm -i $IMAGE:$CI_COMMIT_SHORT_SHA check
+    - sudo docker run --rm --name DB_CONTAINER_NAME postgres:9.6
+    - sudo docker run --rm -i $IMAGE:$CI_COMMIT_SHORT_SHA -e ENV_FOR_DYNACONF=Test -e DYNACONF_DATABASE__dsn=postgresql://postgres@$DB_CONTAINER_NAME:5432/test_its_on -e DYNACONF_DATABASE__super_user=postgresql://postgres@$DB_CONTAINER_NAME:5432/postgres --network tests_network check || docker stop $DB_CONTAINER_NAME
   except:
     refs:
       - master
@@ -25,7 +27,8 @@ build:
   script:
     - sudo docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     - sudo docker build -t $IMAGE:$CI_COMMIT_SHORT_SHA -t $IMAGE:latest .
-    # - sudo docker run --rm -i $IMAGE:$CI_COMMIT_SHORT_SHA check
+    - sudo docker run --rm --name DB_CONTAINER_NAME postgres:9.6
+    - sudo docker run --rm -i $IMAGE:$CI_COMMIT_SHORT_SHA -e ENV_FOR_DYNACONF=Test -e DYNACONF_DATABASE__dsn=postgresql://postgres@$DB_CONTAINER_NAME:5432/test_its_on -e DYNACONF_DATABASE__super_user=postgresql://postgres@$DB_CONTAINER_NAME:5432/postgres --network tests_network check || docker stop $DB_CONTAINER_NAME
     - sudo docker push $IMAGE:$CI_COMMIT_SHORT_SHA
     - sudo docker push $IMAGE:latest
   only:
