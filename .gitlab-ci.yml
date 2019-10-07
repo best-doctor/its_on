@@ -7,7 +7,7 @@ variables:
   IMAGE: registry.gitlab.com/bestdoctor/backend/its_on
   DB_CONTAINER_NAME: pg-for-its_on-$CI_COMMIT_SHORT_SHA
 
-tests_only:
+test:
   tags:
     - itson-tests
   stage: test
@@ -15,7 +15,7 @@ tests_only:
     - sudo docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     - sudo docker build -t $IMAGE:$CI_COMMIT_SHORT_SHA .
     - sudo docker run --rm -d --name $DB_CONTAINER_NAME --network tests_network postgres:9.6
-    - sudo docker run --rm -e ENV_FOR_DYNACONF=testing -e DYNACONF_DATABASE__dsn=postgresql://postgres@$DB_CONTAINER_NAME:5432/test_its_on -e DYNACONF_DATABASE__super_user=postgresql://postgres@$DB_CONTAINER_NAME:5432/postgres --network tests_network $IMAGE:$CI_COMMIT_SHORT_SHA check
+    - sudo docker run --rm -e ENV_FOR_DYNACONF=testing -e DYNACONF_DATABASE__dsn=postgresql://postgres@$DB_CONTAINER_NAME:5432/test_its_on -e DYNACONF_DATABASE__super_user=postgresql://postgres@$DB_CONTAINER_NAME:5432/postgres --network tests_network $IMAGE:$CI_COMMIT_SHORT_SHA test
   after_script:
     - sudo docker stop $DB_CONTAINER_NAME
 
