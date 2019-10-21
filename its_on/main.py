@@ -47,6 +47,7 @@ async def init_app(loop: asyncio.AbstractEventLoop = None) -> web.Application:
         version='v1',
         url='/api/docs/swagger.json',
         swagger_path='/api/docs',
+        static_path='/assets/swagger',
         request_data_name='validated_data')
     setup_middlewares(app)
     setup_cache(app)
