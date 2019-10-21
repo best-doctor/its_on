@@ -4,7 +4,7 @@ from aiocache import cached
 from aiohttp import web
 from aiohttp_apispec import request_schema, response_schema, docs
 from dynaconf import settings
-from sqlalchemy.sql import and_, true, Select
+from sqlalchemy.sql import and_, true, false, Select
 
 from its_on.cache import switch_list_cache_key_builder
 from its_on.models import switches
@@ -49,6 +49,7 @@ class SwitchListView(web.View):
         filters = [
             switches.c.group == group_name,
             switches.c.is_active == true(),
+            switches.c.is_hidden == false(),
         ]
         if version is not None:
             filters.append(switches.c.version <= version)

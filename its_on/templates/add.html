@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="col-sm-9">
+  <h2>Flag adding</h2>
+  <br><br>
+
+  {% if errors %}
+    <div class="well well-sm error">{{ errors }}</div>
+  {% endif %}
+
+
+  <form action="/zbs/switches/add" method="post">
+    <br>
+    <div class="form-group">
+      <label>Name:</label>
+      <input type="text" class="form-control" name="name" value="{{ name }}">
+    </div>
+    <br>
+    <div class="form-group">
+      <!-- Грязный хак. Нужно для переключения активности флага https://stackoverflow.com/questions/1809494/post-unchecked-html-checkboxes -->
+      <label>Is Active: </label>
+      {% if is_active is not defined or (is_active is defined and is_active == '1') %}
+        <input type="checkbox" name="is_active" value="1" checked="checked">
+      {% else %}
+        <input type="checkbox" name="is_active" value="1">
+      {% endif %}
+      <input name="is_active" value="0" type="hidden">
+    </div>
+    <br>
+    <div class="form-group">
+      <label>Group:</label>
+      <input type="text" class="form-control" name="group" value="{{ group }}">
+    </div>
+    <br>
+    <div class="form-group">
+      <label>Version:</label>
+      <input type="text" class="form-control" name="version" value="{{ version }}">
+    </div>
+    <br>
+    <div class="form-group">
+      <label>Comment:</label>
+      <textarea class="form-control" rows="5" name="comment">{{ comment }}</textarea>
+    </div>
+    <input type="submit" class="btn btn-default" value="Save">
+  </form>
+</div>
+{% endblock %}

@@ -64,11 +64,13 @@ def create_sample_data(config: Settings) -> None:
         conn.execute(
             switches.insert(),
             [
-                {'name': 'switch1', 'is_active': True, 'group': 'group1', 'version': None},
-                {'name': 'switch2', 'is_active': True, 'group': 'group1', 'version': None},
-                {'name': 'switch3', 'is_active': False, 'group': 'group1', 'version': 4},
-                {'name': 'switch4', 'is_active': True, 'group': 'group1', 'version': 4},
-                {'name': 'switch5', 'is_active': True, 'group': 'group2', 'version': 4},
+                {'name': 'switch1', 'is_active': True, 'is_hidden': False, 'group': 'group1', 'version': None},
+                {'name': 'switch2', 'is_active': True, 'is_hidden': False, 'group': 'group1', 'version': None},
+                {'name': 'switch3', 'is_active': False, 'is_hidden': False, 'group': 'group1', 'version': 4},
+                {'name': 'switch4', 'is_active': True, 'is_hidden': False, 'group': 'group1', 'version': 4},
+                {'name': 'switch5', 'is_active': True, 'is_hidden': False, 'group': 'group2', 'version': 4},
+                {'name': 'switch6', 'is_active': True, 'is_hidden': True, 'group': 'group2', 'version': 4},
+                {'name': 'switch7', 'is_active': True, 'is_hidden': False, 'group': 'soft_delete', 'version': None},
             ],
         )
         conn.execute(

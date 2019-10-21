@@ -2,16 +2,6 @@
 
 {% block content %}
 
-<style>
-  .success {
-    color: green;
-  }
-
-  .error {
-    color: red;
-  }
-</style>
-
 <div class="col-sm-9">
   <h2>Flag editing</h2>
   <br><br>
@@ -24,32 +14,36 @@
     <div class="well well-sm error">{{ errors }}</div>
   {% endif %}
 
-  <label>Name: </label> {{ object.name }}
 
-  <form action="/zbs/switches/{{ object.id }}" method="post">
-    <br>
-    <div class="form-group">
-      <!-- Грязный хак. Нужно для переключения активности флага https://stackoverflow.com/questions/1809494/post-unchecked-html-checkboxes -->
-      <label>Is Active: </label>
-      <input type="checkbox" name="is_active" value="1" {% if object.is_active %} checked="checked" {% endif %}>
-      <input name="is_active" value="0" type="hidden">
-    </div>
-    <br>
-    <div class="form-group">
-      <label>Group:</label>
-      <input type="text" class="form-control" value="{{ object.group }}" name="group">
-    </div>
-    <br>
-    <div class="form-group">
-      <label>Version:</label>
-      <input type="text" class="form-control" value="{{ object.version }}" name="version">
-    </div>
-    <br>
-    <div class="form-group">
-      <label>Comment:</label>
-      <textarea class="form-control" rows="5" name="comment">{{ object.comment }}</textarea>
-    </div>
-    <input type="submit" class="btn btn-default" value="Save">
-  </form>
+  {% if object %}
+    <label>Name: </label> {{ object.name }}
+
+    <form action="/zbs/switches/{{ object.id }}" method="post">
+      <br>
+      <div class="form-group">
+        <!-- Грязный хак. Нужно для переключения активности флага https://stackoverflow.com/questions/1809494/post-unchecked-html-checkboxes -->
+        <label>Is Active: </label>
+        <input type="checkbox" name="is_active" value="1" {% if object.is_active %} checked="checked" {% endif %}>
+        <input name="is_active" value="0" type="hidden">
+      </div>
+      <br>
+      <div class="form-group">
+        <label>Group:</label>
+        <input type="text" class="form-control" value="{{ object.group }}" name="group">
+      </div>
+      <br>
+      <div class="form-group">
+        <label>Version:</label>
+        <input type="text" class="form-control" value="{{ object.version }}" name="version">
+      </div>
+      <br>
+      <div class="form-group">
+        <label>Comment:</label>
+        <textarea class="form-control" rows="5" name="comment">{{ object.comment }}</textarea>
+      </div>
+      <input type="submit" class="btn btn-default" value="Save">
+      <a class="btn btn-danger float-right" href="/zbs/switches/{{ object.id }}/delete" onclick="return confirm('Are you sure?')">Delete</a>
+    </form>
+  {% endif %}
 </div>
 {% endblock %}

@@ -12,7 +12,7 @@ development:
   environment: Dev
   debug: true
   enable_db_logging: true
-  cache_ttl: 0
+  cache_ttl: 1
 
 production:
   environment: Prod
