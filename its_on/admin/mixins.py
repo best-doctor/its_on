@@ -7,11 +7,10 @@ from marshmallow import Schema
 from multidict import MultiDictProxy
 
 
-class UpdateMixin:
+class GetObjectMixin:
     model: Table
-    validator: Schema
 
-    async def get_object_pk(self, request: Request) -> int:
+    async def get_object_pk(self, request: Request) -> str:
         return request.match_info.get('id')
 
     async def get_object(self, request: Request) -> ResultProxy:
@@ -21,6 +20,11 @@ class UpdateMixin:
 
             result = await conn.execute(query)
             return await result.fetchone()
+
+
+class UpdateMixin(GetObjectMixin):
+    model: Table
+    validator: Schema
 
     async def update_object(self, request: Request, to_update: MultiDictProxy) -> None:
         validated_data = self._validate_form_data(to_update)
@@ -33,6 +37,25 @@ class UpdateMixin:
             update_query = self.model.update().where(self.model.c.id == object_pk).values(to_update)
 
             await conn.execute(update_query)
+
+    def _validate_form_data(self, to_validate: MultiDictProxy) -> Dict[str, Union[int, str, bool]]:
+        return self.validator.load(to_validate)
+
+
+class CreateMixin:
+    model: Table
+    validator: Schema
+
+    async def create_object(self, request: Request, to_create: MultiDictProxy) -> None:
+        validated_data = self._validate_form_data(to_create)
+
+        await self._create(request, validated_data)
+
+    async def _create(self, request: Request, to_create: Dict[str, Union[str, bool, int]]) -> None:
+        async with request.app['db'].acquire() as conn:
+            create_query = self.model.insert().values(to_create)
+
+            await conn.execute(create_query)
 
     def _validate_form_data(self, to_validate: MultiDictProxy) -> Dict[str, Union[int, str, bool]]:
         return self.validator.load(to_validate)

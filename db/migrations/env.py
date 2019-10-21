@@ -27,7 +27,7 @@ from its_on import models
 
 target_metadata = [
     models.metadata,
-    auth_models,
+    auth_models.metadata,
 ]
 
 # other values from the config, defined by the needs of env.py,

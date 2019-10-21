@@ -6,10 +6,11 @@ from aiohttp import web
 from auth.decorators import login_required
 from its_on.models import switches
 from marshmallow.exceptions import ValidationError
-from sqlalchemy.sql import Select
+import psycopg2
+from sqlalchemy.sql import false, Select
 
-from .mixins import UpdateMixin
-from .schemes import SwitchDetailAdminPostRequestSchema
+from .mixins import GetObjectMixin, CreateMixin, UpdateMixin
+from .schemes import SwitchDetailAdminPostRequestSchema, SwitchAddAdminPostRequestSchema
 
 
 class SwitchListAdminView(web.View):
@@ -27,12 +28,12 @@ class SwitchListAdminView(web.View):
 
     async def load_objects(self) -> List:
         async with self.request.app['db'].acquire() as conn:
-            queryset = await self.get_queryset()
+            queryset = self.get_queryset()
             result = await conn.execute(queryset)
             return await result.fetchall()
 
-    async def get_queryset(self) -> Select:
-        return switches.select()
+    def get_queryset(self) -> Select:
+        return switches.select(whereclause=(switches.c.is_hidden == false()))
 
 
 class SwitchDetailAdminView(web.View, UpdateMixin):
@@ -51,6 +52,8 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
     @login_required
     async def get(self) -> Dict[str, RowProxy]:
         switch_object = await self.get_object(self.request)
+        if switch_object.is_hidden:
+            return {'object': None, 'errors': 'Oops! this switch was "deleted".'}
         return {'object': switch_object}
 
     @aiohttp_jinja2.template('detail.html')
@@ -64,3 +67,63 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
             return await self.get_context_data(errors=error)
 
         return await self.get_context_data(updated=True)
+
+
+class SwitchAddAdminView(web.View, CreateMixin):
+    validator = SwitchAddAdminPostRequestSchema()
+    model = switches
+
+    async def get_context_data(self, errors: ValidationError = None, user_input: Dict = None) -> Dict[str, Any]:
+        context_data = {
+            'errors': errors,
+        }
+        if user_input:
+            context_data.update(user_input)
+        return context_data
+
+    @aiohttp_jinja2.template('add.html')
+    @login_required
+    async def get(self) -> Dict[str, RowProxy]:
+        return await self.get_context_data()
+
+    @aiohttp_jinja2.template('add.html')
+    @login_required
+    async def post(self) -> Dict[str, Dict]:
+        form_data = await self.request.post()
+
+        try:
+            await self.create_object(self.request, form_data)
+        except (ValidationError, psycopg2.IntegrityError) as error:
+            return await self.get_context_data(errors=error, user_input=dict(form_data))
+
+        location = self.request.app.router['switches_list'].url_for()
+        raise web.HTTPFound(location=location)
+
+
+class SwitchDeleteAdminView(web.View, GetObjectMixin):
+    model = switches
+
+    @login_required
+    async def get(self) -> None:
+        async with self.request.app['db'].acquire() as conn:
+            object_pk = await self.get_object_pk(self.request)
+            update_query = self.model.update().where(self.model.c.id == object_pk).values({'is_hidden': True})
+
+            await conn.execute(update_query)
+        location = self.request.app.router['switches_list'].url_for()
+        raise web.HTTPFound(location=location)
+
+
+class SwitchResurrectAdminView(web.View, GetObjectMixin):
+    model = switches
+
+    @login_required
+    async def get(self) -> None:
+        async with self.request.app['db'].acquire() as conn:
+            object_pk = await self.get_object_pk(self.request)
+            update_query = self.model.update().where(self.model.c.id == object_pk).values({'is_hidden': False})
+
+            await conn.execute(update_query)
+
+        location = self.request.app.router['switch_detail'].url_for(id=object_pk)
+        raise web.HTTPFound(location=location)

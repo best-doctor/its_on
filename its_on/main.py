@@ -31,6 +31,7 @@ async def init_app(loop: asyncio.AbstractEventLoop = None) -> web.Application:
             str(BASE_DIR / 'its_on' / 'templates'),
         ),
     )
+    app['static_root_url'] = '/static'
 
     app.on_startup.append(init_pg)
     app.on_cleanup.append(close_pg)
@@ -39,7 +40,7 @@ async def init_app(loop: asyncio.AbstractEventLoop = None) -> web.Application:
                    CookiesIdentityPolicy(),
                    DBAuthorizationPolicy(app))
 
-    setup_routes(app)
+    setup_routes(app, BASE_DIR)
     setup_aiohttp_apispec(
         app=app,
         title='Flags Bestdoctor',
