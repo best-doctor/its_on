@@ -13,6 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /var/www/its_on
 RUN chown -R $USER_NAME /var/www/its_on /var/log/gunicorn
 USER $USER_NAME
-VOLUME ["/var/log/gunicorn", "/var/www/its_on/its_on/static"]
+VOLUME ["/var/log/gunicorn", "/srv/www/its_on"]
 EXPOSE 8081
 ENTRYPOINT ["./entrypoint.sh"]
