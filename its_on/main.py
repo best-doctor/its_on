@@ -21,6 +21,7 @@ BASE_DIR = pathlib.Path(__file__).parent.parent
 
 
 async def init_app(loop: asyncio.AbstractEventLoop = None) -> web.Application:
+    logging.basicConfig(level=logging.DEBUG)
     app = web.Application(loop=loop)
 
     app['config'] = settings
