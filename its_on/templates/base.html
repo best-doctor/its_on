@@ -8,6 +8,8 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
   <link rel="stylesheet" href="{{ static('css/style.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/js/select2.min.js"></script>
 </head>
 <body>
   <div class="container-fluid">
@@ -17,13 +19,14 @@
         <ul class="nav nav-pills nav-stacked">
           <li class="active"><a href="/zbs/switches">Switches</a></li>
           <br><br>
+          <li class="active"><a href="/zbs/users">Users</a></li>
+          <br><br>
           <form action="/zbs/logout">
             <button type="submit" class="btn btn-danger">Log out</button>
           </form>
         </ul><br>
       </div>
       {% block content %}{% endblock %}
-
     </div>
   </div>
 </body>
