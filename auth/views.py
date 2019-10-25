@@ -11,12 +11,17 @@ from .schemes import LoginPostRequestSchema
 
 
 class LoginView(web.View):
-    @aiohttp_jinja2.template('login.html')
+    @aiohttp_jinja2.template('users/login.html')
     async def get(self) -> Dict[str, str]:
         return {'context': ''}
 
+    async def authorise(self, response_location: web.Response, login: str, password: str) -> web.Response:
+        if await check_credentials(self.request.app['db'], login, password):
+            await remember(self.request, response_location, login)
+            return response_location
+
     async def post(self) -> web.Response:
-        response = web.HTTPFound('/zbs/switches')
+        response_location = web.HTTPFound('/zbs/switches')
         form_data = await self.request.post()
         validated_data = self.validate_form_data(form_data)
 
@@ -25,9 +30,7 @@ class LoginView(web.View):
 
         login, password = validated_data.get('login', ''), validated_data.get('password', '')
 
-        if await check_credentials(self.request.app['db'], login, password):
-            await remember(self.request, response, login)
-            return response
+        return await self.authorise(response_location, login, password)
 
     def validate_form_data(self, form_data: MultiDictProxy) -> Optional[Dict[str, str]]:
         try:

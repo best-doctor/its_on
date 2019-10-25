@@ -13,7 +13,6 @@ users = sa.Table(
     sa.Column('disabled', sa.Boolean, nullable=False,
               server_default='FALSE'),
 
-    # indices
     sa.PrimaryKeyConstraint('id', name='user_pkey'),
     sa.UniqueConstraint('login', name='user_login_key'),
 )
