@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="col-sm-6">
+  <h2>Users list</h2>
+</div>
+
+<div class="col-sm-9">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Login</th>
+        <th>Is superuser</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+        <tr>
+          <td><a href="/zbs/users/{{ user.id }}">{{ user.login }}</a></td>
+          {% if user.is_superuser %}
+            <td><span class="glyphicon glyphicon-ok green"></span></td>
+          {% else %}
+            <td><span class="glyphicon glyphicon-remove red"></span></td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
