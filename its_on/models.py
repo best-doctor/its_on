@@ -1,5 +1,7 @@
 import sqlalchemy as sa
 
+from auth import models
+
 
 metadata = sa.MetaData()
 
@@ -18,3 +20,11 @@ switches = sa.Table(
 sa.Index('idx_name_group_is_active', switches.c.name, switches.c.group, switches.c.is_active)
 sa.Index('idx_name_group_version_is_active',
          switches.c.name, switches.c.group, switches.c.version, switches.c.is_active)
+
+
+user_switches = sa.Table(
+    'user_switches', metadata,
+    sa.Column('user_id', sa.Integer, sa.ForeignKey(models.users.c.id)),
+    sa.Column('switch_id', sa.Integer, sa.ForeignKey(switches.c.id)),
+    sa.UniqueConstraint('switch_id', 'user_id', name='user_switch_unique'),
+)
