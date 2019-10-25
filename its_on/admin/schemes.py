@@ -14,3 +14,8 @@ class SwitchDetailAdminPostRequestSchema(BaseSwitchAdminPostRequestSchema):
 
 class SwitchAddAdminPostRequestSchema(BaseSwitchAdminPostRequestSchema):
     name = fields.Str()
+
+
+class UserDetailPostRequestSchema(Schema):
+    is_superuser = fields.Boolean()
+    switch_ids = fields.Integer()

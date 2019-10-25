@@ -4,7 +4,7 @@ from sqlalchemy.engine import ResultProxy
 from sqlalchemy import Table
 from aiohttp.web import Request
 from marshmallow import Schema
-from multidict import MultiDictProxy
+from multidict import MultiDictProxy, MultiDict
 
 
 class GetObjectMixin:
@@ -26,7 +26,7 @@ class UpdateMixin(GetObjectMixin):
     model: Table
     validator: Schema
 
-    async def update_object(self, request: Request, to_update: MultiDictProxy) -> None:
+    async def update_object(self, request: Request, to_update: Union[MultiDictProxy, MultiDict]) -> None:
         validated_data = self._validate_form_data(to_update)
 
         await self._update(request, validated_data)
@@ -38,7 +38,7 @@ class UpdateMixin(GetObjectMixin):
 
             await conn.execute(update_query)
 
-    def _validate_form_data(self, to_validate: MultiDictProxy) -> Dict[str, Union[int, str, bool]]:
+    def _validate_form_data(self, to_validate: Union[MultiDictProxy, MultiDict]) -> Dict[str, Union[int, str, bool]]:
         return self.validator.load(to_validate)
 
 
