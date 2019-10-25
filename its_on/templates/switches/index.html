@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="col-sm-6">
+  <h2>Switches list</h2>
+</div>
+<div class="col-sm-3 mt-10px">
+  <a class="btn btn-primary float-right" href="{{ url('switches_add') }}">Add</a>
+</div>
+
+<div class="col-sm-9">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Switch name</th>
+        <th>Is active</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for flag in flags %}
+        <tr>
+          <td><a href="/zbs/switches/{{ flag.id }}">{{ flag.name }}</a></td>
+          {% if flag.is_active %}
+            <td><span class="glyphicon glyphicon-ok green"></span></td>
+          {% else %}
+            <td><span class="glyphicon glyphicon-remove red"></span></td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
