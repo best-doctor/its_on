@@ -1,13 +1,17 @@
+from typing import Optional
 import logging
 import asyncio
 import pathlib
 
 from aiohttp import web
 from aiohttp_security import setup as setup_security
-from aiohttp_security import CookiesIdentityPolicy
+from aiohttp_security import SessionIdentityPolicy
 import aiohttp_jinja2
 import jinja2
 from aiohttp_apispec import setup_aiohttp_apispec
+import aioredis
+from aiohttp_session import setup
+from aiohttp_session.redis_storage import RedisStorage
 from dynaconf import settings
 import uvloop
 
@@ -20,10 +24,35 @@ from its_on.routes import setup_routes
 BASE_DIR = pathlib.Path(__file__).parent.parent
 
 
-async def init_app(loop: asyncio.AbstractEventLoop = None) -> web.Application:
+async def init_gunicorn_app() -> web.Application:
+    redis_pool = await make_redis_pool()
+    loop = asyncio.get_event_loop()
+    return init_app(loop, redis_pool)
+
+
+async def make_redis_pool() -> aioredis.ConnectionsPool:
+    redis_address = ('127.0.0.1', '6379')
+    return await aioredis.create_redis_pool(redis_address, timeout=1)
+
+
+def init_app(
+    loop: asyncio.AbstractEventLoop,
+    redis_pool: Optional[aioredis.ConnectionsPool] = None,
+) -> web.Application:
     app = web.Application(loop=loop)
 
     app['config'] = settings
+
+    if not redis_pool:
+        redis_pool = loop.run_until_complete(make_redis_pool())
+
+    storage = RedisStorage(redis_pool, cookie_name='sesssionid')
+    setup(app, storage)
+
+    async def dispose_redis_pool(app: web.Application) -> None:
+        if redis_pool is not None:
+            redis_pool.close()
+            await redis_pool.wait_closed()
 
     aiohttp_jinja2.setup(
         app,
@@ -35,9 +64,10 @@ async def init_app(loop: asyncio.AbstractEventLoop = None) -> web.Application:
 
     app.on_startup.append(init_pg)
     app.on_cleanup.append(close_pg)
+    app.on_cleanup.append(dispose_redis_pool)
 
     setup_security(app,
-                   CookiesIdentityPolicy(),
+                   SessionIdentityPolicy(session_key='sessionkey'),
                    DBAuthorizationPolicy(app))
 
     setup_routes(app, BASE_DIR)
@@ -57,8 +87,9 @@ async def init_app(loop: asyncio.AbstractEventLoop = None) -> web.Application:
 
 def main() -> None:
     logging.basicConfig(level=logging.DEBUG)
-    app = asyncio.run(init_app())
     uvloop.install()
+    loop = asyncio.get_event_loop()
+    app = init_app(loop)
     web.run_app(app, host=settings.HOST, port=settings.PORT)
 
 
