@@ -1,5 +1,5 @@
 test:
-	pytest -q
+	ENV_FOR_DYNACONF=TESTING pytest -q
 
 style:
 	flake8 .
