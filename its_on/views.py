@@ -13,8 +13,8 @@ from its_on.schemes import SwitchListRequestSchema, SwitchListResponseSchema
 
 class SwitchListView(web.View):
     @docs(
-        summary='Список активных флагов группы.',
-        description='Возвращает список активных флагов для переданной группы.',
+        summary='List of active flags for the group.',
+        description='Returns a list of active flags for the passed group.',
     )
     @request_schema(SwitchListRequestSchema(), locations=['query'])
     @response_schema(SwitchListResponseSchema(), 200)

@@ -5,7 +5,7 @@ default:
   database:
     dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/its_on
   enable_db_logging: false
-  cache_url: memory://
+  cache_url: redis://127.0.0.1:6379/1
   cache_ttl: 300
   redis_url: redis://127.0.0.1:6379/1
 

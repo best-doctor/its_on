@@ -1,32 +1,51 @@
 It's on
 =======
 
-Микросервис для работы с фича флагами на aiohttp.
+flag/feature toggle service, written in aiohttp.
 
-HOW TO
+API Reference
+------
+| Method  | Endpoint                            | Description                         |
+| ------- | ------------------------------------| ----------------------------------- |
+| `GET`   | `/api/docs`                         | Api documentation                   |
+| `GET`   | `/api/v1/switch`                    | List of active flags for the group. |
+
+
+Developing
 ------
 
-`python -m its_on` – запуск сервера.
-`/api/docs` - Документация api
+1. Clone repo
+    - `$ git clone git@gitlab.com:bestdoctor/public/its_on.git`
+2. Install python packages
+    - `$ pip install -r requirements.txt`
+3. Specify redis connection settings
+    - `$ export DYNACONF_REDIS_URL=redis://127.0.0.1:6379/1`
+    - default: `redis://127.0.0.1:6379/1`
+4. Specify cache settings
+    - `$ export DYNACONF_CACHE_URL=redis://127.0.0.1:6379/1`
+    - default: `redis://127.0.0.1:6379/1`
+4. Specify database connection settings
+    - `$ export DYNACONF_DATABASE__dsn=postgresql://user:password@127.0.0.1:5432/its_on`
+    - default: `postgresql://bestdoctor:bestdoctor@127.0.0.1:5432/its_on`
+5. Apply DB migrations
+    - `$ alembic upgrade head`
+6. Run project
+    - `$ python -m its_on`
+7. Open project
+    - `open http://localhost:8081/api/docs`
 
 
-Установка dev
+Testing
 ------
 
-1. Клонировать репозиторий
-2. pip install -r requirements.txt
-3. Создать БД или переопределить настройки подключения к БД.
-    1. По умолчанию:
-        - название БД - its_on
-        - пользователь - bestdoctor
-        - пароль - bestdoctor
-    2. Переопределение настроек БД - `export DYNACONF_DATABASE__dsn=postgresql://bestdoctor:bestdoctor@127.0.0.1:5432/its_on_test`
-4. Накатить миграции `alembic upgrade head`
+`$ make test`
 
 
-Админка
+Admin
 ------
 
-* Админка доступна на `/zbs/switches`
-* Основная страница `/zbs/switches` -- список флагов и их состояние активности
-* Редактирование на `/zbs/switches/{switch_id}`
+| Endpoint                        | Description                |
+| --------------------------------| -------------------------- |
+| `/zbs/login`                    |  Login form                |
+| `/zbs/switches`                 |  List of flags             |
+| `/zbs/switches/{switch_id}`     |  Flag detail               |
