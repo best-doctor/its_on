@@ -32,17 +32,20 @@ async def user_login(client):
 
 
 @pytest.fixture(scope='session')
-def database() -> Generator:
+def setup_database() -> Generator:
     setup_db(config=settings)
     yield
     teardown_db(config=settings)
 
 
 @pytest.fixture(scope='function')
-def tables_and_data(database: Callable) -> Generator:
+def setup_tables(setup_database: Callable) -> Generator:
     create_tables(config=settings)
-    create_sample_data(config=settings)
-
     yield
-
     drop_tables(config=settings)
+
+
+@pytest.fixture(scope='function')
+def setup_tables_and_data(setup_tables: Callable) -> Generator:
+    create_sample_data(config=settings)
+    yield

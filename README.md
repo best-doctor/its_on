@@ -11,7 +11,7 @@ API Reference
 | `GET`   | `/api/v1/switch`                    | List of active flags for the group. |
 
 
-Developing
+Installing
 ------
 
 1. Clone repo
@@ -29,9 +29,11 @@ Developing
     - default: `postgresql://bestdoctor:bestdoctor@127.0.0.1:5432/its_on`
 5. Apply DB migrations
     - `$ alembic upgrade head`
-6. Run project
+6. Create user
+    - `$ python script/create_user.py --login=admmin --password=passwordd --is_superuser`
+7. Run project
     - `$ python -m its_on`
-7. Open project
+8. Open project
     - `open http://localhost:8081/api/docs`
 
 

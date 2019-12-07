@@ -38,3 +38,4 @@ passlib==1.7.1
 pytest-aiohttp==0.3.0
 gunicorn==19.9.0
 uvloop==0.13.0
+click==7.0

@@ -2,7 +2,7 @@ import pytest
 from multidict import MultiDict
 
 
-async def test_users_table_available(tables_and_data, client, login):
+async def test_users_table_available(setup_tables_and_data, client, login):
     response = await client.get('/zbs/switches')
 
     assert 'Users' in await response.text()
@@ -13,7 +13,7 @@ async def test_users_table_available(tables_and_data, client, login):
     ('user1', 'password', 403),
 ])
 async def test_users_available_to_editing_only_for_superuser(
-    tables_and_data,
+    setup_tables_and_data,
     client,
     user_login,
     user_pass,
@@ -34,7 +34,7 @@ async def test_users_available_to_editing_only_for_superuser(
     ('user1', 'password', 7, 200),
 ])
 async def test_user_switches_editing(
-    tables_and_data,
+    setup_tables_and_data,
     client,
     user_login,
     user_pass,
@@ -52,7 +52,9 @@ async def test_user_switches_editing(
     ('admin', 'password', 200),
     ('user1', 'password', 403),
 ])
-async def test_only_superuser_can_edit_user_switches(tables_and_data, login, password, expected_response_code, client):
+async def test_only_superuser_can_edit_user_switches(
+    setup_tables_and_data, login, password, expected_response_code, client,
+):
     await client.post('/zbs/login', data={'login': login, 'password': password})
 
     response = await client.post('/zbs/users/2', data=MultiDict([('switch_ids', 4), ('is_superuser', False)]))
@@ -60,7 +62,7 @@ async def test_only_superuser_can_edit_user_switches(tables_and_data, login, pas
     assert response.status == expected_response_code
 
 
-async def test_add_switches_for_edit_to_user(tables_and_data, client):
+async def test_add_switches_for_edit_to_user(setup_tables_and_data, client):
     await client.post('/zbs/login', data={'login': 'admin', 'password': 'password'})
     await client.post('/zbs/users/2', data=MultiDict([('switch_ids', 4), ('switch_ids', 5), ('is_superuser', False)]))
     await client.get('/zbs/logout')
@@ -73,7 +75,7 @@ async def test_add_switches_for_edit_to_user(tables_and_data, client):
     assert response1.status == 200
 
 
-async def test_remove_switches_for_user_editing(tables_and_data, login, client):
+async def test_remove_switches_for_user_editing(setup_tables_and_data, login, client):
     await client.post('/zbs/login', data={'login': 'admin', 'password': 'password'})
     await client.post('/zbs/users/2', data=MultiDict([('switch_ids', 4), ('is_superuser', False)]))
     await client.get('/zbs/logout')
