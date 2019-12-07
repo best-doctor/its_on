@@ -17,9 +17,6 @@ from tests.helpers import get_engine
     ),
 )
 def test_create_user(login, password, is_superuser, setup_tables):
-    login = 'user123'
-    password = 'qweqwe'
-    is_superuser = True
     engine = get_engine(settings.DATABASE.DSN)
 
     runner = CliRunner()
