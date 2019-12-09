@@ -83,3 +83,15 @@ deploy_staging_qa:
   only:
     refs:
       - master
+
+deploy_staging_med:
+  stage: deploy
+  when: manual
+  allow_failure: false
+  tags:
+    - itson-deploy
+  script:
+    - ~/scm/deploy/run-deploy-staging-its-on.sh -l staging-med.bestdoctor.ru -e "target=deploy service=its_on commit_sha=$CI_COMMIT_SHORT_SHA registry_token=$CI_JOB_TOKEN"
+  only:
+    refs:
+      - master
