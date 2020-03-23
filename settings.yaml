@@ -8,6 +8,7 @@ default:
   cache_url: redis://127.0.0.1:6379/1
   cache_ttl: 300
   redis_url: redis://127.0.0.1:6379/1
+  cors_allow_origin: ['http://localhost:8081']
 
 development:
   environment: Dev
@@ -27,3 +28,4 @@ testing:
     dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/test_its_on
     superuser_dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/its_on
   cache_ttl: 0
+  cors_allow_origin: ['http://localhost:8081']

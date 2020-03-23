@@ -6,6 +6,7 @@ import pathlib
 from aiohttp import web
 from aiohttp_security import setup as setup_security
 from aiohttp_security import SessionIdentityPolicy
+import aiohttp_cors
 import aiohttp_jinja2
 import jinja2
 from aiohttp_apispec import setup_aiohttp_apispec
@@ -70,7 +71,14 @@ def init_app(
                    SessionIdentityPolicy(session_key='sessionkey'),
                    DBAuthorizationPolicy(app))
 
-    setup_routes(app, BASE_DIR)
+    cors_config = {
+        origin: aiohttp_cors.ResourceOptions(allow_methods=['GET'])
+        for origin in settings.CORS_ALLOW_ORIGIN
+    }
+    cors = aiohttp_cors.setup(app, defaults=cors_config)
+
+    setup_routes(app, BASE_DIR, cors)
+
     setup_aiohttp_apispec(
         app=app,
         title='Flags Bestdoctor',

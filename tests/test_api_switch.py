@@ -1,4 +1,5 @@
 import pytest
+from dynaconf import settings
 
 
 async def test_switch(setup_tables_and_data, client):
@@ -24,6 +25,13 @@ async def test_switch_filter_by_group(group, expected_result, setup_tables_and_d
 
     assert response.status == 200
     assert await response.json() == expected_result
+
+
+async def test_switch_cors(client):
+    response = await client.get(f'/api/v1/switch?group=group1', headers={'Origin': 'http://localhost:8081'})
+    print(settings.CORS_ALLOW_ORIGIN)
+    assert response.status == 200
+    assert response.headers['Access-Control-Allow-Origin'] == 'http://localhost:8081'
 
 
 @pytest.mark.parametrize('version,expected_result', [
