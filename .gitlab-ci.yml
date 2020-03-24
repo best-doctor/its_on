@@ -28,7 +28,7 @@ test:
     - sudo docker build -t $IMAGE:$CI_COMMIT_SHORT_SHA .
     - sudo docker run --rm
                       -e DYNACONF_DATABASE__dsn=postgresql://postgres:$POSTGRES_PASSWORD@$DB_CONTAINER_NAME:5432/test_its_on
-                      -e DYNACONF_DATABASE__superuser_dsn=postgresql://postgres@$DB_CONTAINER_NAME:5432/postgres
+                      -e DYNACONF_DATABASE__superuser_dsn=postgresql://postgres:$POSTGRES_PASSWORD@$DB_CONTAINER_NAME:5432/postgres
                       -e DYNACONF_REDIS_URL=redis://$REDIS_CONTAINER_NAME:6379/1
                       --network tests_network
                       $IMAGE:$CI_COMMIT_SHORT_SHA test
