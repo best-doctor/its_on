@@ -86,3 +86,29 @@ async def test_switch_soft_delete(setup_tables_and_data, client, login, switch):
     content = await response.content.read()
 
     assert 'switch7' not in content.decode('utf-8')
+
+
+async def test_resurrect_switch(setup_tables_and_data, client, login, switch):
+    response = await client.get('/zbs/switches')
+    content = await response.content.read()
+
+    assert 'switch3' in content.decode('utf-8')
+
+    await client.get('/zbs/switches/3/delete')
+
+    response = await client.get('/zbs/switches')
+    content = await response.content.read()
+
+    assert 'switch3' not in content.decode('utf-8')
+
+    switch_data = {
+        'name': 'switch3',
+        'is_active': False,
+        'is_hidden': False,
+        'group': 'group1',
+        'version': 4,
+    }
+    response = await client.post('/zbs/switches/add', data=switch_data)
+    content = await response.content.read()
+
+    assert 'switch3' in content.decode('utf-8')

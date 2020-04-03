@@ -8,7 +8,7 @@ from dynaconf import settings
 from auth.views import LoginView, LogoutView
 from its_on.views import SwitchListView
 from its_on.admin.views.switches import (
-    SwitchListAdminView, SwitchDetailAdminView, SwitchDeleteAdminView, SwitchResurrectAdminView, SwitchAddAdminView)
+    SwitchListAdminView, SwitchDetailAdminView, SwitchDeleteAdminView, SwitchAddAdminView)
 from its_on.admin.views.users import (
     UserDetailAdminView, UserListAdminView,
 )
@@ -24,7 +24,6 @@ def setup_routes(app: web.Application, base_dir: Path, cors_config: CorsConfig) 
     app.router.add_view('/zbs/switches/add', SwitchAddAdminView, name='switches_add')
     app.router.add_view('/zbs/switches/{id}', SwitchDetailAdminView, name='switch_detail')
     app.router.add_view('/zbs/switches/{id}/delete', SwitchDeleteAdminView)
-    app.router.add_view('/zbs/switches/{id}/resurrect', SwitchResurrectAdminView)
     app.router.add_view('/zbs/users', UserListAdminView)
     app.router.add_view('/zbs/users/{id}', UserDetailAdminView)
 
