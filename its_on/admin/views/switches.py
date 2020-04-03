@@ -8,6 +8,7 @@ from its_on.models import switches
 from marshmallow.exceptions import ValidationError
 import psycopg2
 from sqlalchemy.sql import false, Select
+from multidict import MultiDictProxy
 
 from its_on.admin.mixins import GetObjectMixin, CreateMixin, UpdateMixin
 from its_on.admin.schemes import SwitchDetailAdminPostRequestSchema, SwitchAddAdminPostRequestSchema
@@ -96,6 +97,26 @@ class SwitchAddAdminView(web.View, CreateMixin):
             context_data.update(user_input)
         return context_data
 
+    async def resurrect_deleted_flag(self, form_data: MultiDictProxy) -> Optional[Dict[str, Any]]:
+        async with self.request.app['db'].acquire() as conn:
+            result = await conn.execute(
+                switches.select().where(switches.c.name == form_data['name']))
+            already_created_switch = await result.first()
+
+            if already_created_switch:
+                try:
+                    form_data = self._validate_form_data(form_data)  # type: ignore
+                except ValidationError as error:
+                    return await self.get_context_data(errors=error, user_input=dict(form_data))
+                form_data['is_hidden'] = False  # type: ignore
+                update_query = self.model.update().where(
+                    self.model.c.id == str(already_created_switch.id)).values(
+                    form_data)
+                await conn.execute(update_query)
+
+                location = self.request.app.router['switches_list'].url_for()
+                raise web.HTTPFound(location=location)
+
     @aiohttp_jinja2.template('switches/add.html')
     @login_required
     async def get(self) -> Dict[str, RowProxy]:
@@ -105,6 +126,10 @@ class SwitchAddAdminView(web.View, CreateMixin):
     @login_required
     async def post(self) -> Dict[str, Dict]:
         form_data = await self.request.post()
+
+        resurrect_deleted_flag_raised_error = await self.resurrect_deleted_flag(form_data=form_data)
+        if resurrect_deleted_flag_raised_error is not None:
+            return resurrect_deleted_flag_raised_error
 
         try:
             await self.create_object(self.request, form_data)
@@ -126,19 +151,4 @@ class SwitchDeleteAdminView(web.View, GetObjectMixin):
 
             await conn.execute(update_query)
         location = self.request.app.router['switches_list'].url_for()
-        raise web.HTTPFound(location=location)
-
-
-class SwitchResurrectAdminView(web.View, GetObjectMixin):
-    model = switches
-
-    @login_required
-    async def get(self) -> None:
-        async with self.request.app['db'].acquire() as conn:
-            object_pk = await self.get_object_pk(self.request)
-            update_query = self.model.update().where(self.model.c.id == object_pk).values({'is_hidden': False})
-
-            await conn.execute(update_query)
-
-        location = self.request.app.router['switch_detail'].url_for(id=object_pk)
         raise web.HTTPFound(location=location)
