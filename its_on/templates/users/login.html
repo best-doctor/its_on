@@ -30,6 +30,9 @@
         </div>
       </div>
     </form>
+    {%- if error is defined -%}
+    <div class="alert alert-danger" role="alert">{{ error }}</div>
+    {%- endif -%}
   </div>
 </body>
 </html>
