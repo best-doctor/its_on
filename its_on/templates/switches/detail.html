@@ -28,8 +28,8 @@
       </div>
       <br>
       <div class="form-group">
-        <label>Group:</label>
-        <input type="text" class="form-control" value="{{ object.group }}" name="group">
+        <label>Groups:</label>
+        <input type="text" class="form-control" value="{{ object.groups|join(', ') }}" name="groups">
       </div>
       <br>
       <div class="form-group">

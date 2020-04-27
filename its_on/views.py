@@ -48,7 +48,7 @@ class SwitchListView(CorsViewMixin, web.View):
         version = validated_data.get('version')
 
         filters = [
-            switches.c.group == group_name,
+            switches.c.groups.contains(f'{{{group_name}}}'),
             switches.c.is_active == true(),
             switches.c.is_hidden == false(),
         ]

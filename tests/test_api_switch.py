@@ -17,7 +17,7 @@ async def test_switch_without_params(setup_tables_and_data, client):
 
 @pytest.mark.parametrize('group,expected_result', [
     ('group1', {'count': 3, 'result': ['switch1', 'switch2', 'switch4']}),
-    ('group2', {'count': 1, 'result': ['switch5']}),
+    ('group2', {'count': 2, 'result': ['switch1', 'switch5']}),
 ])
 async def test_switch_filter_by_group(group, expected_result, setup_tables_and_data, client):
     response = await client.get(f'/api/v1/switch?group={group}')

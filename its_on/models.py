@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 from auth import models
 
@@ -13,6 +14,7 @@ switches = sa.Table(
     sa.Column('is_hidden', sa.Boolean, default=False),
     sa.Column('name', sa.String(255), unique=True),
     sa.Column('group', sa.String(255)),
+    sa.Column('groups', postgresql.ARRAY(sa.String(255))),
     sa.Column('version', sa.Integer, nullable=True),
     sa.Column('comment', sa.Text),
 )
