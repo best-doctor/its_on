@@ -63,7 +63,7 @@ async def test_switch_add(setup_tables_and_data, client, login, switch):
     for field_name, field_value in switch_data.items():
         if field_name == 'groups':
             field_value = list(
-                filter(None, [item.strip() for item in field_value.split(',')])
+                filter(None, [item.strip() for item in field_value.split(',')]),
             )
         assert getattr(created_switch, field_name) == field_value
 
