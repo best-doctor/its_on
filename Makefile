@@ -11,4 +11,4 @@ types:
 	mypy .
 
 check:
-	make -j4 test style types typos
+	make -j4 test style types
