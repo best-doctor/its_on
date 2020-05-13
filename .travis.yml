@@ -12,11 +12,12 @@ stages:
     if: (tag IS present) AND (tag =~ ^v)
 
 env:
-  - DOCKER_IMAGE_NAME: bestdoctor/its_on
-  - DEV_IMAGE: $DOCKER_IMAGE_NAME:dev-$TRAVIS_COMMIT
-  - LATEST_DEV_IMAGE: $DOCKER_IMAGE_NAME:dev-latest
-  - STABLE_IMAGE: $DOCKER_IMAGE_NAME:$TRAVIS_TAG
-  - LATEST_IMAGE: $DOCKER_IMAGE_NAME:latest
+  global:
+    - DOCKER_IMAGE_NAME: bestdoctor/its_on
+    - DEV_IMAGE: $DOCKER_IMAGE_NAME:dev-$TRAVIS_COMMIT
+    - LATEST_DEV_IMAGE: $DOCKER_IMAGE_NAME:dev-latest
+    - STABLE_IMAGE: $DOCKER_IMAGE_NAME:$TRAVIS_TAG
+    - LATEST_IMAGE: $DOCKER_IMAGE_NAME:latest
 
 jobs:
   include:
