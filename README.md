@@ -4,12 +4,12 @@ It's on
 flag/feature toggle service, written in aiohttp.
 
 API Reference
+
 ------
 | Method  | Endpoint                            | Description                         |
 | ------- | ------------------------------------| ----------------------------------- |
 | `GET`   | `/api/docs`                         | Api documentation                   |
 | `GET`   | `/api/v1/switch`                    | List of active flags for the group. |
-
 
 Installing
 ------
@@ -24,24 +24,22 @@ Installing
 4. Specify cache settings
     - `$ export DYNACONF_CACHE_URL=redis://127.0.0.1:6379/1`
     - default: `redis://127.0.0.1:6379/1`
-4. Specify database connection settings
+5. Specify database connection settings
     - `$ export DYNACONF_DATABASE__dsn=postgresql://user:password@127.0.0.1:5432/its_on`
     - default: `postgresql://bestdoctor:bestdoctor@127.0.0.1:5432/its_on`
-5. Apply DB migrations
+6. Apply DB migrations
     - `$ alembic upgrade head`
-6. Create user
+7. Create user
     - `$ python script/create_user.py --login=admmin --password=passwordd --is_superuser`
-7. Run project
+8. Run project
     - `$ python -m its_on`
-8. Open project
+9. Open project
     - `open http://localhost:8081/api/docs`
-
 
 Testing
 ------
 
 `$ make test`
-
 
 Admin
 ------
