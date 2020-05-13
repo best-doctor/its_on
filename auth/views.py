@@ -1,32 +1,41 @@
-from typing import Optional, Dict
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 import aiohttp_jinja2
-from aiohttp import web
+from aiohttp.web import HTTPFound, View, Response
 from aiohttp_security import forget, remember
 from marshmallow.exceptions import ValidationError
 from multidict import MultiDictProxy
 
-from .auth import check_credentials
-from .schemes import LoginPostRequestSchema
+from auth.auth import check_credentials
+from auth.schemes import LoginPostRequestSchema
+
+if TYPE_CHECKING:
+    from typing import Optional, Dict
 
 
-class LoginView(web.View):
+class LoginView(View):
     @aiohttp_jinja2.template('users/login.html')
-    async def get(self) -> Dict[str, str]:
+    async def get(self, error: Optional[str] = None) -> Dict[str, str]:
         return {'context': ''}
 
-    async def authorise(self, response_location: web.Response, login: str, password: str) -> web.Response:
+    @aiohttp_jinja2.template('users/login.html')
+    async def error(self, error: str = 'Internal error') -> Dict[str, str]:
+        return {'context': '', 'error': error}
+
+    async def authorise(self, response_location: Response, login: str, password: str) -> Response:
         if await check_credentials(self.request.app['db'], login, password):
             await remember(self.request, response_location, login)
             return response_location
+        return await self.error('Authorization failed')
 
-    async def post(self) -> web.Response:
-        response_location = web.HTTPFound('/zbs/switches')
+    async def post(self) -> Response:
+        response_location = HTTPFound('/zbs/switches')
         form_data = await self.request.post()
         validated_data = self.validate_form_data(form_data)
 
         if not validated_data:
-            return web.HTTPFound('/zbs')
+            return HTTPFound('/zbs')
 
         login, password = validated_data.get('login', ''), validated_data.get('password', '')
 
@@ -39,9 +48,9 @@ class LoginView(web.View):
             return None
 
 
-class LogoutView(web.View):
-    async def get(self) -> web.Response:
-        response = web.HTTPFound('/zbs/login')
+class LogoutView(View):
+    async def get(self) -> Response:
+        response = HTTPFound('/zbs/login')
 
         await forget(self.request, response)
         return response

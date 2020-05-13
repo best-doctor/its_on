@@ -1,19 +1,23 @@
-from typing import Optional
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from aiopg.sa.engine import Engine
-import sqlalchemy as sa
 from aiopg.sa.result import RowProxy
 from aiohttp.web import Application
 from aiohttp_security.abc import AbstractAuthorizationPolicy
 from passlib.hash import sha256_crypt
+from sqlalchemy import and_, func, not_
 
-from . import models
+from auth import models
+
+if TYPE_CHECKING:
+    from typing import Optional
 
 
 async def check_credentials(db_engine: Engine, username: str, password: str) -> bool:
     """Производит аутентификацию пользователя."""
     async with db_engine.acquire() as conn:
-        where = sa.and_(
+        where = and_(
             models.users.c.login == username,
         )
 
@@ -47,9 +51,9 @@ class DBAuthorizationPolicy(AbstractAuthorizationPolicy):
 
     async def _is_authorised(self, identity: str) -> RowProxy:
         async with self.app['db'].acquire() as conn:
-            where = sa.and_(
+            where = and_(
                 models.users.c.login == identity,
-                sa.not_(models.users.c.disabled),
+                not_(models.users.c.disabled),
             )
-            query = models.users.count().where(where)
+            query = models.users.select().where(where).with_only_columns([func.count()])
             return await conn.scalar(query)

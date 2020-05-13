@@ -45,7 +45,7 @@ async def test_switch_add(setup_tables_and_data, client, login, switch):
     switch_data = {
         'name': 'switch_to_check_add',
         'is_active': True,
-        'group': 'check_adding',
+        'groups': 'check_adding, group2,    ,,',
         'version': 1,
         'comment': 'This is the story of a big bad wolf an little girl whose name was Little Red Riding Hood',
     }
@@ -61,6 +61,10 @@ async def test_switch_add(setup_tables_and_data, client, login, switch):
         created_switch = await result.first()
 
     for field_name, field_value in switch_data.items():
+        if field_name == 'groups':
+            field_value = list(
+                filter(None, [item.strip() for item in field_value.split(',')]),
+            )
         assert getattr(created_switch, field_name) == field_value
 
 
@@ -86,3 +90,29 @@ async def test_switch_soft_delete(setup_tables_and_data, client, login, switch):
     content = await response.content.read()
 
     assert 'switch7' not in content.decode('utf-8')
+
+
+async def test_resurrect_switch(setup_tables_and_data, client, login, switch):
+    response = await client.get('/zbs/switches')
+    content = await response.content.read()
+
+    assert 'switch3' in content.decode('utf-8')
+
+    await client.get('/zbs/switches/3/delete')
+
+    response = await client.get('/zbs/switches')
+    content = await response.content.read()
+
+    assert 'switch3' not in content.decode('utf-8')
+
+    switch_data = {
+        'name': 'switch3',
+        'is_active': False,
+        'is_hidden': False,
+        'groups': 'group1',
+        'version': 4,
+    }
+    response = await client.post('/zbs/switches/add', data=switch_data)
+    content = await response.content.read()
+
+    assert 'switch3' in content.decode('utf-8')

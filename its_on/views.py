@@ -3,6 +3,7 @@ from typing import List, Dict
 from aiocache import cached
 from aiohttp import web
 from aiohttp_apispec import request_schema, response_schema, docs
+from aiohttp_cors import CorsViewMixin
 from dynaconf import settings
 from sqlalchemy.sql import and_, true, false, Select
 
@@ -11,7 +12,7 @@ from its_on.models import switches
 from its_on.schemes import SwitchListRequestSchema, SwitchListResponseSchema
 
 
-class SwitchListView(web.View):
+class SwitchListView(CorsViewMixin, web.View):
     @docs(
         summary='List of active flags for the group.',
         description='Returns a list of active flags for the passed group.',
@@ -47,7 +48,7 @@ class SwitchListView(web.View):
         version = validated_data.get('version')
 
         filters = [
-            switches.c.group == group_name,
+            switches.c.groups.contains(f'{{{group_name}}}'),
             switches.c.is_active == true(),
             switches.c.is_hidden == false(),
         ]
