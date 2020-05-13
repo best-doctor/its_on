@@ -6,6 +6,17 @@ python:
 stages:
   - lint
   - test
+  - name: dev_build
+    if: branch = master
+  - name: stable_build
+    if: (tag IS present) AND (tag =~ ^v)
+
+env:
+  - DOCKER_IMAGE_NAME: bestdoctor/its_on
+  - DEV_IMAGE: $DOCKER_IMAGE_NAME:dev-$TRAVIS_COMMIT
+  - LATEST_DEV_IMAGE: $DOCKER_IMAGE_NAME:dev-latest
+  - STABLE_IMAGE: $DOCKER_IMAGE_NAME:$TRAVIS_TAG
+  - LATEST_IMAGE: $DOCKER_IMAGE_NAME:latest
 
 jobs:
   include:
@@ -42,3 +53,23 @@ jobs:
         - make check
       after_script:
         - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+
+    - stage: dev_build
+      services:
+        - docker
+      before_script:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      script:
+        - docker build -t $DEV_IMAGE -t $LATEST_DEV_IMAGE .
+        - docker push $DEV_IMAGE
+        - docker push $LATEST_DEV_IMAGE
+
+    - stage: stable_build
+      services:
+        - docker
+      before_script:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      script:
+        - docker build -t $STABLE_IMAGE -t $LATEST_IMAGE .
+        - docker push $STABLE_IMAGE
+        - docker push $LATEST_IMAGE
