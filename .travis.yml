@@ -1,0 +1,44 @@
+dist: bionic
+language: python
+python:
+  - "3.8"
+
+stages:
+  - lint
+  - test
+
+jobs:
+  include:
+    - stage: lint
+      env:
+        - HADOLINT: "${HOME}/hadolint"
+      install:
+        - gem install mdl
+        - curl -sL -o ${HADOLINT} "https://github.com/hadolint/hadolint/releases/download/v1.17.6/hadolint-$(uname -s)-$(uname -m)"
+        - chmod 700 ${HADOLINT}
+      script:
+        - mdl README.md
+        - git ls-files --exclude='Dockerfile*' --ignored | xargs --max-lines=1 ${HADOLINT}
+
+    - stage: test
+      env:
+        - DYNACONF_DATABASE__dsn: "postgresql://postgres@localhost:5432/tests"
+        - DYNACONF_DATABASE__superuser_dsn: "postgresql://postgres@localhost:5432/postgres"
+      addons:
+        postgresql: "9.6"
+        apt:
+          packages:
+            - postgresql-9.6
+      services:
+        - postgresql
+        - redis
+      install:
+        - pip install -r requirements.txt
+        - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        - chmod +x ./cc-test-reporter
+      before_script:
+        - ./cc-test-reporter before-build
+      script:
+        - make check
+      after_script:
+        - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
