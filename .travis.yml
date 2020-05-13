@@ -4,14 +4,14 @@ language: generic
 stages:
   - test
   - name: dev_build
-    if: branch = master
+    if: (branch = master) AND (type = push)
   - name: stable_build
-    if: (tag IS present) AND (tag =~ ^v)
+    if: (tag IS present) AND (tag =~ ^v) AND (type = push)
 
 env:
   global:
     - DOCKER_IMAGE_NAME: bestdoctor/its_on
-    - DEV_IMAGE: $DOCKER_IMAGE_NAME:dev-$TRAVIS_COMMIT
+    - DEV_IMAGE: $DOCKER_IMAGE_NAME:dev-$TRAVIS_COMMIT  
     - LATEST_DEV_IMAGE: $DOCKER_IMAGE_NAME:latest-dev
     - STABLE_IMAGE: $DOCKER_IMAGE_NAME:$TRAVIS_TAG
     - LATEST_IMAGE: $DOCKER_IMAGE_NAME:latest
