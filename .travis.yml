@@ -27,10 +27,10 @@ jobs:
         - DYNACONF_DATABASE__dsn: "postgresql://postgres@localhost:5432/tests"
         - DYNACONF_DATABASE__superuser_dsn: "postgresql://postgres@localhost:5432/postgres"
       addons:
-        postgresql: "9.6"
+        postgresql: "12"
         apt:
           packages:
-            - postgresql-9.6
+            - postgresql-12
       services:
         - postgresql
         - redis
