@@ -1,6 +1,10 @@
 It's on
 =======
 
+[![Build Status](https://travis-ci.org/best-doctor/its_on.svg?branch=master)](https://travis-ci.org/best-doctor/its_on)
+[![Maintainability](https://api.codeclimate.com/v1/badges/35e678c4d05199a31eb9/maintainability)](https://codeclimate.com/github/best-doctor/its_on/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/35e678c4d05199a31eb9/test_coverage)](https://codeclimate.com/github/best-doctor/its_on/test_coverage)
+
 flag/feature toggle service, written in aiohttp.
 
 API Reference
