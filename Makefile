@@ -1,5 +1,5 @@
 test:
-	ENV_FOR_DYNACONF=TESTING pytest -q
+	ENV_FOR_DYNACONF=TESTING pytest -q --cov=its_on --cov-report=xml
 
 style:
 	flake8 .
