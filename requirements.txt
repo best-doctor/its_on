@@ -13,6 +13,9 @@ aiocache[redis]==0.11.1
 dynaconf[yaml]==2.2.3
 webargs==5.5.3
 
+pytest-cov==2.8.1
+pytest-aiohttp==0.3.0
+
 pydocstyle==3.0.0
 flake8==3.7.9
 flake8-blind-except==0.1.1
@@ -37,7 +40,6 @@ typing-extensions==3.7.4.1
 pep8-naming==0.7.0
 rozental-as-a-service==1.1.2
 passlib==1.7.1
-pytest-aiohttp==0.3.0
 gunicorn==20.0.4
 uvloop==0.14.0
 click==7.0
