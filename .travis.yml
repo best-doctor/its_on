@@ -26,11 +26,6 @@ jobs:
         - HADOLINT: "${HOME}/hadolint"
         - DYNACONF_DATABASE__dsn: "postgresql://postgres@localhost:5432/tests"
         - DYNACONF_DATABASE__superuser_dsn: "postgresql://postgres@localhost:5432/postgres"
-      addons:
-        postgresql: "12"
-        apt:
-          packages:
-            - postgresql-12
       services:
         - postgresql
         - redis
