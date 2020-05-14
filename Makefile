@@ -3,6 +3,7 @@ test:
 
 style:
 	flake8 .
+	mdl README.md
 
 typos:
 	rozental .
