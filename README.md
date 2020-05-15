@@ -4,20 +4,28 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/35e678c4d05199a31eb9/maintainability)](https://codeclimate.com/github/best-doctor/its_on/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/35e678c4d05199a31eb9/test_coverage)](https://codeclimate.com/github/best-doctor/its_on/test_coverage)
 
-flag/feature toggle service, written in aiohttp.
+Flag/feature toggle service, written in aiohttp.
 
 ## API Reference
 
-------
+### Basic
+
 | Method  | Endpoint                   | Description                         |
 | ------- | ---------------------------| ----------------------------------- |
 | `GET`   | `/api/docs`                | Api documentation                   |
 | `GET`   | `/api/v1/switch`           | List of active flags for the group. |
 
+### Admin
+
+| Endpoint                        | Description                |
+| --------------------------------| -------------------------- |
+| `/zbs/login`                    |  Login form                |
+| `/zbs/switches`                 |  List of flags             |
+| `/zbs/switches/{switch_id}`     |  Flag detail               |
+
 ## Sample /api/v1/switch output
 
 ```json
-
 {
     "count": 2,
     "result": ["test_flag3", "test_flag4"]
@@ -26,39 +34,86 @@ flag/feature toggle service, written in aiohttp.
 
 ## Installation
 
-1. Clone repo
-    - `$ git clone git@gitlab.com:bestdoctor/public/its_on.git`
-1. Install python packages
-    - `$ pip install -r requirements.txt`
-1. Specify redis connection settings
-    - `$ export DYNACONF_REDIS_URL=redis://127.0.0.1:6379/1`
-    - default: `redis://127.0.0.1:6379/1`
-1. Specify cache settings
-    - `$ export DYNACONF_CACHE_URL=redis://127.0.0.1:6379/1`
-    - default: `redis://127.0.0.1:6379/1`
-1. Specify database connection settings
-    - `$ export DYNACONF_DATABASE__dsn=postgresql://user:password@127.0.0.1:5432/its_on`
-    - default: `postgresql://bestdoctor:bestdoctor@127.0.0.1:5432/its_on`
-1. Apply DB migrations
-    - `$ alembic upgrade head`
-1. Create user
-    - `$ python script/create_user.py --login=admmin --password=passwordd --is_superuser`
-1. Run project
-    - `$ python -m its_on`
-1. Open project
-    - `open http://localhost:8081/api/docs`
+### Prerequisites
+
+`its_on` requires an SQL database and a cache storage engine. Currently, only PostgreSQL and Redis are supported as respective backends.
+
+### Manual
+
+Clone repo:
+
+`$ git clone git@gitlab.com:bestdoctor/public/its_on.git`
+
+Install python packages:
+
+`$ pip install -r requirements.txt`
+
+Specify database and cache settings:
+
+```env
+export DYNACONF_REDIS_URL=redis://127.0.0.1:6379/1
+export DYNACONF_CACHE_URL=redis://127.0.0.1:6379/1
+export DYNACONF_DATABASE__dsn=postgresql://user:password@127.0.0.1:5432/its_on
+```
+
+Apply database migrations:
+
+`$ alembic upgrade head`
+
+Create admin user:
+
+`$ python script/create_user.py --login=admmin --password=passwordd --is_superuser`
+
+Run server:
+
+`$ python -m its_on`
+
+Navigate to `http://127.0.0.1:8081/api/docs` in your browser and you are good to go!
+
+### Docker
+
+Example `docker-compose.yml` file:
+
+```
+version: '3'
+services:
+  cache:
+    image: redis
+    container_name: its-on-redis
+
+  db:
+    image: postgres
+    container_name: its-on-postgres
+    environment:
+      POSTGRES_PASSWORD: strongpassword
+      POSTGRES_USER: itson
+      POSTGRES_DB: itson
+
+  web:
+    image: bestdoctor/its_on:latest-dev
+    container_name: its-on
+    environment:
+      DYNACONF_HOST: '0.0.0.0'
+      DYNACONF_DATABASE__dsn: postgresql://itson:strongpassword@db:5432/itson
+      DYNACONF_REDIS_URL: redis://cache:6379/0
+      DYNACONF_CACHE_URL: redis://cache:6379/1
+    ports:
+     - "127.0.0.1:8081:8081"
+    depends_on:
+      - cache
+      - db
+
+```
+
+Don't forget to create a superuser:
+
+`docker exec -t its-on python scripts/create_user.py --login=admin --password=passwordd --is_superuser`
+
+Navigate to `http://127.0.0.1:8081/api/docs` in your browser and you are good to go!
 
 ## Testing
 
-`$ make test`
-
-## Admin
-
-| Endpoint                        | Description                |
-| --------------------------------| -------------------------- |
-| `/zbs/login`                    |  Login form                |
-| `/zbs/switches`                 |  List of flags             |
-| `/zbs/switches/{switch_id}`     |  Flag detail               |
+Run `make test`
 
 ## Contributing
 
