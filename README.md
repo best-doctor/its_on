@@ -36,7 +36,8 @@ Flag/feature toggle service, written in aiohttp.
 
 ### Prerequisites
 
-`its_on` requires an SQL database and a cache storage engine. Currently, only PostgreSQL and Redis are supported as respective backends.
+`its_on` requires an SQL database and a cache storage engine.
+Currently, only PostgreSQL and Redis are supported as respective backends.
 
 ### Manual
 
@@ -68,7 +69,8 @@ Run server:
 
 `$ python -m its_on`
 
-Navigate to `http://127.0.0.1:8081/api/docs` in your browser and you are good to go!
+Navigate to `http://127.0.0.1:8081/api/docs` in your browser
+and you are good to go!
 
 ### Docker
 
@@ -107,9 +109,12 @@ services:
 
 Don't forget to create a superuser:
 
-`docker exec -t its-on python scripts/create_user.py --login=admin --password=passwordd --is_superuser`
+```bash
+docker exec -t its-on python scripts/create_user.py --login=admin --password=passwordd --is_superuser
+```
 
-Navigate to `http://127.0.0.1:8081/api/docs` in your browser and you are good to go!
+Navigate to `http://127.0.0.1:8081/api/docs` in your browser and
+you are good to go!
 
 ## Testing
 
