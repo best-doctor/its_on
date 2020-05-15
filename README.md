@@ -110,7 +110,9 @@ services:
 Don't forget to create a superuser:
 
 ```bash
-docker exec -t its-on python scripts/create_user.py --login=admin --password=passwordd --is_superuser
+docker exec -t its-on python scripts/create_user.py --login=admin \
+                                                    --password=passwordd \
+                                                    --is_superuser
 ```
 
 Navigate to `http://127.0.0.1:8081/api/docs` in your browser and
