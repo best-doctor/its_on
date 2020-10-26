@@ -6,7 +6,7 @@ from aiohttp_cors import CorsConfig
 from dynaconf import settings
 
 from auth.views import LoginView, LogoutView
-from its_on.views import SwitchListView
+from its_on.views import SwitchListView, SwitchFullListView
 from its_on.admin.views.switches import (
     SwitchListAdminView, SwitchDetailAdminView, SwitchDeleteAdminView, SwitchAddAdminView,
 )
@@ -29,8 +29,11 @@ def setup_routes(app: Application, base_dir: Path, cors_config: CorsConfig) -> N
     app.router.add_view('/zbs/users/{id}', UserDetailAdminView)
 
     get_switch_view = app.router.add_view('/api/v1/switch', SwitchListView)
-
     cors_config.add(get_switch_view)
+
+    if settings.ENABLE_SWITCHES_FULL_INFO_ENDPOINT:
+        get_switch_full_view = app.router.add_view('/api/v1/switches_full_info', SwitchFullListView)
+        cors_config.add(get_switch_full_view)
 
     if settings.ENVIRONMENT == 'Dev':
         app.router.add_static('/static', str(base_dir / 'its_on' / 'static'))

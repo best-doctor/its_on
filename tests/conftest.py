@@ -8,25 +8,25 @@ from its_on.models import switches
 from .helpers import create_sample_data, create_tables, drop_tables, setup_db, teardown_db
 
 
-@pytest.fixture
+@pytest.fixture()
 async def client(aiohttp_client: Callable) -> None:
     app = await init_gunicorn_app()
     return await aiohttp_client(app)
 
 
-@pytest.fixture
+@pytest.fixture()
 async def switch(client):
     async with client.server.app['db'].acquire() as conn:
         result = await conn.execute(switches.select().where(switches.c.id == 1))
         return await result.first()
 
 
-@pytest.fixture
+@pytest.fixture()
 async def login(client):
     await client.post('/zbs/login', data={'login': 'admin', 'password': 'password'})
 
 
-@pytest.fixture
+@pytest.fixture()
 async def user_login(client):
     await client.post('/zbs/login', data={'login': 'user1', 'password': 'password'})
 
@@ -49,3 +49,74 @@ def setup_tables(setup_database: Callable) -> Generator:
 def setup_tables_and_data(setup_tables: Callable) -> Generator:
     create_sample_data(config=settings)
     yield
+
+
+@pytest.fixture(scope='function')
+def switches_full_info_expected_result():
+    return {
+        'result': [
+            {
+                'name': 'switch1',
+                'is_active': True,
+                'is_hidden': False,
+                'group': None,
+                'groups': ['group1', 'group2'],
+                'version': None,
+                'comment': None,
+            },
+            {
+                'name': 'switch2',
+                'is_active': True,
+                'is_hidden': False,
+                'group': None,
+                'groups': ['group1'],
+                'version': None,
+                'comment': None,
+            },
+            {
+                'name': 'switch3',
+                'is_active': False,
+                'is_hidden': False,
+                'group': None,
+                'groups': ['group1'],
+                'version': 4,
+                'comment': None,
+            },
+            {
+                'name': 'switch4',
+                'is_active': True,
+                'is_hidden': False,
+                'group': None,
+                'groups': ['group1', 'group3'],
+                'version': 4,
+                'comment': None,
+            },
+            {
+                'name': 'switch5',
+                'is_active': True,
+                'is_hidden': False,
+                'group': None,
+                'groups': ['group2'],
+                'version': 4,
+                'comment': None,
+            },
+            {
+                'name': 'switch6',
+                'is_active': True,
+                'is_hidden': True,
+                'group': None,
+                'groups': ['group2'],
+                'version': 4,
+                'comment': None,
+            },
+            {
+                'name': 'switch7',
+                'is_active': True,
+                'is_hidden': False,
+                'group': None,
+                'groups': ['soft_delete'],
+                'version': None,
+                'comment': None,
+            },
+        ],
+    }

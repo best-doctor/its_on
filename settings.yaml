@@ -9,6 +9,8 @@ default:
   cache_ttl: 300
   redis_url: redis://127.0.0.1:6379/1
   cors_allow_origin: ['http://localhost:8081']
+  enable_switches_full_info_endpoint: false
+  sync_from_its_on_url: https://its_on.bestdoctor.ru/api/v1/switches_full_info
 
 development:
   environment: Dev
@@ -18,12 +20,14 @@ development:
 
 production:
   environment: Prod
+  enable_switches_full_info_endpoint: true
 
 staging:
   environment: Staging
 
 testing:
   environment: Test
+  enable_switches_full_info_endpoint: true
   database:
     dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/test_its_on
     superuser_dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/its_on
