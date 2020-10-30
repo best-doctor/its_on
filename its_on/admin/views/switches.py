@@ -1,9 +1,11 @@
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Union, Any
 
 from aiopg.sa.result import RowProxy
 import aiohttp_jinja2
 from aiohttp import web
+from aiohttp import ClientSession
 from auth.decorators import login_required
+from dynaconf import settings
 from its_on.models import switches
 from marshmallow.exceptions import ValidationError
 import psycopg2
@@ -11,7 +13,10 @@ from sqlalchemy.sql import false, Select
 from multidict import MultiDictProxy
 
 from its_on.admin.mixins import GetObjectMixin, CreateMixin, UpdateMixin
-from its_on.admin.schemes import SwitchDetailAdminPostRequestSchema, SwitchAddAdminPostRequestSchema
+from its_on.admin.schemes import (
+    SwitchDetailAdminPostRequestSchema, SwitchAddAdminPostRequestSchema,
+    SwitchAddFromAnotherItsOnAdminPostRequestSchema,
+)
 from its_on.admin.permissions import CanEditSwitch
 
 
@@ -20,9 +25,12 @@ class SwitchListAdminView(web.View):
 
     @aiohttp_jinja2.template('switches/index.html')
     @login_required
-    async def get(self) -> Dict[str, Optional[List[RowProxy]]]:
+    async def get(self) -> Dict[str, Union[Optional[List[RowProxy]], bool]]:
         flags = await self.get_response_data()
-        return {'flags': flags}
+        return {
+            'flags': flags,
+            'show_copy_button': bool(settings.SYNC_FROM_ITS_ON_URL),
+        }
 
     async def get_response_data(self) -> List[RowProxy]:
         objects = await self.load_objects()
@@ -138,6 +146,45 @@ class SwitchAddAdminView(web.View, CreateMixin):
 
         location = self.request.app.router['switches_list'].url_for()
         raise web.HTTPFound(location=location)
+
+
+class SwitchesCopyAdminView(web.View, CreateMixin):
+    validator = SwitchAddFromAnotherItsOnAdminPostRequestSchema()
+    model = switches
+
+    @staticmethod
+    async def _get_switches_data() -> MultiDictProxy:
+        async with ClientSession() as session:
+            async with session.get(settings.SYNC_FROM_ITS_ON_URL) as resp:
+                return await resp.json()
+
+    @login_required
+    async def post(self) -> None:
+        update_existing = bool(self.request.rel_url.query.get('update_existing'))
+        switches_data = await self._get_switches_data()
+        for switch_data in switches_data['result']:
+            await self._create_or_update_switch(switch_data, update_existing)
+
+        location = self.request.app.router['switches_list'].url_for()
+        raise web.HTTPFound(location=location)
+
+    async def _create_or_update_switch(
+        self, switch_data: MultiDictProxy, update_existing: bool = False,
+    ) -> None:
+        try:
+            await self.create_object(self.request, switch_data)
+        except (ValidationError, psycopg2.IntegrityError):
+            if update_existing:
+                async with self.request.app['db'].acquire() as conn:
+                    update_query = (
+                        self.model.update()
+                        .where(self.model.c.name == switch_data['name'])
+                        .values(switch_data)
+                    )
+                    try:
+                        await conn.execute(update_query)
+                    except (ValidationError, psycopg2.IntegrityError):
+                        pass
 
 
 class SwitchDeleteAdminView(web.View, GetObjectMixin):

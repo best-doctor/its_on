@@ -37,6 +37,15 @@ footer {
   color: red;
 }
 
+.mx-5px {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.mr-0 {
+  margin-right: 0 !important;
+}
+
 .mt-10px {
   margin-top: 10px;
 }

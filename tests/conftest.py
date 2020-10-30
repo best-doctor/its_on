@@ -1,4 +1,5 @@
 from typing import Callable, Generator
+from unittest.mock import MagicMock
 
 import pytest
 from dynaconf import settings
@@ -6,6 +7,11 @@ from its_on.main import init_gunicorn_app
 from its_on.models import switches
 
 from .helpers import create_sample_data, create_tables, drop_tables, setup_db, teardown_db
+
+
+class AsyncMock(MagicMock):
+    async def __call__(self, *args, **kwargs):
+        return super(AsyncMock, self).__call__(*args, **kwargs)
 
 
 @pytest.fixture()
@@ -59,7 +65,6 @@ def switches_full_info_expected_result():
                 'name': 'switch1',
                 'is_active': True,
                 'is_hidden': False,
-                'group': None,
                 'groups': ['group1', 'group2'],
                 'version': None,
                 'comment': None,
@@ -68,7 +73,6 @@ def switches_full_info_expected_result():
                 'name': 'switch2',
                 'is_active': True,
                 'is_hidden': False,
-                'group': None,
                 'groups': ['group1'],
                 'version': None,
                 'comment': None,
@@ -77,7 +81,6 @@ def switches_full_info_expected_result():
                 'name': 'switch3',
                 'is_active': False,
                 'is_hidden': False,
-                'group': None,
                 'groups': ['group1'],
                 'version': 4,
                 'comment': None,
@@ -86,7 +89,6 @@ def switches_full_info_expected_result():
                 'name': 'switch4',
                 'is_active': True,
                 'is_hidden': False,
-                'group': None,
                 'groups': ['group1', 'group3'],
                 'version': 4,
                 'comment': None,
@@ -95,7 +97,6 @@ def switches_full_info_expected_result():
                 'name': 'switch5',
                 'is_active': True,
                 'is_hidden': False,
-                'group': None,
                 'groups': ['group2'],
                 'version': 4,
                 'comment': None,
@@ -104,7 +105,6 @@ def switches_full_info_expected_result():
                 'name': 'switch6',
                 'is_active': True,
                 'is_hidden': True,
-                'group': None,
                 'groups': ['group2'],
                 'version': 4,
                 'comment': None,
@@ -113,10 +113,51 @@ def switches_full_info_expected_result():
                 'name': 'switch7',
                 'is_active': True,
                 'is_hidden': False,
-                'group': None,
                 'groups': ['soft_delete'],
                 'version': None,
                 'comment': None,
             },
         ],
     }
+
+
+@pytest.fixture(scope='function')
+def get_switches_data_mocked_existing_switch(mocker):
+    mock = mocker.patch(
+        'its_on.admin.views.switches.SwitchesCopyAdminView._get_switches_data',
+        new_callable=AsyncMock,
+    )
+    mock.return_value = {
+        'result': [
+            {
+                'name': 'switch7',
+                'is_active': False,
+                'is_hidden': False,
+                'groups': ['soft_delete'],
+                'version': None,
+                'comment': None,
+            },
+        ],
+    }
+    return mock
+
+
+@pytest.fixture(scope='function')
+def get_switches_data_mocked_new_switch(mocker):
+    mock = mocker.patch(
+        'its_on.admin.views.switches.SwitchesCopyAdminView._get_switches_data',
+        new_callable=AsyncMock,
+    )
+    mock.return_value = {
+        'result': [
+            {
+                'name': 'extremely_new_switch',
+                'is_active': True,
+                'is_hidden': False,
+                'groups': [],
+                'version': 8,
+                'comment': '',
+            },
+        ],
+    }
+    return mock

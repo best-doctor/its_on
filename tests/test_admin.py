@@ -116,3 +116,54 @@ async def test_resurrect_switch(setup_tables_and_data, client, login, switch):
     content = await response.content.read()
 
     assert 'switch3' in content.decode('utf-8')
+
+
+async def test_switches_copy_without_auhtorize(setup_tables_and_data, client):
+    response = await client.post('/zbs/switches/copy')
+
+    assert response.status == 401
+
+
+@pytest.mark.usefixtures('setup_tables_and_data', 'get_switches_data_mocked_existing_switch')
+async def test_switches_copy_existing_switch(client, login):
+    response = await client.post('/zbs/switches/copy')
+    async with client.server.app['db'].acquire() as conn:
+        result = await conn.execute(switches.count())
+        switches_count = await result.first()
+        switches_count = switches_count[0]
+
+        result = await conn.execute(switches.select().where(switches.c.name == 'switch7'))
+        old_switch = await result.first()
+
+    assert response.status == 200
+    assert switches_count == 7
+    assert old_switch.is_active
+
+
+@pytest.mark.usefixtures('setup_tables_and_data', 'get_switches_data_mocked_existing_switch')
+async def test_switches_update_existing_switch(client, login):
+    response = await client.post(f'/zbs/switches/copy?update_existing=true')
+    async with client.server.app['db'].acquire() as conn:
+        result = await conn.execute(switches.count())
+        switches_count = await result.first()
+        switches_count = switches_count[0]
+
+        result = await conn.execute(switches.select().where(switches.c.name == 'switch7'))
+        old_switch = await result.first()
+
+    assert response.status == 200
+    assert switches_count == 7
+    assert not old_switch.is_active
+
+
+@pytest.mark.usefixtures('setup_tables_and_data', 'get_switches_data_mocked_new_switch')
+async def test_switches_copy_new_switch(client, login):
+    response = await client.post('/zbs/switches/copy')
+    async with client.server.app['db'].acquire() as conn:
+        result = await conn.execute(
+            switches.select().where(switches.c.name == 'extremely_new_switch'))
+        new_switch = await result.first()
+
+    assert response.status == 200
+    assert new_switch is not None
+    assert new_switch.name == 'extremely_new_switch'

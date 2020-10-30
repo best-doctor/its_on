@@ -9,6 +9,7 @@ from auth.views import LoginView, LogoutView
 from its_on.views import SwitchListView, SwitchFullListView
 from its_on.admin.views.switches import (
     SwitchListAdminView, SwitchDetailAdminView, SwitchDeleteAdminView, SwitchAddAdminView,
+    SwitchesCopyAdminView,
 )
 from its_on.admin.views.users import (
     UserDetailAdminView, UserListAdminView,
@@ -23,6 +24,7 @@ def setup_routes(app: Application, base_dir: Path, cors_config: CorsConfig) -> N
     app.router.add_view('/zbs/logout', LogoutView)
     app.router.add_view('/zbs/switches', SwitchListAdminView, name='switches_list')
     app.router.add_view('/zbs/switches/add', SwitchAddAdminView, name='switches_add')
+    app.router.add_view('/zbs/switches/copy', SwitchesCopyAdminView, name='switches_copy')
     app.router.add_view('/zbs/switches/{id}', SwitchDetailAdminView, name='switch_detail')
     app.router.add_view('/zbs/switches/{id}/delete', SwitchDeleteAdminView)
     app.router.add_view('/zbs/users', UserListAdminView)

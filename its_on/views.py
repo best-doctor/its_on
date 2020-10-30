@@ -77,7 +77,6 @@ class SwitchFullListView(CorsViewMixin, web.View):
                 'name': obj.name,
                 'is_active': obj.is_active,
                 'is_hidden': obj.is_hidden,
-                'group': obj.group,
                 'groups': obj.groups,
                 'version': obj.version,
                 'comment': obj.comment,
