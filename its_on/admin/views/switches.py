@@ -175,16 +175,19 @@ class SwitchesCopyAdminView(web.View, CreateMixin):
             await self.create_object(self.request, switch_data)
         except (ValidationError, psycopg2.IntegrityError):
             if update_existing:
-                async with self.request.app['db'].acquire() as conn:
-                    update_query = (
-                        self.model.update()
-                        .where(self.model.c.name == switch_data['name'])
-                        .values(switch_data)
-                    )
-                    try:
-                        await conn.execute(update_query)
-                    except (ValidationError, psycopg2.IntegrityError):
-                        pass
+                await self._update_switch(switch_data)
+
+    async def _update_switch(self, switch_data: MultiDictProxy) -> None:
+        async with self.request.app['db'].acquire() as conn:
+            update_query = (
+                self.model.update()
+                .where(self.model.c.name == switch_data['name'])
+                .values(switch_data)
+            )
+            try:
+                await conn.execute(update_query)
+            except (ValidationError, psycopg2.IntegrityError):
+                pass
 
 
 class SwitchDeleteAdminView(web.View, GetObjectMixin):
