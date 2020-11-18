@@ -44,3 +44,4 @@ passlib==1.7.1
 gunicorn==20.0.4
 uvloop==0.14.0
 click==7.0
+apispec==3.0.0
