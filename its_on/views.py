@@ -9,7 +9,9 @@ from sqlalchemy.sql import and_, true, false, Select
 
 from its_on.cache import switch_list_cache_key_builder
 from its_on.models import switches
-from its_on.schemes import SwitchListRequestSchema, SwitchListResponseSchema
+from its_on.schemes import (
+    SwitchListRequestSchema, SwitchListResponseSchema, SwitchFullListResponseSchema,
+)
 
 
 class SwitchListView(CorsViewMixin, web.View):
@@ -56,3 +58,40 @@ class SwitchListView(CorsViewMixin, web.View):
             filters.append(switches.c.version <= version)
 
         return queryset.where(and_(*filters))
+
+
+class SwitchFullListView(CorsViewMixin, web.View):
+    @docs(
+        summary='List of all active flags with full info.',
+        description='Returns a list of all active flags with all necessary info for recreation.',
+    )
+    @response_schema(SwitchFullListResponseSchema(), 200)
+    async def get(self) -> web.Response:
+        data = await self.get_response_data()
+        return web.json_response(data)
+
+    async def get_response_data(self) -> Dict:
+        objects = await self.load_objects()
+        data = [
+            {
+                'name': obj.name,
+                'is_active': obj.is_active,
+                'is_hidden': obj.is_hidden,
+                'groups': obj.groups,
+                'version': obj.version,
+                'comment': obj.comment,
+            }
+            for obj in objects
+        ]
+        return {
+            'result': data,
+        }
+
+    async def load_objects(self) -> List:
+        async with self.request.app['db'].acquire() as conn:
+            queryset = self.get_queryset()
+            result = await conn.execute(queryset)
+            return await result.fetchall()
+
+    def get_queryset(self) -> Select:
+        return switches.select()

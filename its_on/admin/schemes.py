@@ -19,17 +19,23 @@ class SplitList(fields.List):
 
 class BaseSwitchAdminPostRequestSchema(Schema):
     is_active = fields.Boolean()
-    groups = SplitList(fields.Str())
     version = fields.Int()
     comment = fields.Str()
 
 
 class SwitchDetailAdminPostRequestSchema(BaseSwitchAdminPostRequestSchema):
-    pass
+    groups = SplitList(fields.Str())
 
 
 class SwitchAddAdminPostRequestSchema(BaseSwitchAdminPostRequestSchema):
     name = fields.Str()
+    groups = SplitList(fields.Str())
+
+
+class SwitchAddFromAnotherItsOnAdminPostRequestSchema(BaseSwitchAdminPostRequestSchema):
+    name = fields.Str()
+    groups = fields.List(fields.Str())
+    is_hidden = fields.Boolean()
 
 
 class UserDetailPostRequestSchema(Schema):

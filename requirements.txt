@@ -15,6 +15,7 @@ webargs==5.5.3
 
 pytest-cov==2.8.1
 pytest-aiohttp==0.3.0
+pytest-mock==3.1.0
 
 pydocstyle==3.0.0
 flake8==3.7.9
