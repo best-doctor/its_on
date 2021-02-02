@@ -33,6 +33,16 @@ async def test_switch_cors(client):
     assert response.headers['Access-Control-Allow-Origin'] == 'http://localhost:8081'
 
 
+async def test_switch_cors_options(client):
+    response = await client.options('/api/v1/switch', headers={
+        'Origin': 'http://localhost:8081',
+        'Access-Control-Request-Method': 'GET',
+    })
+
+    assert response.status == 200
+    assert response.headers['Access-Control-Allow-Origin'] == 'http://localhost:8081'
+
+
 @pytest.mark.parametrize('version,expected_result', [
     (1, {'count': 0, 'result': []}),
     (4, {'count': 1, 'result': ['switch4']}),

@@ -72,7 +72,7 @@ def init_app(
                    DBAuthorizationPolicy(app))
 
     cors_config = {
-        origin: aiohttp_cors.ResourceOptions(allow_methods=['GET'])
+        origin: aiohttp_cors.ResourceOptions(allow_methods=['GET', 'OPTIONS'])
         for origin in settings.CORS_ALLOW_ORIGIN
     }
     cors = aiohttp_cors.setup(app, defaults=cors_config)
