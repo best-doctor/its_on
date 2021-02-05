@@ -9,6 +9,7 @@ default:
   cache_ttl: 300
   redis_url: redis://127.0.0.1:6379/1
   cors_allow_origin: ['http://localhost:8081']
+  cors_allow_headers: []
   enable_switches_full_info_endpoint: false
   sync_from_its_on_url: '@none'
 
