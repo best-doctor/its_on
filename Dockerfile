@@ -3,7 +3,7 @@ FROM python:3.8.2
 LABEL maintainer="i.perepelytsyn@bestdoctor.ru"
 
 ARG USER_NAME=its_on
-ARG UID=999
+ARG UID=8100
 ARG APP_PATH=/its_on
 
 RUN useradd --uid=${UID} --no-log-init -r ${USER_NAME}
