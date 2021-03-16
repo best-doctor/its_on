@@ -14,7 +14,7 @@ def setup_cache(app: web.Application) -> None:
 
 
 class DateTimeJSONEncoder(json.JSONEncoder):
-    def default(self, obj) -> Any:
+    def default(self, obj: Any) -> Any:
         if isinstance(obj, (datetime.datetime, datetime.date, datetime.time)):
             return obj.isoformat()
 
