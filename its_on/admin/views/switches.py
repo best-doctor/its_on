@@ -1,23 +1,23 @@
 from typing import Dict, List, Optional, Union, Any
 
-from aiopg.sa.result import RowProxy
 import aiohttp_jinja2
-from aiohttp import web
-from aiohttp import ClientSession
-from auth.decorators import login_required
-from dynaconf import settings
-from its_on.models import switches
-from marshmallow.exceptions import ValidationError
 import psycopg2
-from sqlalchemy.sql import false, Select
+from aiohttp import ClientSession
+from aiohttp import web
+from aiopg.sa.result import RowProxy
+from dynaconf import settings
+from marshmallow.exceptions import ValidationError
 from multidict import MultiDictProxy
+from sqlalchemy.sql import false, Select
 
+from auth.decorators import login_required
 from its_on.admin.mixins import GetObjectMixin, CreateMixin, UpdateMixin
+from its_on.admin.permissions import CanEditSwitch
 from its_on.admin.schemes import (
     SwitchDetailAdminPostRequestSchema, SwitchAddAdminPostRequestSchema,
-    SwitchAddFromAnotherItsOnAdminPostRequestSchema,
+    SwitchCopyFromAnotherItsOnAdminPostRequestSchema,
 )
-from its_on.admin.permissions import CanEditSwitch
+from its_on.models import switches
 
 
 class SwitchListAdminView(web.View):
@@ -149,7 +149,7 @@ class SwitchAddAdminView(web.View, CreateMixin):
 
 
 class SwitchesCopyAdminView(web.View, CreateMixin):
-    validator = SwitchAddFromAnotherItsOnAdminPostRequestSchema()
+    validator = SwitchCopyFromAnotherItsOnAdminPostRequestSchema()
     model = switches
 
     @staticmethod

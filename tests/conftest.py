@@ -3,9 +3,9 @@ from unittest.mock import MagicMock
 
 import pytest
 from dynaconf import settings
+
 from its_on.main import init_gunicorn_app
 from its_on.models import switches
-
 from .helpers import create_sample_data, create_tables, drop_tables, setup_db, teardown_db
 
 
@@ -68,6 +68,7 @@ def switches_full_info_expected_result():
                 'groups': ['group1', 'group2'],
                 'version': None,
                 'comment': None,
+                'created_at': '2020-04-15T00:00:00',
             },
             {
                 'name': 'switch2',
@@ -76,6 +77,7 @@ def switches_full_info_expected_result():
                 'groups': ['group1'],
                 'version': None,
                 'comment': None,
+                'created_at': '2020-04-15T00:00:00',
             },
             {
                 'name': 'switch3',
@@ -84,6 +86,7 @@ def switches_full_info_expected_result():
                 'groups': ['group1'],
                 'version': 4,
                 'comment': None,
+                'created_at': '2020-04-15T00:00:00',
             },
             {
                 'name': 'switch4',
@@ -92,6 +95,7 @@ def switches_full_info_expected_result():
                 'groups': ['group1', 'group3'],
                 'version': 4,
                 'comment': None,
+                'created_at': '2020-04-15T00:00:00',
             },
             {
                 'name': 'switch5',
@@ -100,6 +104,7 @@ def switches_full_info_expected_result():
                 'groups': ['group2'],
                 'version': 4,
                 'comment': None,
+                'created_at': '2020-04-15T00:00:00',
             },
             {
                 'name': 'switch6',
@@ -108,6 +113,7 @@ def switches_full_info_expected_result():
                 'groups': ['group2'],
                 'version': 4,
                 'comment': None,
+                'created_at': '2020-04-15T00:00:00',
             },
             {
                 'name': 'switch7',
@@ -116,6 +122,7 @@ def switches_full_info_expected_result():
                 'groups': ['soft_delete'],
                 'version': None,
                 'comment': None,
+                'created_at': '2020-04-15T00:00:00',
             },
         ],
     }

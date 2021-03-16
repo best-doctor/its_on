@@ -1,3 +1,5 @@
+import functools
+import json
 from typing import List, Dict
 
 from aiocache import cached
@@ -12,6 +14,7 @@ from its_on.models import switches
 from its_on.schemes import (
     SwitchListRequestSchema, SwitchListResponseSchema, SwitchFullListResponseSchema,
 )
+from its_on.utils import DateTimeJSONEncoder
 
 
 class SwitchListView(CorsViewMixin, web.View):
@@ -68,7 +71,7 @@ class SwitchFullListView(CorsViewMixin, web.View):
     @response_schema(SwitchFullListResponseSchema(), 200)
     async def get(self) -> web.Response:
         data = await self.get_response_data()
-        return web.json_response(data)
+        return web.json_response(data, dumps=functools.partial(json.dumps, cls=DateTimeJSONEncoder))
 
     async def get_response_data(self) -> Dict:
         objects = await self.load_objects()
@@ -80,6 +83,7 @@ class SwitchFullListView(CorsViewMixin, web.View):
                 'groups': obj.groups,
                 'version': obj.version,
                 'comment': obj.comment,
+                'created_at': obj.created_at,
             }
             for obj in objects
         ]

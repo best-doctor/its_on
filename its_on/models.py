@@ -1,8 +1,9 @@
+import datetime
+
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 from auth import models
-
 
 metadata = sa.MetaData()
 
@@ -17,6 +18,13 @@ switches = sa.Table(
     sa.Column('groups', postgresql.ARRAY(sa.String(255))),
     sa.Column('version', sa.Integer, nullable=True),
     sa.Column('comment', sa.Text),
+    sa.Column('created_at', sa.DateTime, default=lambda x: datetime.datetime.now(), nullable=True),
+    sa.Column(
+        'updated_at', sa.DateTime,
+        default=lambda x: datetime.datetime.now(),
+        onupdate=lambda x: datetime.datetime.now(),
+        nullable=True,
+    ),
 )
 
 sa.Index('idx_name_group_is_active', switches.c.name, switches.c.group, switches.c.is_active)
