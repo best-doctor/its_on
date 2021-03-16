@@ -18,11 +18,11 @@ switches = sa.Table(
     sa.Column('groups', postgresql.ARRAY(sa.String(255))),
     sa.Column('version', sa.Integer, nullable=True),
     sa.Column('comment', sa.Text),
-    sa.Column('created_at', sa.DateTime, default=lambda x: datetime.datetime.now(), nullable=True),
+    sa.Column('created_at', sa.DateTime, default=lambda: datetime.datetime.now(), nullable=True),
     sa.Column(
         'updated_at', sa.DateTime,
-        default=lambda x: datetime.datetime.now(),
-        onupdate=lambda x: datetime.datetime.now(),
+        default=lambda: datetime.datetime.now(),
+        onupdate=lambda: datetime.datetime.now(),
         nullable=True,
     ),
 )
