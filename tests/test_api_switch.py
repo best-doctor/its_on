@@ -46,7 +46,7 @@ async def test_switch_filter_by_version(version, expected_result, setup_tables_a
 
 
 async def test_switches_full_info(
-    setup_tables_and_data, client, switches_full_info_expected_result, mocker,
+    setup_tables_and_data, client, switches_full_info_expected_result,
 ):
     response = await client.get('/api/v1/switches_full_info')
 
