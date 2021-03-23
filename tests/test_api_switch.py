@@ -27,7 +27,7 @@ async def test_switch_filter_by_group(group, expected_result, setup_tables_and_d
 
 
 async def test_switch_cors(client):
-    response = await client.get(f'/api/v1/switch?group=group1', headers={'Origin': 'http://localhost:8081'})
+    response = await client.get('/api/v1/switch?group=group1', headers={'Origin': 'http://localhost:8081'})
 
     assert response.status == 200
     assert response.headers['Access-Control-Allow-Origin'] == 'http://localhost:8081'
@@ -58,7 +58,7 @@ async def test_switch_filter_by_version(version, expected_result, setup_tables_a
 async def test_switches_full_info(
     setup_tables_and_data, client, switches_full_info_expected_result,
 ):
-    response = await client.get(f'/api/v1/switches_full_info')
+    response = await client.get('/api/v1/switches_full_info')
 
     assert response.status == 200
     assert await response.json() == switches_full_info_expected_result

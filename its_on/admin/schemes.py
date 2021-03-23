@@ -38,6 +38,13 @@ class SwitchAddFromAnotherItsOnAdminPostRequestSchema(BaseSwitchAdminPostRequest
     is_hidden = fields.Boolean()
 
 
+class SwitchCopyFromAnotherItsOnAdminPostRequestSchema(BaseSwitchAdminPostRequestSchema):
+    name = fields.Str()
+    groups = fields.List(fields.Str())
+    is_hidden = fields.Boolean()
+    created_at = fields.DateTime(required=False, allow_none=True)
+
+
 class UserDetailPostRequestSchema(Schema):
     is_superuser = fields.Boolean()
     switch_ids = fields.Integer()

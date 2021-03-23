@@ -23,17 +23,35 @@
       <tr>
         <th>Switch name</th>
         <th>Is active</th>
+        <th>Created at</th>
+        <th>Updated at</th>
       </tr>
     </thead>
     <tbody>
       {% for flag in flags %}
         <tr>
           <td><a href="/zbs/switches/{{ flag.id }}">{{ flag.name }}</a></td>
-          {% if flag.is_active %}
-            <td><span class="glyphicon glyphicon-ok green"></span></td>
-          {% else %}
-            <td><span class="glyphicon glyphicon-remove red"></span></td>
-          {% endif %}
+          <td>
+            {% if flag.is_active %}
+              <span class="glyphicon glyphicon-ok green"></span>
+            {% else %}
+              <span class="glyphicon glyphicon-remove red"></span>
+            {% endif %}
+          </td>
+          <td>
+            {% if flag.created_at %}
+              {{ flag.created_at.strftime('%d-%m-%Y %H:%M:%S') }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+           <td>
+            {% if flag.updated_at %}
+              {{ flag.updated_at.strftime('%d-%m-%Y %H:%M:%S') }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
         </tr>
       {% endfor %}
     </tbody>
