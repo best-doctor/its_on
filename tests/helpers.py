@@ -1,3 +1,5 @@
+import datetime
+
 from dynaconf.base import Settings
 from freezegun import freeze_time
 from sqlalchemy import create_engine, MetaData
@@ -58,7 +60,7 @@ def drop_tables(config: Settings) -> None:
     meta.drop_all(bind=engine, tables=[switches, users, user_switches])
 
 
-@freeze_time('2020-04-15')
+@freeze_time(datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc))
 def create_sample_data(config: Settings) -> None:
     engine = get_engine(config.DATABASE.DSN)
 

@@ -39,7 +39,7 @@ async def test_switch_detail(setup_tables_and_data, client, login, switch):
     assert switch.name in content.decode('utf-8')
 
 
-@freeze_time('2020-04-15')
+@freeze_time(datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc))
 async def test_switch_add(setup_tables_and_data, client, login, switch):
     response = await client.get('/zbs/switches/add')
     content = await response.content.read()
@@ -71,7 +71,7 @@ async def test_switch_add(setup_tables_and_data, client, login, switch):
             )
         assert getattr(created_switch, field_name) == field_value
 
-    assert created_switch.created_at == datetime.datetime(2020, 4, 15)
+    assert created_switch.created_at == datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc)
 
 
 async def test_switch_update(setup_tables_and_data, client, login, switch):
@@ -83,8 +83,8 @@ async def test_switch_update(setup_tables_and_data, client, login, switch):
         updated_switch = await result.first()
 
     assert updated_switch.is_active is False
-    assert updated_switch.created_at == datetime.datetime(2020, 4, 15)
-    assert updated_switch.updated_at == datetime.datetime(2020, 8, 15)
+    assert updated_switch.created_at == datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc)
+    assert updated_switch.updated_at == datetime.datetime(2020, 8, 15, tzinfo=datetime.timezone.utc)
 
 
 async def test_switch_soft_delete(setup_tables_and_data, client, login, switch):
@@ -135,11 +135,11 @@ async def test_switches_copy_without_auhtorize(setup_tables_and_data, client):
 
 @pytest.mark.parametrize(
     ('http_get_arguments', 'old_switch_is_active_expected', 'expected_updated_at'), [
-        ('', True, datetime.datetime(2020, 4, 15)),
-        ('?update_existing=true', False, datetime.datetime(2020, 10, 15)),
+        ('', True, datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc)),
+        ('?update_existing=true', False, datetime.datetime(2020, 10, 15, tzinfo=datetime.timezone.utc)),
     ],
 )
-@freeze_time('2020-10-15')
+@freeze_time(datetime.datetime(2020, 10, 15, tzinfo=datetime.timezone.utc))
 @pytest.mark.usefixtures('setup_tables_and_data', 'get_switches_data_mocked_existing_switch')
 async def test_switches_copy_existing_switch_foo(
     client, login,

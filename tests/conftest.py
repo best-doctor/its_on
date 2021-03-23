@@ -68,7 +68,7 @@ def switches_full_info_expected_result():
                 'groups': ['group1', 'group2'],
                 'version': None,
                 'comment': None,
-                'created_at': '2020-04-15T00:00:00',
+                'created_at': '2020-04-15T00:00:00+00:00',
             },
             {
                 'name': 'switch2',
@@ -77,7 +77,7 @@ def switches_full_info_expected_result():
                 'groups': ['group1'],
                 'version': None,
                 'comment': None,
-                'created_at': '2020-04-15T00:00:00',
+                'created_at': '2020-04-15T00:00:00+00:00',
             },
             {
                 'name': 'switch3',
@@ -86,7 +86,7 @@ def switches_full_info_expected_result():
                 'groups': ['group1'],
                 'version': 4,
                 'comment': None,
-                'created_at': '2020-04-15T00:00:00',
+                'created_at': '2020-04-15T00:00:00+00:00',
             },
             {
                 'name': 'switch4',
@@ -95,7 +95,7 @@ def switches_full_info_expected_result():
                 'groups': ['group1', 'group3'],
                 'version': 4,
                 'comment': None,
-                'created_at': '2020-04-15T00:00:00',
+                'created_at': '2020-04-15T00:00:00+00:00',
             },
             {
                 'name': 'switch5',
@@ -104,7 +104,7 @@ def switches_full_info_expected_result():
                 'groups': ['group2'],
                 'version': 4,
                 'comment': None,
-                'created_at': '2020-04-15T00:00:00',
+                'created_at': '2020-04-15T00:00:00+00:00',
             },
             {
                 'name': 'switch6',
@@ -113,7 +113,7 @@ def switches_full_info_expected_result():
                 'groups': ['group2'],
                 'version': 4,
                 'comment': None,
-                'created_at': '2020-04-15T00:00:00',
+                'created_at': '2020-04-15T00:00:00+00:00',
             },
             {
                 'name': 'switch7',
@@ -122,7 +122,7 @@ def switches_full_info_expected_result():
                 'groups': ['soft_delete'],
                 'version': None,
                 'comment': None,
-                'created_at': '2020-04-15T00:00:00',
+                'created_at': '2020-04-15T00:00:00+00:00',
             },
         ],
     }
