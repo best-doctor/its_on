@@ -63,7 +63,7 @@ Apply database migrations:
 
 Create admin user:
 
-`$ python script/create_user.py --login=admmin --password=passwordd --is_superuser`
+`$ python scripts/create_user.py --login=admin --password=password --is_superuser`
 
 Run server:
 
@@ -111,7 +111,7 @@ Don't forget to create a superuser:
 
 ```bash
 docker exec -t its-on python scripts/create_user.py --login=admin \
-                                                    --password=passwordd \
+                                                    --password=password \
                                                     --is_superuser
 ```
 

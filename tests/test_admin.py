@@ -3,7 +3,8 @@ import datetime
 import pytest
 from freezegun import freeze_time
 
-from its_on.models import switches
+from auth.models import users
+from its_on.models import switch_history, switches
 
 
 async def test_switches_list_without_auhtorize(setup_tables_and_data, client):
@@ -79,12 +80,24 @@ async def test_switch_update(setup_tables_and_data, client, login, switch):
         await client.post('/zbs/switches/1', data={'is_active': False})
 
     async with client.server.app['db'].acquire() as conn:
-        result = await conn.execute(switches.select().where(switches.c.id == 1))
-        updated_switch = await result.first()
+        switches_query_result = await conn.execute(switches.select().where(switches.c.id == 1))
+        updated_switch = await switches_query_result.first()
+        switch_history_query_result = await conn.execute(
+            switch_history.select().where(switch_history.c.switch_id == updated_switch.id)
+        )
+        new_switch_history = await switch_history_query_result.first()
+        admin_query_result = await conn.execute(users.select().where(users.c.login == 'admin'))
+        admin = await admin_query_result.first()
 
     assert updated_switch.is_active is False
     assert updated_switch.created_at == datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc)
     assert updated_switch.updated_at == datetime.datetime(2020, 8, 15, tzinfo=datetime.timezone.utc)
+    assert new_switch_history is not None
+    assert new_switch_history.new_value == 'False'
+    assert new_switch_history.user_id == admin.id
+    assert new_switch_history.changed_at == datetime.datetime(
+        2020, 8, 15, tzinfo=datetime.timezone.utc
+    )
 
 
 async def test_switch_soft_delete(setup_tables_and_data, client, login, switch):

@@ -7,7 +7,7 @@ from sqlalchemy.engine.strategies import EngineStrategy
 
 from auth.models import users
 from its_on.db_utils import parse_dsn
-from its_on.models import switches, user_switches
+from its_on.models import switches, user_switches, switch_history
 
 
 def get_engine(dsn: str) -> EngineStrategy:
@@ -50,14 +50,14 @@ def create_tables(config: Settings) -> None:
     engine = get_engine(config.DATABASE.DSN)
 
     meta = MetaData()
-    meta.create_all(bind=engine, tables=[switches, users, user_switches])
+    meta.create_all(bind=engine, tables=[switches, users, user_switches, switch_history])
 
 
 def drop_tables(config: Settings) -> None:
     engine = get_engine(config.DATABASE.DSN)
 
     meta = MetaData()
-    meta.drop_all(bind=engine, tables=[switches, users, user_switches])
+    meta.drop_all(bind=engine, tables=[switches, users, user_switches, switch_history])
 
 
 @freeze_time(datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc))
