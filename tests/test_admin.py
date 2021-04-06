@@ -83,7 +83,7 @@ async def test_switch_update(setup_tables_and_data, client, login, switch):
         switches_query_result = await conn.execute(switches.select().where(switches.c.id == 1))
         updated_switch = await switches_query_result.first()
         switch_history_query_result = await conn.execute(
-            switch_history.select().where(switch_history.c.switch_id == updated_switch.id)
+            switch_history.select().where(switch_history.c.switch_id == updated_switch.id),
         )
         new_switch_history = await switch_history_query_result.first()
         admin_query_result = await conn.execute(users.select().where(users.c.login == 'admin'))
@@ -96,7 +96,7 @@ async def test_switch_update(setup_tables_and_data, client, login, switch):
     assert new_switch_history.new_value == 'False'
     assert new_switch_history.user_id == admin.id
     assert new_switch_history.changed_at == datetime.datetime(
-        2020, 8, 15, tzinfo=datetime.timezone.utc
+        2020, 8, 15, tzinfo=datetime.timezone.utc,
     )
 
 

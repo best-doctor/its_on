@@ -38,7 +38,7 @@ async def save_switch_history(request: web.Request, switch: switches, new_value:
         create_query = switch_history.insert().values(
             switch_id=switch.id,
             user_id=user.id,
-            new_value=new_value
+            new_value=new_value,
         )
 
         await conn.execute(create_query)
@@ -47,7 +47,7 @@ async def save_switch_history(request: web.Request, switch: switches, new_value:
 async def get_switch_history(request: web.Request, switch: switches) -> List[RowProxy]:
     async with request.app['db'].acquire() as conn:
         query = switch_history.select(
-            whereclause=(switch_history.c.switch_id == switch.id)
+            whereclause=(switch_history.c.switch_id == switch.id),
         ).order_by(switch_history.c.changed_at.desc())
         result = await conn.execute(query)
         return await result.fetchall()

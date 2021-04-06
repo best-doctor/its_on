@@ -51,6 +51,6 @@ switch_history = sa.Table(
         'changed_at',
         AwareDateTime,
         default=lambda: datetime.datetime.utcnow(),
-        nullable=False
+        nullable=False,
     ),
 )

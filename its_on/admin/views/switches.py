@@ -54,7 +54,7 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
     model = switches
 
     async def get_context_data(
-        self, switch: Optional[RowProxy] = None, errors: ValidationError = None, updated: bool = False
+        self, switch: Optional[RowProxy] = None, errors: ValidationError = None, updated: bool = False,
     ) -> Dict[str, Any]:
         switch = switch if switch else await self.get_object(self.request)
         switch_history = await get_switch_history(self.request, switch)
