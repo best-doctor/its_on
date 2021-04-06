@@ -91,7 +91,7 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
             return await self.get_context_data(errors=error)
 
         switch_object = await self.get_object(self.request)
-        new_value = form_data.get('is_active')
+        new_value = str(form_data.get('is_active'))
         await save_switch_history(self.request, switch_object, new_value)
 
         return await self.get_context_data(updated=True)
@@ -133,7 +133,7 @@ class SwitchAddAdminView(web.View, CreateMixin):
                     form_data)
                 await conn.execute(update_query)
 
-                new_value = form_data.get('is_active')
+                new_value = str(form_data.get('is_active'))
                 await save_switch_history(self.request, already_created_switch, new_value)
 
                 location = self.request.app.router['switches_list'].url_for()
