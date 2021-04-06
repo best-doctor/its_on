@@ -39,3 +39,18 @@ user_switches = sa.Table(
     sa.Column('switch_id', sa.Integer, sa.ForeignKey(switches.c.id)),
     sa.UniqueConstraint('switch_id', 'user_id', name='user_switch_unique'),
 )
+
+
+switch_history = sa.Table(
+    'switch_history', metadata,
+    sa.Column('id', sa.Integer, primary_key=True),
+    sa.Column('switch_id', sa.Integer, sa.ForeignKey(switches.c.id)),
+    sa.Column('user_id', sa.Integer, sa.ForeignKey(models.users.c.id), nullable=False),
+    sa.Column('new_value', sa.String(64), nullable=False),
+    sa.Column(
+        'changed_at',
+        AwareDateTime,
+        default=lambda: datetime.datetime.utcnow(),
+        nullable=False,
+    ),
+)

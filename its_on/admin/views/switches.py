@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union, Any
+from typing import Any, Dict, List, Optional, Union
 
 import aiohttp_jinja2
 import psycopg2
@@ -8,15 +8,17 @@ from aiopg.sa.result import RowProxy
 from dynaconf import settings
 from marshmallow.exceptions import ValidationError
 from multidict import MultiDictProxy
-from sqlalchemy.sql import false, Select
+from sqlalchemy.sql import Select, false
 
 from auth.decorators import login_required
-from its_on.admin.mixins import GetObjectMixin, CreateMixin, UpdateMixin
+from its_on.admin.mixins import CreateMixin, GetObjectMixin, UpdateMixin
 from its_on.admin.permissions import CanEditSwitch
 from its_on.admin.schemes import (
-    SwitchDetailAdminPostRequestSchema, SwitchAddAdminPostRequestSchema,
+    SwitchAddAdminPostRequestSchema,
     SwitchCopyFromAnotherItsOnAdminPostRequestSchema,
+    SwitchDetailAdminPostRequestSchema,
 )
+from its_on.admin.utils import get_switch_history, save_switch_history
 from its_on.models import switches
 
 
@@ -51,9 +53,14 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
     permissions = [CanEditSwitch]
     model = switches
 
-    async def get_context_data(self, errors: ValidationError = None, updated: bool = False) -> Dict[str, Any]:
+    async def get_context_data(
+        self, switch: Optional[RowProxy] = None, errors: ValidationError = None, updated: bool = False,
+    ) -> Dict[str, Any]:
+        switch = switch if switch else await self.get_object(self.request)
+        switch_history = await get_switch_history(self.request, switch)
         context_data = {
-            'object': await self.get_object(self.request),
+            'object': switch,
+            'switch_history': switch_history,
             'errors': errors,
             'updated': updated,
         }
@@ -61,7 +68,7 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
 
     @aiohttp_jinja2.template('switches/detail.html')
     @login_required
-    async def get(self) -> Dict[str, RowProxy]:
+    async def get(self) -> Dict[str, Any]:
         await self._check_permissions()
 
         switch_object = await self.get_object(self.request)
@@ -69,7 +76,7 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
         if switch_object.is_hidden:
             return {'object': None, 'errors': 'Oops! this switch was "deleted".'}
 
-        return {'object': switch_object}
+        return await self.get_context_data(switch=switch_object)
 
     @aiohttp_jinja2.template('switches/detail.html')
     @login_required
@@ -82,6 +89,10 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
             await self.update_object(self.request, form_data)
         except ValidationError as error:
             return await self.get_context_data(errors=error)
+
+        switch_object = await self.get_object(self.request)
+        new_value = str(form_data.get('is_active'))
+        await save_switch_history(self.request, switch_object, new_value)
 
         return await self.get_context_data(updated=True)
 
@@ -121,6 +132,9 @@ class SwitchAddAdminView(web.View, CreateMixin):
                     self.model.c.id == str(already_created_switch.id)).values(
                     form_data)
                 await conn.execute(update_query)
+
+                new_value = str(form_data.get('is_active'))
+                await save_switch_history(self.request, already_created_switch, new_value)
 
                 location = self.request.app.router['switches_list'].url_for()
                 raise web.HTTPFound(location=location)

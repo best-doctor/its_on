@@ -2,48 +2,100 @@
 
 {% block content %}
 
-<div class="col-sm-9">
-  <h2>Flag editing</h2>
-  <br><br>
+  <div class="col-sm-9">
+    <h2>Flag editing</h2>
+    <br><br>
 
-  {% if updated %}
-    <div class="well well-sm success">Updated</div>
-  {% endif %}
+    {% if updated %}
+      <div class="well well-sm success">Updated</div>
+    {% endif %}
 
-  {% if errors %}
-    <div class="well well-sm error">{{ errors }}</div>
-  {% endif %}
+    {% if errors %}
+      <div class="well well-sm error">{{ errors }}</div>
+    {% endif %}
 
 
-  {% if object %}
-    <label>Name: </label> {{ object.name }}
-
-    <form action="/zbs/switches/{{ object.id }}" method="post">
+    {% if object %}
+      <label>Name: </label> {{ object.name }}
       <br>
-      <div class="form-group">
-        <!-- Грязный хак. Нужно для переключения активности флага https://stackoverflow.com/questions/1809494/post-unchecked-html-checkboxes -->
-        <label>Is Active: </label>
-        <input type="checkbox" name="is_active" value="1" {% if object.is_active %} checked="checked" {% endif %}>
-        <input name="is_active" value="0" type="hidden">
-      </div>
+      <label>Created at: </label> {{ object.created_at.strftime('%d-%m-%Y %H:%M:%S') }}
       <br>
-      <div class="form-group">
-        <label>Groups:</label>
-        <input type="text" class="form-control" value="{{ object.groups|join(', ') }}" name="groups">
-      </div>
+      <label>Updated at: </label> {{ object.updated_at.strftime('%d-%m-%Y %H:%M:%S') }}
+
+      <form action="/zbs/switches/{{ object.id }}" method="post">
+        <br>
+        <div class="form-group">
+          <!-- Грязный хак. Нужно для переключения активности флага https://stackoverflow.com/questions/1809494/post-unchecked-html-checkboxes -->
+          <label>Is Active: </label>
+          <input type="checkbox" name="is_active" value="1" {% if object.is_active %} checked="checked" {% endif %}>
+          <input name="is_active" value="0" type="hidden">
+        </div>
+        <br>
+        <div class="form-group">
+          <label>Groups:</label>
+          <input type="text" class="form-control" value="{{ object.groups|join(', ') }}" name="groups">
+        </div>
+        <br>
+        <div class="form-group">
+          <label>Version:</label>
+          <input type="text" class="form-control" value="{{ object.version }}" name="version">
+        </div>
+        <br>
+        <div class="form-group">
+          <label>Comment:</label>
+          <textarea class="form-control" rows="5" name="comment">{{ object.comment }}</textarea>
+        </div>
+        <input type="submit" class="btn btn-default" value="Save">
+        <a class="btn btn-danger float-right" href="/zbs/switches/{{ object.id }}/delete"
+           onclick="return confirm('Are you sure?')">Delete</a>
+      </form>
+
       <br>
-      <div class="form-group">
-        <label>Version:</label>
-        <input type="text" class="form-control" value="{{ object.version }}" name="version">
+
+      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        <div class="panel panel-default">
+          <div class="panel-heading" role="tab" id="headingTwo">
+            <h4 class="panel-title">
+              <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"
+                 aria-expanded="false" aria-controls="collapseTwo">
+                History
+              </a>
+            </h4>
+          </div>
+          <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+            <div class="panel-body">
+
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Changed at</th>
+                    <th>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for switch in switch_history %}
+                    <tr>
+                      <td>
+                        {{ switch.changed_at.strftime('%d-%m-%Y %H:%M:%S') }}
+                      </td>
+                      <td>
+                        {% if switch.new_value == '1' %}
+                          <span class="glyphicon glyphicon-ok green"></span>
+                        {% else %}
+                          <span class="glyphicon glyphicon-remove red"></span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+            </div>
+          </div>
+        </div>
       </div>
-      <br>
-      <div class="form-group">
-        <label>Comment:</label>
-        <textarea class="form-control" rows="5" name="comment">{{ object.comment }}</textarea>
-      </div>
-      <input type="submit" class="btn btn-default" value="Save">
-      <a class="btn btn-danger float-right" href="/zbs/switches/{{ object.id }}/delete" onclick="return confirm('Are you sure?')">Delete</a>
-    </form>
-  {% endif %}
-</div>
+
+    {% endif %}
+  </div>
+
 {% endblock %}
