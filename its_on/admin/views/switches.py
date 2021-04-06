@@ -53,8 +53,10 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
     permissions = [CanEditSwitch]
     model = switches
 
-    async def get_context_data(self, errors: ValidationError = None, updated: bool = False) -> Dict[str, Any]:
-        switch = await self.get_object(self.request)
+    async def get_context_data(
+        self, switch: Optional[RowProxy] = None, errors: ValidationError = None, updated: bool = False
+    ) -> Dict[str, Any]:
+        switch = switch if switch else await self.get_object(self.request)
         switch_history = await get_switch_history(self.request, switch)
         context_data = {
             'object': switch,
@@ -66,7 +68,7 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
 
     @aiohttp_jinja2.template('switches/detail.html')
     @login_required
-    async def get(self) -> Dict[str, RowProxy]:
+    async def get(self) -> Dict[str, Any]:
         await self._check_permissions()
 
         switch_object = await self.get_object(self.request)
@@ -74,7 +76,7 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
         if switch_object.is_hidden:
             return {'object': None, 'errors': 'Oops! this switch was "deleted".'}
 
-        return await self.get_context_data(updated=True)
+        return await self.get_context_data(switch=switch_object)
 
     @aiohttp_jinja2.template('switches/detail.html')
     @login_required
