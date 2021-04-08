@@ -18,10 +18,19 @@
     {% if object %}
       <label>Name: </label> {{ object.name }}
       <br>
-      <label>Created at: </label> {{ object.created_at.strftime('%d-%m-%Y %H:%M:%S') }}
+      <label>Created at: </label>
+      {% if object.created_at %}
+        {{ object.created_at.strftime('%d-%m-%Y %H:%M:%S') }}
+      {% else %}
+        -
+      {% endif %}
       <br>
-      <label>Updated at: </label> {{ object.updated_at.strftime('%d-%m-%Y %H:%M:%S') }}
-
+      <label>Updated at: </label>
+      {% if object.updated_at %}
+        {{ object.updated_at.strftime('%d-%m-%Y %H:%M:%S') }}
+      {% else %}
+        -
+      {% endif %}
       <form action="/zbs/switches/{{ object.id }}" method="post">
         <br>
         <div class="form-group">
