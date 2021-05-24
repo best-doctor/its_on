@@ -1,19 +1,37 @@
-FROM python:3.8.8
+FROM python:3.8-slim AS builder
 
-LABEL maintainer="i.perepelytsyn@bestdoctor.ru"
+ARG APP_DIRECTORY=/its_on
 
+RUN mkdir -p $APP_DIRECTORY
+RUN python -m venv /opt/venv
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev
+RUN pip install wheel
+ENV PATH="/opt/venv/bin:$PATH" \
+    PYTHONDONTWRITEBYTECODE=1
+COPY ./requirements.txt ./
+RUN pip install -r requirements.txt --no-cache-dir
+
+
+FROM python:3.8-slim AS app
+
+ARG APP_DIRECTORY=/its_on
 ARG USER_NAME=its_on
-ARG UID=8100
-ARG APP_PATH=/its_on
+ARG UID=800
+ARG GID=800
 
-RUN useradd --uid=${UID} --no-log-init -r ${USER_NAME}
-RUN mkdir -p ${APP_PATH}
-WORKDIR ${APP_PATH}
-COPY ./requirements.txt ${APP_PATH}
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . ${APP_PATH}
-RUN chown -R ${USER_NAME}:${USER_NAME} ${APP_PATH}
-USER ${USER_NAME}
+RUN groupadd --gid=$GID -r $USER_NAME && useradd --uid=$UID --gid=$GID --no-log-init -r $USER_NAME
+RUN apt-get update && apt-get install -y \
+    libpq5 \
+    && apt-get clean && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* /var/cache/apt
+COPY --from=builder --chown=$UID:$GID /opt/venv /opt/venv
+COPY --chown=$UID:$GID . ${APP_DIRECTORY}
+WORKDIR $APP_DIRECTORY
+ENV PATH="/opt/venv/bin:$PATH" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+USER $USER_NAME
 VOLUME ["/srv/www/its_on"]
 EXPOSE 8081
 ENTRYPOINT ["./entrypoint.sh"]
