@@ -4,10 +4,10 @@ ARG APP_DIRECTORY=/its_on
 
 RUN mkdir -p $APP_DIRECTORY
 RUN python -m venv /opt/venv
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev
-RUN pip install wheel
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential=12.6 \
+    libpq-dev=11.12-0+deb10u1
+RUN pip install wheel==0.36.2
 ENV PATH="/opt/venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1
 COPY ./requirements.txt ./
@@ -22,8 +22,7 @@ ARG UID=800
 ARG GID=800
 
 RUN groupadd --gid=$GID -r $USER_NAME && useradd --uid=$UID --gid=$GID --no-log-init -r $USER_NAME
-RUN apt-get update && apt-get install -y \
-    libpq5 \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* /var/cache/apt
 COPY --from=builder --chown=$UID:$GID /opt/venv /opt/venv
 COPY --chown=$UID:$GID . ${APP_DIRECTORY}
