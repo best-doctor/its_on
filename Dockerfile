@@ -6,7 +6,6 @@ ARG UID=800
 ARG GID=800
 
 RUN groupadd --gid=${GID} -r ${USER_NAME} && useradd --uid=${UID} --gid=${GID} --no-log-init -r ${USER_NAME}
-USER $USER_NAME
 RUN mkdir -p $APP_DIRECTORY
 RUN python -m venv /opt/venv
 RUN apt-get update && apt-get install -y --no-install-recommends \
