@@ -21,8 +21,13 @@ async def client(aiohttp_client: Callable) -> None:
 
 
 @pytest.fixture()
-async def switch(client):
-    async with client.server.app['db'].acquire() as conn:
+def db_conn_acquirer(client) -> Callable:
+    return client.server.app['db'].acquire
+
+
+@pytest.fixture()
+async def switch(db_conn_acquirer):
+    async with db_conn_acquirer() as conn:
         result = await conn.execute(switches.select().where(switches.c.id == 1))
         return await result.first()
 

@@ -26,14 +26,14 @@ class BaseSwitchAdminPostRequestSchema(Schema):
 
 class SwitchDetailAdminPostRequestSchema(BaseSwitchAdminPostRequestSchema):
     groups = SplitList(
-        fields.Str(), validate=validate.Length(min=1, error='At least one group is required.')
+        fields.Str(), validate=validate.Length(min=1, error='At least one group is required.'),
     )
 
 
 class SwitchAddAdminPostRequestSchema(BaseSwitchAdminPostRequestSchema):
     name = fields.Str(validate=validate.Length(min=1, error='Empty name is not allowed.'))
     groups = SplitList(
-        fields.Str(), validate=validate.Length(min=1, error='At least one group is required.')
+        fields.Str(), validate=validate.Length(min=1, error='At least one group is required.'),
     )
 
 
