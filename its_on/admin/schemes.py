@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import typing
-from marshmallow import Schema, fields
+
+from marshmallow import Schema, fields, validate
 
 
 class SplitList(fields.List):
@@ -24,12 +25,16 @@ class BaseSwitchAdminPostRequestSchema(Schema):
 
 
 class SwitchDetailAdminPostRequestSchema(BaseSwitchAdminPostRequestSchema):
-    groups = SplitList(fields.Str())
+    groups = SplitList(
+        fields.Str(), validate=validate.Length(min=1, error='At least one group is required.')
+    )
 
 
 class SwitchAddAdminPostRequestSchema(BaseSwitchAdminPostRequestSchema):
-    name = fields.Str()
-    groups = SplitList(fields.Str())
+    name = fields.Str(validate=validate.Length(min=1, error='Empty name is not allowed.'))
+    groups = SplitList(
+        fields.Str(), validate=validate.Length(min=1, error='At least one group is required.')
+    )
 
 
 class SwitchAddFromAnotherItsOnAdminPostRequestSchema(BaseSwitchAdminPostRequestSchema):

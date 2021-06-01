@@ -77,7 +77,7 @@ async def test_switch_add(setup_tables_and_data, client, login, switch):
 
 async def test_switch_update(setup_tables_and_data, client, login, switch):
     with freeze_time('2020-08-15'):
-        await client.post('/zbs/switches/1', data={'is_active': False})
+        await client.post('/zbs/switches/1', data={'is_active': False, 'groups': 'group1, group2'})
 
     async with client.server.app['db'].acquire() as conn:
         switches_query_result = await conn.execute(switches.select().where(switches.c.id == 1))
