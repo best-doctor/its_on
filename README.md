@@ -1,7 +1,6 @@
 # It's on
 
-[![Build Status](https://travis-ci.org/best-doctor/its_on.svg?branch=master)](https://travis-ci.org/best-doctor/its_on)
-[![Maintainability](https://api.codeclimate.com/v1/badges/35e678c4d05199a31eb9/maintainability)](https://codeclimate.com/github/best-doctor/its_on/maintainability)
+[![Build Status](https://github.com/best-doctor/its_on/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/best-doctor/its_on/actions/workflows/build.yml)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/35e678c4d05199a31eb9/test_coverage)](https://codeclimate.com/github/best-doctor/its_on/test_coverage)
 
 Flag/feature toggle service, written in aiohttp.
@@ -135,7 +134,7 @@ We would love you to contribute to our project. It's simple:
 Here are useful tips:
 
 - You can run all checks and tests with `make check`. Please do it
-  before TravisCI does.
+  before CI does.
 - We use
   [BestDoctor python styleguide](https://github.com/best-doctor/guides/blob/master/guides/python_styleguide.md).
   Sorry, styleguide is available only in Russian for now.
