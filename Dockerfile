@@ -11,11 +11,11 @@ RUN python -m venv /opt/venv
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential=12.6 \
     libpq-dev=11.12-0+deb10u1
-RUN pip install wheel==0.36.2
+RUN pip install wheel==0.36.2 --no-cache-dir
 ENV PATH="/opt/venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1
-COPY ./requirements.txt ./
-RUN pip install -r requirements.txt --no-cache-dir
+COPY ./requirements.txt /
+RUN pip install -r /requirements.txt --no-cache-dir
 
 
 FROM python:3.8-slim AS app
