@@ -3,6 +3,8 @@ test:
 
 style:
 	flake8 .
+
+readme:
 	mdl README.md
 
 typos:
