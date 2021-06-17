@@ -44,9 +44,9 @@ jobs:
       - name: Run checks
         run: make check
         env:
-          DYNACONF_REDIS_URL=redis://redis:6379/1
-          DYNACONF_CACHE_URL=redis://redis:6379/1
-          DYNACONF_DATABASE__dsn=postgresql://postgres:password@postgres:5432/its_on
+          DYNACONF_REDIS_URL: redis://redis:6379/1
+          DYNACONF_CACHE_URL: redis://redis:6379/1
+          DYNACONF_DATABASE__dsn: postgresql://postgres:password@postgres:5432/its_on
       - name: Run tests and publish coverage
         uses: paambaati/codeclimate-action@v2.7.5
         env:
