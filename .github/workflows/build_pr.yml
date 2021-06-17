@@ -1,0 +1,51 @@
+name: Lint and test code
+
+on:
+  pull_request:
+    branches: [ master ]
+
+env:
+  DYNACONF_REDIS_URL: redis://localhost:6379/1
+  DYNACONF_CACHE_URL: redis://localhost:6379/1
+  DYNACONF_DATABASE__dsn: postgresql://postgres:password@localhost:5432/tests
+  DYNACONF_DATABASE__superuser_dsn: postgresql://postgres:password@localhost:5432/postgres
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      postgres:
+        image: postgres
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    strategy:
+      matrix:
+        python-version: [3.8]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run mdl
+        uses: actionshub/markdownlint@main
+      - name: Run checks
+        run: make check
