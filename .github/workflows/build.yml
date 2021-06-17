@@ -4,6 +4,12 @@ on:
   push:
     branches: [ master ]
 
+env:
+  DYNACONF_REDIS_URL: redis://localhost:6379/1
+  DYNACONF_CACHE_URL: redis://localhost:6379/1
+  DYNACONF_DATABASE__dsn: postgresql://postgres:password@localhost:5432/tests
+  DYNACONF_DATABASE__superuser_dsn: postgresql://postgres:password@localhost:5432/postgres
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -46,18 +52,9 @@ jobs:
           dockerfile: Dockerfile
       - name: Run checks
         run: make check
-        env:
-          DYNACONF_REDIS_URL: redis://localhost:6379/1
-          DYNACONF_CACHE_URL: redis://localhost:6379/1
-          DYNACONF_DATABASE__dsn: postgresql://postgres:password@localhost:5432/tests
-          DYNACONF_DATABASE__superuser_dsn: postgresql://postgres:password@localhost:5432/postgres
       - name: Run tests and publish coverage
         uses: paambaati/codeclimate-action@v2.7.5
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-          DYNACONF_REDIS_URL: redis://localhost:6379/1
-          DYNACONF_CACHE_URL: redis://localhost:6379/1
-          DYNACONF_DATABASE__dsn: postgresql://postgres:password@localhost:5432/tests
-          DYNACONF_DATABASE__superuser_dsn: postgresql://postgres:password@localhost:5432/postgres
         with:
           coverageCommand: make coverage
