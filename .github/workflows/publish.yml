@@ -53,6 +53,8 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v2
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
         with:
@@ -64,4 +66,4 @@ jobs:
           push: true
           tags: |
             bestdoctor/its_on:latest
-            bestdoctor/its_on:${{ github.ref }}
+            bestdoctor/its_on:${{ env.RELEASE_VERSION }}
