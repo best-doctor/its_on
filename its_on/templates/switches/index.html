@@ -18,6 +18,22 @@
 </div>
 
 <div class="col-sm-9">
+  <p>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#filters" aria-expanded="false" aria-controls="filters">
+      Group filter
+    </button>
+  </p>
+  <div class="collapse" id="filters">
+    <div class="well">
+      <a class="btn btn-primary" role="button" href="?"{% if not active_group %} disabled{% endif %}>All</a>
+      {% for group in groups %}
+        <a class="btn btn-primary" role="button" href="?group={{ group }}"{% if active_group == group %} disabled{% endif %}>{{ group }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="col-sm-9">
   <table class="table table-striped">
     <thead>
       <tr>
