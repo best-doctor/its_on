@@ -49,15 +49,13 @@ class SwitchListAdminView(web.View):
 
     def get_queryset(self) -> Select:
         qs = switches.select(whereclause=(switches.c.is_hidden == false()))
-        if 'group' in self.request.query:
-            group = self.request.query['group']
+        if group := self.request.query.get('group'):
             qs = qs.where(switches.c.groups.any(group))
-        return qs
+        return qs.order_by(switches.c.created_at.desc())
 
     async def get_distinct_groups(self) -> List[str]:
         async with self.request.app['db'].acquire() as conn:
-            queryset = switches.select(whereclause=(switches.c.is_hidden == false())) \
-                .distinct(switches.c.groups)
+            queryset = switches.select(whereclause=(switches.c.is_hidden == false())).distinct(switches.c.groups)
             result = await conn.execute(queryset)
             flags = await result.fetchall()
             return sorted({group for flag in flags for group in flag.groups})
