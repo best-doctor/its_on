@@ -38,6 +38,23 @@ async def test_switches_list(client, switch_title, expected_result):
     assert (switch_title in content.decode('utf-8')) is expected_result
 
 
+@pytest.mark.parametrize(
+    'group_title, switch_title, expected_result',
+    [
+        ('', 'switch1', True),
+        ('group1', 'switch1', True),
+        ('group3', 'switch1', False),
+    ],
+)
+@pytest.mark.usefixtures('setup_tables_and_data', 'login')
+async def test_switches_list_filter_by_group(client, group_title, switch_title, expected_result):
+    response = await client.get(f'/zbs/switches?group={group_title}')
+
+    content = await response.content.read()
+
+    assert (switch_title in content.decode('utf-8')) is expected_result
+
+
 @pytest.mark.usefixtures('setup_tables_and_data', 'login')
 async def test_switch_detail(client, switch):
     response = await client.get('/zbs/switches/1')

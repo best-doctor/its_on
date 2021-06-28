@@ -29,8 +29,11 @@ class SwitchListAdminView(web.View):
     @login_required
     async def get(self) -> Dict[str, Union[Optional[List[RowProxy]], bool]]:
         flags = await self.get_response_data()
+        groups = await self.get_distinct_groups()
         return {
+            'active_group': self.request.query.get('group', ''),
             'flags': flags,
+            'groups': groups,
             'show_copy_button': bool(settings.SYNC_FROM_ITS_ON_URL),
         }
 
@@ -45,7 +48,17 @@ class SwitchListAdminView(web.View):
             return await result.fetchall()
 
     def get_queryset(self) -> Select:
-        return switches.select(whereclause=(switches.c.is_hidden == false()))
+        qs = switches.select(whereclause=(switches.c.is_hidden == false()))
+        if group := self.request.query.get('group'):
+            qs = qs.where(switches.c.groups.any(group))
+        return qs.order_by(switches.c.created_at.desc())
+
+    async def get_distinct_groups(self) -> List[str]:
+        async with self.request.app['db'].acquire() as conn:
+            queryset = switches.select(whereclause=(switches.c.is_hidden == false())).distinct(switches.c.groups)
+            result = await conn.execute(queryset)
+            flags = await result.fetchall()
+            return sorted({group for flag in flags for group in flag.groups})
 
 
 class SwitchDetailAdminView(web.View, UpdateMixin):
