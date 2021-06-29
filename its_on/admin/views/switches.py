@@ -17,6 +17,7 @@ from its_on.admin.schemes import (
     SwitchAddAdminPostRequestSchema,
     SwitchCopyFromAnotherItsOnAdminPostRequestSchema,
     SwitchDetailAdminPostRequestSchema,
+    SwitchListAdminRequestSchema,
 )
 from its_on.admin.utils import get_switch_history, save_switch_history
 from its_on.models import switches
@@ -24,41 +25,56 @@ from its_on.models import switches
 
 class SwitchListAdminView(web.View):
     model = switches
+    validator = SwitchListAdminRequestSchema()
 
     @aiohttp_jinja2.template('switches/index.html')
     @login_required
     async def get(self) -> Dict[str, Union[Optional[List[RowProxy]], bool]]:
-        flags = await self.get_response_data()
-        groups = await self.get_distinct_groups()
+        request_params = self.validator.load(data=self.request.query)
+        flags = await self.get_response_data(request_params)
+        groups = await self.get_distinct_groups(request_params)
         return {
-            'active_group': self.request.query.get('group', ''),
+            'active_group': request_params.get('group'),
             'flags': flags,
             'groups': groups,
             'show_copy_button': bool(settings.SYNC_FROM_ITS_ON_URL),
         }
 
-    async def get_response_data(self) -> List[RowProxy]:
-        objects = await self.load_objects()
-        return objects
-
-    async def load_objects(self) -> List:
+    async def get_response_data(self, request_params: Dict[str, Any]) -> List:
         async with self.request.app['db'].acquire() as conn:
-            queryset = self.get_queryset()
+            queryset = self.filter_queryset(self.get_queryset(), request_params)
             result = await conn.execute(queryset)
             return await result.fetchall()
 
-    def get_queryset(self) -> Select:
-        qs = switches.select(whereclause=(switches.c.is_hidden == false()))
-        if group := self.request.query.get('group'):
-            qs = qs.where(switches.c.groups.any(group))
-        return qs.order_by(switches.c.created_at.desc())
-
-    async def get_distinct_groups(self) -> List[str]:
+    async def get_distinct_groups(self, request_params: Dict[str, Any]) -> List[str]:
         async with self.request.app['db'].acquire() as conn:
-            queryset = switches.select(whereclause=(switches.c.is_hidden == false())).distinct(switches.c.groups)
+            queryset = self.filter_hidden(self.get_queryset(), request_params)
             result = await conn.execute(queryset)
             flags = await result.fetchall()
             return sorted({group for flag in flags for group in flag.groups})
+
+    def get_queryset(self) -> Select:
+        return switches.select()
+
+    def order_queryset(self, qs: Select, request_params: Dict[str, Any]):
+        # Default ordering
+        return qs.order_by(switches.c.created_at.desc())
+
+    def filter_hidden(self, qs: Select, request_params: Dict[str, Any]) -> Select:
+        if not request_params.get('show_hidden'):
+            qs = qs.where(switches.c.is_hidden == false())
+        return qs
+
+    def filter_group(self, qs: Select, request_params: Dict[str, Any]):
+        group = request_params.get('group')
+        if group:
+            qs = qs.where(switches.c.groups.any(group))
+        return qs
+
+    def filter_queryset(self, qs: Select, request_params: Dict[str, Any]) -> Select:
+        qs = self.filter_hidden(qs, request_params)
+        qs = self.filter_group(qs, request_params)
+        return self.order_queryset(qs, request_params)
 
 
 class SwitchDetailAdminView(web.View, UpdateMixin):
