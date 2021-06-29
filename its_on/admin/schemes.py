@@ -50,6 +50,11 @@ class SwitchCopyFromAnotherItsOnAdminPostRequestSchema(BaseSwitchAdminPostReques
     created_at = fields.DateTime(required=False, allow_none=True)
 
 
+class SwitchListAdminRequestSchema(Schema):
+    group = fields.Str(required=False)
+    show_hidden = fields.Boolean(missing=False)
+
+
 class UserDetailPostRequestSchema(Schema):
     is_superuser = fields.Boolean()
     switch_ids = fields.Integer()
