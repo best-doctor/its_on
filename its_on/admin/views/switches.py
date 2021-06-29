@@ -56,7 +56,7 @@ class SwitchListAdminView(web.View):
     def get_queryset(self) -> Select:
         return switches.select()
 
-    def order_queryset(self, qs: Select, request_params: Dict[str, Any]):
+    def order_queryset(self, qs: Select, request_params: Dict[str, Any]) -> Select:
         # Default ordering
         return qs.order_by(switches.c.created_at.desc())
 
@@ -65,7 +65,7 @@ class SwitchListAdminView(web.View):
             qs = qs.where(switches.c.is_hidden == false())
         return qs
 
-    def filter_group(self, qs: Select, request_params: Dict[str, Any]):
+    def filter_group(self, qs: Select, request_params: Dict[str, Any]) -> Select:
         group = request_params.get('group')
         if group:
             qs = qs.where(switches.c.groups.any(group))
