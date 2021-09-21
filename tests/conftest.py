@@ -239,7 +239,7 @@ async def switch_factory(setup_tables: Callable) -> Callable:
     engine = get_engine(settings.DATABASE.DSN)
     session = Session(engine)
 
-    async def _with_params(batch_size: int = 1) -> list[switches]:
+    async def _with_params(batch_size: int = 1) -> list:
         switches_list = [{
             'name': factory.fuzzy.FuzzyText(length=10).fuzz(),
             'is_active': factory.fuzzy.FuzzyChoice([True, False]).fuzz(),
