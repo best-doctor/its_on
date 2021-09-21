@@ -140,7 +140,7 @@ def switches_full_info_expected_result():
 
 @pytest.fixture(scope='function')
 def asserted_switch_full_info_data():
-    def _with_params(switches_list: list[switches]) -> dict:
+    def _with_params(switches_list: list) -> dict:
         return {
             'result': [
                 {
