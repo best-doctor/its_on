@@ -56,9 +56,10 @@ async def test_switch_filter_by_version(version, expected_result, setup_tables_a
 
 
 async def test_switches_full_info(
-    setup_tables_and_data, client, switches_full_info_expected_result,
+    switch_factory, client, asserted_switch_full_info_data,
 ):
+    all_switches = await switch_factory(batch_size=5)
     response = await client.get('/api/v1/switches_full_info')
 
     assert response.status == 200
-    assert await response.json() == switches_full_info_expected_result
+    assert await response.json() == asserted_switch_full_info_data(all_switches)

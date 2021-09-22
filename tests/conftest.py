@@ -1,12 +1,17 @@
+import datetime
 from typing import Callable, Generator
 from unittest.mock import MagicMock
 
 import pytest
+import factory.fuzzy
 from dynaconf import settings
+from sqlalchemy.orm import Session
 
 from its_on.main import init_gunicorn_app
 from its_on.models import switches
-from .helpers import create_sample_data, create_tables, drop_tables, setup_db, teardown_db
+from .helpers import (
+    create_sample_data, create_tables, drop_tables, setup_db, teardown_db, get_engine,
+)
 
 
 class AsyncMock(MagicMock):
@@ -134,6 +139,28 @@ def switches_full_info_expected_result():
 
 
 @pytest.fixture(scope='function')
+def asserted_switch_full_info_data():
+    def _with_params(switches_list: list) -> dict:
+        return {
+            'result': [
+                {
+                    'name': switch.name,
+                    'is_active': switch.is_active,
+                    'is_hidden': switch.is_hidden,
+                    'groups': switch.groups,
+                    'version': switch.version,
+                    'comment': switch.comment,
+                    'ttl': switch.ttl,
+                    'jira_ticket': switch.jira_ticket,
+                    'created_at': switch.created_at.astimezone(datetime.timezone.utc).isoformat(),
+                    'updated_at': switch.updated_at.astimezone(datetime.timezone.utc).isoformat(),
+                } for switch in switches_list
+            ],
+        }
+    return _with_params
+
+
+@pytest.fixture(scope='function')
 def get_switches_data_mocked_existing_switch(mocker):
     mock = mocker.patch(
         'its_on.admin.views.switches.SwitchesCopyAdminView._get_switches_data',
@@ -173,3 +200,60 @@ def get_switches_data_mocked_new_switch(mocker):
         ],
     }
     return mock
+
+
+@pytest.fixture()
+def switch_data_factory():
+    return {
+        'name': 'switch_to_check_add',
+        'is_active': True,
+        'groups': 'check_adding, group2,    ,,',
+        'version': 1,
+        'comment': 'This is the story of a big bad wolf an little girl whose name was...',
+    }
+
+
+@pytest.fixture(params=[True, False])
+def switch_data_factory_with_ttl(request, switch_data_factory):
+    switch_data = switch_data_factory
+    default_ttl = 60
+    passed_ttl = 100
+    if request.param is True:
+        switch_data['ttl'] = passed_ttl
+        return switch_data, passed_ttl
+    return switch_data, default_ttl
+
+
+@pytest.fixture(params=[True, False])
+def switch_data_factory_with_ttl_and_jira_ticket(request, switch_data_factory_with_ttl):
+    switch_data, passed_ttl = switch_data_factory_with_ttl
+    if request.param is True:
+        jira_ticket = 'BANG-91'
+        switch_data['jira_ticket'] = jira_ticket
+        return switch_data, passed_ttl, jira_ticket
+    return switch_data, passed_ttl, None
+
+
+@pytest.fixture()
+async def switch_factory(setup_tables: Callable) -> Callable:
+    engine = get_engine(settings.DATABASE.DSN)
+    session = Session(engine)
+
+    async def _with_params(batch_size: int = 1) -> list:
+        switches_list = [{
+            'name': factory.fuzzy.FuzzyText(length=10).fuzz(),
+            'is_active': factory.fuzzy.FuzzyChoice([True, False]).fuzz(),
+            'is_hidden': factory.fuzzy.FuzzyChoice([True, False]).fuzz(),
+            'groups': (
+                factory.fuzzy.FuzzyText(length=5).fuzz(), factory.fuzzy.FuzzyText(length=5).fuzz(),
+            ),
+            'version': factory.fuzzy.FuzzyInteger(low=0, high=100).fuzz(),
+            'jira_ticket': factory.fuzzy.FuzzyText(length=10).fuzz(),
+            'ttl': factory.fuzzy.FuzzyInteger(low=0, high=100).fuzz(),
+        } for _ in range(0, batch_size)]
+
+        with engine.connect() as conn:
+            conn.execute(switches.insert(), switches_list)
+            return session.query(switches).all()
+
+    return _with_params

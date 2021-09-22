@@ -83,7 +83,10 @@ class SwitchFullListView(CorsViewMixin, web.View):
                 'groups': obj.groups,
                 'version': obj.version,
                 'comment': obj.comment,
+                'ttl': obj.ttl,
+                'jira_ticket': obj.jira_ticket,
                 'created_at': obj.created_at,
+                'updated_at': obj.updated_at,
             }
             for obj in objects
         ]

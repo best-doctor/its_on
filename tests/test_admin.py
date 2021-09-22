@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from aiohttp.web_exceptions import HTTPOk
 from freezegun import freeze_time
 
 from auth.models import users
@@ -74,19 +75,16 @@ async def test_switch_add_get_method(client):
 
 @freeze_time(datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc))
 @pytest.mark.usefixtures('setup_tables_and_data')
-async def test_switch_add_post_method(client, db_conn_acquirer, login):
-    switch_data = {
-        'name': 'switch_to_check_add',
-        'is_active': True,
-        'groups': 'check_adding, group2,    ,,',
-        'version': 1,
-        'comment': 'This is the story of a big bad wolf an little girl whose name was...',
-    }
+async def test_switch_add_post_method(
+    client, db_conn_acquirer, login, switch_data_factory_with_ttl_and_jira_ticket,
+):
+    switch_data, asserted_ttl, asserted_jira_ticket = switch_data_factory_with_ttl_and_jira_ticket
 
     response = await client.post('/zbs/switches/add', data=switch_data)
     content = await response.content.read()
     switch_data['is_hidden'] = False
 
+    assert response.status == HTTPOk.status_code
     assert 'Switches list' in content.decode('utf-8')
     async with db_conn_acquirer() as conn:
         result = await conn.execute(switches.select().where(switches.c.name == switch_data['name']))
@@ -96,6 +94,8 @@ async def test_switch_add_post_method(client, db_conn_acquirer, login):
             field_value = ['check_adding', 'group2']
         assert getattr(created_switch, field_name) == field_value
     assert created_switch.created_at == datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc)
+    assert created_switch.ttl == asserted_ttl
+    assert created_switch.jira_ticket == asserted_jira_ticket
 
 
 @pytest.mark.parametrize(
