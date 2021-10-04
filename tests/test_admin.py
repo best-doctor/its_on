@@ -76,9 +76,9 @@ async def test_switch_add_get_method(client):
 @freeze_time(datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc))
 @pytest.mark.usefixtures('setup_tables_and_data')
 async def test_switch_add_post_method(
-    client, db_conn_acquirer, login, switch_data_factory_with_ttl_and_jira_ticket,
+    client, db_conn_acquirer, login, switch_data_factory_with_ttl,
 ):
-    switch_data, asserted_ttl, asserted_jira_ticket = switch_data_factory_with_ttl_and_jira_ticket
+    switch_data, asserted_ttl = switch_data_factory_with_ttl
 
     response = await client.post('/zbs/switches/add', data=switch_data)
     content = await response.content.read()
@@ -95,7 +95,6 @@ async def test_switch_add_post_method(
         assert getattr(created_switch, field_name) == field_value
     assert created_switch.created_at == datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc)
     assert created_switch.ttl == asserted_ttl
-    assert created_switch.jira_ticket == asserted_jira_ticket
 
 
 @pytest.mark.parametrize(
