@@ -151,7 +151,6 @@ def asserted_switch_full_info_data():
                     'version': switch.version,
                     'comment': switch.comment,
                     'ttl': switch.ttl,
-                    'jira_ticket': switch.jira_ticket,
                     'created_at': switch.created_at.astimezone(datetime.timezone.utc).isoformat(),
                     'updated_at': switch.updated_at.astimezone(datetime.timezone.utc).isoformat(),
                 } for switch in switches_list
@@ -222,16 +221,6 @@ def switch_data_factory_with_ttl(request, switch_data_factory):
         switch_data['ttl'] = passed_ttl
         return switch_data, passed_ttl
     return switch_data, default_ttl
-
-
-@pytest.fixture(params=[True, False])
-def switch_data_factory_with_ttl_and_jira_ticket(request, switch_data_factory_with_ttl):
-    switch_data, passed_ttl = switch_data_factory_with_ttl
-    if request.param is True:
-        jira_ticket = 'BANG-91'
-        switch_data['jira_ticket'] = jira_ticket
-        return switch_data, passed_ttl, jira_ticket
-    return switch_data, passed_ttl, None
 
 
 @pytest.fixture()
