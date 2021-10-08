@@ -14,4 +14,4 @@ def switch_list_cache_key_builder(method: Callable, view: web.View) -> str:
     validated_data = view.request['validated_data']
     group_name = validated_data['group']
     version = validated_data.get('version')
-    return f'switch_list__{group_name}__{version}'
+    return f'switch_list__{view.__class__}__{group_name}__{version}'

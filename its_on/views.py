@@ -79,6 +79,11 @@ class SwitchOffListView(SwitchListView):
         summary='List of inactive flags for the group.',
         description='Returns a list of inactive flags for the passed group.',
     )
+    @request_schema(SwitchListRequestSchema(), locations=['query'])
+    @response_schema(SwitchListResponseSchema(), 200)
+    async def get(self) -> web.Response:
+        return await super().get()
+
     def filter_active(self, queryset: Select) -> Select:
         return queryset.where(switches.c.is_active == false())
 
