@@ -202,7 +202,6 @@ class SwitchesCopyAdminView(web.View, CreateMixin):
                 resp.raise_for_status()
                 return await resp.json()
 
-
     @aiohttp_jinja2.template('switches/error.html')
     @login_required
     async def post(self) -> None:
@@ -210,7 +209,7 @@ class SwitchesCopyAdminView(web.View, CreateMixin):
         try:
             switches_data = await self._get_switches_data()
         except (ClientConnectionError, ClientResponseError) as error:
-            return {"errors": error}
+            return {'errors': error}
 
         for switch_data in switches_data['result']:
             await self._create_or_update_switch(switch_data, update_existing)
