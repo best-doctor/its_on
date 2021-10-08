@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import aiohttp_jinja2
 import psycopg2
-from aiohttp import ClientSession
+from aiohttp import ClientConnectionError, ClientResponseError, ClientSession
 from aiohttp import web
 from aiopg.sa.result import RowProxy
 from dynaconf import settings
@@ -199,12 +199,19 @@ class SwitchesCopyAdminView(web.View, CreateMixin):
     async def _get_switches_data() -> MultiDictProxy:
         async with ClientSession() as session:
             async with session.get(settings.SYNC_FROM_ITS_ON_URL) as resp:
+                resp.raise_for_status()
                 return await resp.json()
 
+
+    @aiohttp_jinja2.template('switches/error.html')
     @login_required
     async def post(self) -> None:
         update_existing = bool(self.request.rel_url.query.get('update_existing'))
-        switches_data = await self._get_switches_data()
+        try:
+            switches_data = await self._get_switches_data()
+        except (ClientConnectionError, ClientResponseError) as error:
+            return {"errors": error}
+
         for switch_data in switches_data['result']:
             await self._create_or_update_switch(switch_data, update_existing)
 
