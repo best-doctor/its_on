@@ -204,7 +204,7 @@ class SwitchesCopyAdminView(web.View, CreateMixin):
 
     @aiohttp_jinja2.template('switches/error.html')
     @login_required
-    async def post(self) -> None:
+    async def post(self) -> Dict[str, Exception]:
         update_existing = bool(self.request.rel_url.query.get('update_existing'))
         try:
             switches_data = await self._get_switches_data()
