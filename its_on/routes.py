@@ -33,8 +33,8 @@ def setup_routes(app: Application, base_dir: Path, cors_config: CorsConfig) -> N
     get_switch_view = app.router.add_view('/api/v1/switch', SwitchListView)
     cors_config.add(get_switch_view)
 
-    get_switch_off_view = app.router.add_view('/api/v1/switches_off', SwitchOffListView)
-    cors_config.add(get_switch_off_view)
+    get_switches_off_view = app.router.add_view('/api/v1/switches_off', SwitchOffListView)
+    cors_config.add(get_switches_off_view)
 
     if settings.ENABLE_SWITCHES_FULL_INFO_ENDPOINT:
         get_switch_full_view = app.router.add_view('/api/v1/switches_full_info', SwitchFullListView)
