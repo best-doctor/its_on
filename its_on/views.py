@@ -7,7 +7,7 @@ from aiohttp import web
 from aiohttp_apispec import request_schema, response_schema, docs
 from aiohttp_cors import CorsViewMixin
 from dynaconf import settings
-from sqlalchemy.sql import and_, true, false, Select
+from sqlalchemy.sql import true, false, Select
 
 from its_on.cache import switch_list_cache_key_builder
 from its_on.models import switches
