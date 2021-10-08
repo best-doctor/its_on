@@ -8,6 +8,13 @@ async def test_switch(setup_tables_and_data, client):
     assert await response.json() == {'count': 3, 'result': ['switch1', 'switch2', 'switch4']}
 
 
+async def test_switch_off(setup_tables_and_data, client):
+    response = await client.get('/api/v1/switch_off?group=group1')
+
+    assert response.status == 200
+    assert await response.json() == {'count': 3, 'result': ['switch3']}
+
+
 async def test_switch_without_params(setup_tables_and_data, client):
     response = await client.get('/api/v1/switch')
 
