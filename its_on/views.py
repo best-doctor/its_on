@@ -47,20 +47,40 @@ class SwitchListView(CorsViewMixin, web.View):
         qs = switches.select().with_only_columns([switches.c.name]).order_by(switches.c.name)
         return await self.filter_queryset(qs)
 
+    def filter_active(self, queryset: Select) -> Select:
+        return queryset.where(switches.c.is_active == true())
+
+    def filter_group(self, queryset: Select, group_name: str) -> Select:
+        return queryset.where(switches.c.groups.contains(f'{{{group_name}}}'))
+
+    def filter_hidden(self, queryset: Select) -> Select:
+        return queryset.where(switches.c.is_hidden == false())
+
+    def filter_version(self, queryset: Select, version: str) -> Select:
+        if version is not None:
+            queryset = queryset.where(switches.c.version <= version)
+        return queryset
+
     async def filter_queryset(self, queryset: Select) -> Select:
         validated_data = self.request['validated_data']
         group_name = validated_data['group']
         version = validated_data.get('version')
 
-        filters = [
-            switches.c.groups.contains(f'{{{group_name}}}'),
-            switches.c.is_active == true(),
-            switches.c.is_hidden == false(),
-        ]
-        if version is not None:
-            filters.append(switches.c.version <= version)
+        queryset = self.filter_group(queryset, group_name)
+        queryset = self.filter_active(queryset)
+        queryset = self.filter_hidden(queryset)
+        queryset = self.filter_version(queryset, version)
 
-        return queryset.where(and_(*filters))
+        return queryset
+
+
+class SwitchOffListView(SwitchListView):
+    @docs(
+        summary='List of inactive flags for the group.',
+        description='Returns a list of inactive flags for the passed group.',
+    )
+    def filter_active(self, queryset: Select) -> Select:
+        return queryset.where(switches.c.is_active == false())
 
 
 class SwitchFullListView(CorsViewMixin, web.View):
