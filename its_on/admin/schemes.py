@@ -22,6 +22,8 @@ class BaseSwitchAdminPostRequestSchema(Schema):
     is_active = fields.Boolean()
     version = fields.Int()
     comment = fields.Str()
+    ttl = fields.Int()
+    jira_ticket = fields.Str()
 
 
 class SwitchDetailAdminPostRequestSchema(BaseSwitchAdminPostRequestSchema):

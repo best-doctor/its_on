@@ -9,9 +9,9 @@ RUN groupadd --gid=${GID} -r ${USER_NAME} && useradd --uid=${UID} --gid=${GID} -
 RUN mkdir -p $APP_DIRECTORY
 RUN python -m venv /opt/venv
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential=12.6 \
-    libpq-dev=11.12-0+deb10u1
-RUN pip install wheel==0.36.2 --no-cache-dir
+    build-essential \
+    libpq-dev
+RUN pip install wheel==0.37.0 --no-cache-dir
 ENV PATH="/opt/venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1
 COPY ./requirements.txt /
