@@ -9,11 +9,10 @@ Flag/feature toggle service, written in aiohttp.
 
 ### Basic
 
-| Method  | Endpoint                   | Description                           |
-| ------- | ---------------------------| ------------------------------------- |
-| `GET`   | `/api/docs`                | Api documentation                     |
-| `GET`   | `/api/v1/switch`           | List of active flags for the group.   |
-| `GET`   | `/api/v1/switches_off`     | List of inactive flags for the group. |
+| Method  | Endpoint                   | Description                         |
+| ------- | ---------------------------| ----------------------------------- |
+| `GET`   | `/api/docs`                | Api documentation                   |
+| `GET`   | `/api/v1/switch`           | List of flags for the group.        |
 
 ### Admin
 
@@ -23,7 +22,7 @@ Flag/feature toggle service, written in aiohttp.
 | `/zbs/switches`                 |  List of flags             |
 | `/zbs/switches/{switch_id}`     |  Flag detail               |
 
-## Sample /api/v1/switch or /api/v1/switches_off output
+## Sample /api/v1/switch
 
 ```json
 {

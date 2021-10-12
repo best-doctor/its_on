@@ -8,8 +8,21 @@ async def test_switch(setup_tables_and_data, client):
     assert await response.json() == {'count': 3, 'result': ['switch1', 'switch2', 'switch4']}
 
 
-async def test_switches_off(setup_tables_and_data, client):
-    response = await client.get('/api/v1/switches_off?group=group1')
+@pytest.mark.parametrize(
+    'value', ['1', 'on', 'true', 'yes'],
+)
+async def test_switch_active(setup_tables_and_data, client, value):
+    response = await client.get(f'/api/v1/switch?group=group1&is_active={value}')
+
+    assert response.status == 200
+    assert await response.json() == {'count': 3, 'result': ['switch1', 'switch2', 'switch4']}
+
+
+@pytest.mark.parametrize(
+    'value', ['0', 'off', 'false', 'no'],
+)
+async def test_switch_inactive(setup_tables_and_data, client, value):
+    response = await client.get(f'/api/v1/switch?group=group1&is_active={value}')
 
     assert response.status == 200
     assert await response.json() == {'count': 1, 'result': ['switch3']}

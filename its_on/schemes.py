@@ -3,6 +3,7 @@ from marshmallow import Schema, fields
 
 class SwitchListRequestSchema(Schema):
     group = fields.Str(description='group', required=True)
+    is_active = fields.Boolean(description='is active')
     version = fields.Int()
 
 

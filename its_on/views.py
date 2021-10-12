@@ -7,7 +7,7 @@ from aiohttp import web
 from aiohttp_apispec import request_schema, response_schema, docs
 from aiohttp_cors import CorsViewMixin
 from dynaconf import settings
-from sqlalchemy.sql import true, false, Select
+from sqlalchemy.sql import false, Select
 
 from its_on.cache import switch_list_cache_key_builder
 from its_on.models import switches
@@ -47,8 +47,8 @@ class SwitchListView(CorsViewMixin, web.View):
         qs = switches.select().with_only_columns([switches.c.name]).order_by(switches.c.name)
         return await self.filter_queryset(qs)
 
-    def filter_active(self, queryset: Select) -> Select:
-        return queryset.where(switches.c.is_active == true())
+    def filter_active(self, queryset: Select, is_active: bool = True) -> Select:
+        return queryset.where(switches.c.is_active.is_(is_active))
 
     def filter_group(self, queryset: Select, group_name: str) -> Select:
         return queryset.where(switches.c.groups.contains(f'{{{group_name}}}'))
@@ -63,29 +63,13 @@ class SwitchListView(CorsViewMixin, web.View):
 
     async def filter_queryset(self, queryset: Select) -> Select:
         validated_data = self.request['validated_data']
-        group_name = validated_data['group']
-        version = validated_data.get('version')
 
-        queryset = self.filter_group(queryset, group_name)
-        queryset = self.filter_active(queryset)
+        queryset = self.filter_group(queryset, validated_data['group'])
+        queryset = self.filter_active(queryset, validated_data.get('is_active', True))
         queryset = self.filter_hidden(queryset)
-        queryset = self.filter_version(queryset, version)
+        queryset = self.filter_version(queryset, validated_data.get('version'))
 
         return queryset
-
-
-class SwitchOffListView(SwitchListView):
-    @docs(
-        summary='List of inactive flags for the group.',
-        description='Returns a list of inactive flags for the passed group.',
-    )
-    @request_schema(SwitchListRequestSchema(), locations=['query'])
-    @response_schema(SwitchListResponseSchema(), 200)
-    async def get(self) -> web.Response:
-        return await super().get()
-
-    def filter_active(self, queryset: Select) -> Select:
-        return queryset.where(switches.c.is_active == false())
 
 
 class SwitchFullListView(CorsViewMixin, web.View):
