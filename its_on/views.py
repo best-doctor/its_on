@@ -1,13 +1,13 @@
 import functools
 import json
-from typing import List, Dict
+from typing import Dict, List, Optional
 
 from aiocache import cached
 from aiohttp import web
 from aiohttp_apispec import request_schema, response_schema, docs
 from aiohttp_cors import CorsViewMixin
 from dynaconf import settings
-from sqlalchemy.sql import false, Select
+from sqlalchemy.sql import Select, false
 
 from its_on.cache import switch_list_cache_key_builder
 from its_on.models import switches
@@ -51,12 +51,12 @@ class SwitchListView(CorsViewMixin, web.View):
         return queryset.where(switches.c.is_active.is_(is_active))
 
     def filter_group(self, queryset: Select, group_name: str) -> Select:
-        return queryset.where(switches.c.groups.contains(f'{{{group_name}}}'))
+        return queryset.where(switches.c.groups.any(group_name))
 
     def filter_hidden(self, queryset: Select) -> Select:
         return queryset.where(switches.c.is_hidden == false())
 
-    def filter_version(self, queryset: Select, version: str) -> Select:
+    def filter_version(self, queryset: Select, version: Optional[str] = None) -> Select:
         if version is not None:
             queryset = queryset.where(switches.c.version <= version)
         return queryset
