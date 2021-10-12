@@ -22,7 +22,7 @@ Flag/feature toggle service, written in aiohttp.
 | `/zbs/switches`                 |  List of flags             |
 | `/zbs/switches/{switch_id}`     |  Flag detail               |
 
-## Sample /api/v1/switch
+## Sample /api/v1/switch output
 
 ```json
 {
