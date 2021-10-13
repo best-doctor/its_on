@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="col-sm-9">
+  <h2>An error has occurred!</h2>
+  <br><br>
+
+  {% if errors %}
+    <div class="well well-sm error">{{ errors }}</div>
+  {% endif %}
+
+{% endblock %}
