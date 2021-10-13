@@ -1,13 +1,13 @@
 import functools
 import json
-from typing import List, Dict
+from typing import Dict, List, Optional
 
 from aiocache import cached
 from aiohttp import web
 from aiohttp_apispec import request_schema, response_schema, docs
 from aiohttp_cors import CorsViewMixin
 from dynaconf import settings
-from sqlalchemy.sql import and_, true, false, Select
+from sqlalchemy.sql import Select, false
 
 from its_on.cache import switch_list_cache_key_builder
 from its_on.models import switches
@@ -47,20 +47,29 @@ class SwitchListView(CorsViewMixin, web.View):
         qs = switches.select().with_only_columns([switches.c.name]).order_by(switches.c.name)
         return await self.filter_queryset(qs)
 
+    def filter_active(self, queryset: Select, is_active: bool = True) -> Select:
+        return queryset.where(switches.c.is_active.is_(is_active))
+
+    def filter_group(self, queryset: Select, group_name: str) -> Select:
+        return queryset.where(switches.c.groups.any(group_name))
+
+    def filter_hidden(self, queryset: Select) -> Select:
+        return queryset.where(switches.c.is_hidden == false())
+
+    def filter_version(self, queryset: Select, version: Optional[str] = None) -> Select:
+        if version is not None:
+            queryset = queryset.where(switches.c.version <= version)
+        return queryset
+
     async def filter_queryset(self, queryset: Select) -> Select:
         validated_data = self.request['validated_data']
-        group_name = validated_data['group']
-        version = validated_data.get('version')
 
-        filters = [
-            switches.c.groups.contains(f'{{{group_name}}}'),
-            switches.c.is_active == true(),
-            switches.c.is_hidden == false(),
-        ]
-        if version is not None:
-            filters.append(switches.c.version <= version)
+        queryset = self.filter_group(queryset, validated_data['group'])
+        queryset = self.filter_active(queryset, validated_data.get('is_active', True))
+        queryset = self.filter_hidden(queryset)
+        queryset = self.filter_version(queryset, validated_data.get('version'))
 
-        return queryset.where(and_(*filters))
+        return queryset
 
 
 class SwitchFullListView(CorsViewMixin, web.View):

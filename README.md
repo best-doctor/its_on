@@ -12,7 +12,7 @@ Flag/feature toggle service, written in aiohttp.
 | Method  | Endpoint                   | Description                         |
 | ------- | ---------------------------| ----------------------------------- |
 | `GET`   | `/api/docs`                | Api documentation                   |
-| `GET`   | `/api/v1/switch`           | List of active flags for the group. |
+| `GET`   | `/api/v1/switch`           | List of flags for the group.        |
 
 ### Admin
 

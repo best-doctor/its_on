@@ -6,14 +6,15 @@ from aiohttp_cors import CorsConfig
 from dynaconf import settings
 
 from auth.views import LoginView, LogoutView
-from its_on.views import SwitchListView, SwitchFullListView
+from its_on.views import SwitchFullListView, SwitchListView
 from its_on.admin.views.switches import (
-    SwitchListAdminView, SwitchDetailAdminView, SwitchDeleteAdminView, SwitchAddAdminView,
+    SwitchAddAdminView,
+    SwitchDeleteAdminView,
+    SwitchDetailAdminView,
+    SwitchListAdminView,
     SwitchesCopyAdminView,
 )
-from its_on.admin.views.users import (
-    UserDetailAdminView, UserListAdminView,
-)
+from its_on.admin.views.users import UserDetailAdminView, UserListAdminView
 
 if TYPE_CHECKING:
     from pathlib import Path
