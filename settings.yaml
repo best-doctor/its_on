@@ -12,6 +12,7 @@ default:
   cors_allow_headers: []
   enable_switches_full_info_endpoint: false
   sync_from_its_on_url: '@none'
+  flag_ttl_days: 14
 
 development:
   environment: Dev

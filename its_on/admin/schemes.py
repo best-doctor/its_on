@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import typing
-
 from marshmallow import Schema, fields, validate
 
 
@@ -22,7 +21,7 @@ class BaseSwitchAdminPostRequestSchema(Schema):
     is_active = fields.Boolean()
     version = fields.Int()
     comment = fields.Str()
-    ttl = fields.Int()
+    ttl = fields.Int(validate=validate.Range(min=1))
     jira_ticket = fields.Str()
 
 

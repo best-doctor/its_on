@@ -215,7 +215,7 @@ def switch_data_factory():
 @pytest.fixture(params=[True, False])
 def switch_data_factory_with_ttl(request, switch_data_factory):
     switch_data = switch_data_factory
-    default_ttl = 60
+    default_ttl = settings.FLAG_TTL_DAYS
     passed_ttl = 100
     if request.param is True:
         switch_data['ttl'] = passed_ttl

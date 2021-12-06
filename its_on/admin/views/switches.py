@@ -1,5 +1,3 @@
-from typing import Any, Dict, List, Optional, Union
-
 import aiohttp_jinja2
 import psycopg2
 from aiohttp import ClientConnectionError, ClientResponseError, ClientSession
@@ -9,6 +7,7 @@ from dynaconf import settings
 from marshmallow.exceptions import ValidationError
 from multidict import MultiDictProxy
 from sqlalchemy.sql import Select, false
+from typing import Any, Dict, List, Optional, Union
 
 from auth.decorators import login_required
 from its_on.admin.mixins import CreateMixin, GetObjectMixin, UpdateMixin
@@ -140,6 +139,7 @@ class SwitchAddAdminView(web.View, CreateMixin):
     async def get_context_data(self, errors: ValidationError = None, user_input: Dict = None) -> Dict[str, Any]:
         context_data = {
             'errors': errors,
+            'ttl': settings.FLAG_TTL_DAYS,
         }
         if user_input:
             context_data.update(user_input)
