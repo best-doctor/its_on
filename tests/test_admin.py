@@ -246,7 +246,7 @@ async def test_switches_copy_new_switch(client, db_conn_acquirer):
 @pytest.mark.parametrize('switch_name', ['switch', ' switch', 'switch ', ' switch '])
 @pytest.mark.usefixtures('setup_tables_and_data')
 async def test_switch_strip_spaces(
-    client, db_conn_acquirer, login, switch_data_factory, switch_name
+    client, db_conn_acquirer, login, switch_data_factory, switch_name,
 ):
     switch_data = switch_data_factory
     switch_data['name'] = switch_name
