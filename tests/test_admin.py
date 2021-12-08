@@ -3,6 +3,7 @@ import datetime
 import pytest
 from aiohttp.web_exceptions import HTTPOk
 from freezegun import freeze_time
+from sqlalchemy import desc
 
 from auth.models import users
 from its_on.models import switch_history, switches
@@ -240,3 +241,20 @@ async def test_switches_copy_new_switch(client, db_conn_acquirer):
     assert response.status == 200
     assert new_switch is not None
     assert new_switch.name == 'extremely_new_switch'
+
+
+@pytest.mark.parametrize('switch_name', ['switch', ' switch', 'switch ', ' switch '])
+@pytest.mark.usefixtures('setup_tables_and_data')
+async def test_switch_strip_spaces(
+    client, db_conn_acquirer, login, switch_data_factory, switch_name,
+):
+    switch_data = switch_data_factory
+    switch_data['name'] = switch_name
+
+    await client.post('/zbs/switches/add', data=switch_data)
+    switch_data['is_hidden'] = False
+    async with db_conn_acquirer() as conn:
+        result = await conn.execute(switches.select().order_by(desc('id')))
+        created_switch = await result.first()
+
+    assert created_switch.name == 'switch'

@@ -48,7 +48,7 @@ class CreateMixin:
 
     async def create_object(self, request: Request, to_create: MultiDictProxy) -> None:
         validated_data = self._validate_form_data(to_create)
-
+        validated_data['name'] = str(validated_data['name']).strip()
         await self._create(request, validated_data)
 
     async def _create(self, request: Request, to_create: Dict[str, Union[str, bool, int]]) -> None:
