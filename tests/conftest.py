@@ -172,8 +172,10 @@ def get_switches_data_mocked_existing_switch(mocker):
                 'is_active': False,
                 'is_hidden': False,
                 'groups': ['soft_delete'],
-                'version': None,
-                'comment': None,
+                'version': 2,
+                'comment': '',
+                'created_at': '2020-10-30T10:00:00+00:00',
+                'updated_at': '2020-10-30T10:00:00+00:00',
             },
         ],
     }

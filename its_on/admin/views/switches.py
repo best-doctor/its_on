@@ -222,11 +222,12 @@ class SwitchesCopyAdminView(web.View, CreateMixin):
     ) -> None:
         try:
             await self.create_object(self.request, switch_data)
-        except (ValidationError, psycopg2.IntegrityError):
+        except psycopg2.IntegrityError:
             if update_existing:
                 await self._update_switch(switch_data)
 
     async def _update_switch(self, switch_data: MultiDictProxy) -> None:
+        switch_data.pop('updated_at')  # type: ignore
         async with self.request.app['db'].acquire() as conn:
             update_query = (
                 self.model.update()
