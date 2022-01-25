@@ -49,6 +49,7 @@ class SwitchCopyFromAnotherItsOnAdminPostRequestSchema(BaseSwitchAdminPostReques
     groups = fields.List(fields.Str())
     is_hidden = fields.Boolean()
     created_at = fields.DateTime(required=False, allow_none=True)
+    updated_at = fields.DateTime(required=False, allow_none=True)
 
 
 class SwitchListAdminRequestSchema(Schema):
