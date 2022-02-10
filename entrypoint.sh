@@ -8,6 +8,9 @@ elif [ $1 = "test" ]
   then
     exec make check
     exit $?
+elif [ $1 = "migrate" ]
+  then
+    alembic upgrade head
 elif [ $1 = "pre-run" ]
   then
     alembic upgrade head && \
