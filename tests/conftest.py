@@ -9,7 +9,6 @@ from sqlalchemy.orm import Session
 
 from its_on.main import init_gunicorn_app
 from its_on.models import switches
-from its_on.utils import reverse
 from .helpers import (
     create_sample_data, create_tables, drop_tables, setup_db, teardown_db, get_engine,
 )
