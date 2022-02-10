@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from its_on.main import init_gunicorn_app
 from its_on.models import switches
+from its_on.utils import reverse
 from .helpers import (
     create_sample_data, create_tables, drop_tables, setup_db, teardown_db, get_engine,
 )
@@ -139,8 +140,8 @@ def switches_full_info_expected_result():
 
 
 @pytest.fixture(scope='function')
-def asserted_switch_full_info_data():
-    def _with_params(switches_list: list) -> dict:
+def asserted_switch_full_info_data(client):
+    def _with_params(switches_list: list,) -> dict:
         return {
             'result': [
                 {
@@ -153,6 +154,7 @@ def asserted_switch_full_info_data():
                     'ttl': switch.ttl,
                     'created_at': switch.created_at.astimezone(datetime.timezone.utc).isoformat(),
                     'updated_at': switch.updated_at.astimezone(datetime.timezone.utc).isoformat(),
+                    'flag_url': str(client.make_url(f'/zbs/switches/{switch.id}')),
                 } for switch in switches_list
             ],
         }

@@ -20,6 +20,7 @@ class SwitchScheme(Schema):
     groups = fields.List(fields.String)
     version = fields.String()
     comment = fields.String()
+    flag_url = fields.URL()
 
 
 class SwitchFullListResponseSchema(Schema):
