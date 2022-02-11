@@ -18,7 +18,7 @@ def reverse(
     request: web.Request,
     router_name: str,
     params: Optional[Dict[str, str]] = None,
-    with_query: Optional[Dict[str, Any]] = None
+    with_query: Optional[Dict[str, Any]] = None,
 ) -> str:
     if not params:
         params = {}
