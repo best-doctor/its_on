@@ -14,7 +14,7 @@ from its_on.models import switches
 from its_on.schemes import (
     SwitchListRequestSchema, SwitchListResponseSchema, SwitchFullListResponseSchema,
 )
-from its_on.utils import DateTimeJSONEncoder
+from its_on.utils import DateTimeJSONEncoder, reverse
 
 
 class SwitchListView(CorsViewMixin, web.View):
@@ -95,6 +95,11 @@ class SwitchFullListView(CorsViewMixin, web.View):
                 'ttl': obj.ttl,
                 'created_at': obj.created_at,
                 'updated_at': obj.updated_at,
+                'flag_url': reverse(
+                    request=self.request,
+                    router_name='switch_detail',
+                    params={'id': str(obj.id)},
+                ),
             }
             for obj in objects
         ]

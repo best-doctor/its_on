@@ -139,7 +139,7 @@ def switches_full_info_expected_result():
 
 
 @pytest.fixture(scope='function')
-def asserted_switch_full_info_data():
+def asserted_switch_full_info_data(client):
     def _with_params(switches_list: list) -> dict:
         return {
             'result': [
@@ -153,6 +153,7 @@ def asserted_switch_full_info_data():
                     'ttl': switch.ttl,
                     'created_at': switch.created_at.astimezone(datetime.timezone.utc).isoformat(),
                     'updated_at': switch.updated_at.astimezone(datetime.timezone.utc).isoformat(),
+                    'flag_url': str(client.make_url(f'/zbs/switches/{switch.id}')),
                 } for switch in switches_list
             ],
         }

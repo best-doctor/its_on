@@ -1,6 +1,6 @@
 import datetime
 import json
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 
 import sqlalchemy as sa
 from aiocache import Cache
@@ -12,6 +12,18 @@ def setup_cache(app: web.Application) -> None:
     cache = Cache.from_url(app['config']['cache_url'])
     cache.serializer = JsonSerializer()
     app['cache'] = cache
+
+
+def reverse(
+    request: web.Request,
+    router_name: str,
+    params: Optional[Dict[str, str]] = None,
+    with_query: Optional[Dict[str, Any]] = None,
+) -> str:
+    if not params:
+        params = {}
+    path_url = request.app.router[router_name].url_for(**params).with_query(with_query)
+    return str(request.url.join(path_url))
 
 
 class AwareDateTime(sa.TypeDecorator):
