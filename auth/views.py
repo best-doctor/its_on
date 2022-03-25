@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import aiohttp_jinja2
+from aiohttp.abc import StreamResponse
 from aiohttp.web import HTTPFound, View, Response
 from aiohttp_security import forget, remember
 from marshmallow.exceptions import ValidationError
@@ -20,16 +21,18 @@ class LoginView(View):
         return {'context': ''}
 
     @aiohttp_jinja2.template('users/login.html')
-    async def error(self, error: str = 'Internal error') -> Dict[str, str]:
-        return {'context': '', 'error': error}
+    async def error(self) -> Dict[str, str]:
+        return {'context': '', 'error': 'Authorization failed'}
 
-    async def authorise(self, response_location: Response, login: str, password: str) -> Response:
+    async def authorise(
+        self, response_location: Response, login: str, password: str
+    ) -> StreamResponse:
         if await check_credentials(self.request.app['db'], login, password):
             await remember(self.request, response_location, login)
             return response_location
-        return await self.error('Authorization failed')
+        return await self.error()
 
-    async def post(self) -> Response:
+    async def post(self) -> StreamResponse:
         response_location = HTTPFound('/zbs/switches')
         form_data = await self.request.post()
         validated_data = self.validate_form_data(form_data)
