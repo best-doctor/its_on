@@ -25,7 +25,7 @@ class LoginView(View):
         return {'context': '', 'error': 'Authorization failed'}
 
     async def authorise(
-        self, response_location: Response, login: str, password: str
+        self, response_location: Response, login: str, password: str,
     ) -> StreamResponse:
         if await check_credentials(self.request.app['db'], login, password):
             await remember(self.request, response_location, login)
