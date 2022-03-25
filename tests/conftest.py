@@ -175,8 +175,9 @@ def get_switches_data_mocked_existing_switch(mocker):
                 'groups': ['soft_delete'],
                 'version': 2,
                 'comment': '',
-                'created_at': '2020-10-30T10:00:00+00:00',
-                'updated_at': '2020-10-30T10:00:00+00:00',
+                'created_at': '2020-10-30T10:00:12.000000+00:00',
+                'updated_at': '2020-10-30T10:00:12.000000+00:00',
+                'flag_url': 'http://test.ru/zbs/switches/10557',
             },
         ],
     }

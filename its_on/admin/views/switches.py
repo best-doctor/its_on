@@ -20,6 +20,7 @@ from its_on.admin.schemes import (
 )
 from its_on.admin.utils import get_switch_history, save_switch_history
 from its_on.models import switches
+from its_on.schemes import RemoteSwitchesDataSchema
 
 
 class SwitchListAdminView(web.View):
@@ -193,6 +194,7 @@ class SwitchAddAdminView(web.View, CreateMixin):
 
 class SwitchesCopyAdminView(web.View, CreateMixin):
     validator = SwitchCopyFromAnotherItsOnAdminPostRequestSchema()
+    remote_validator = RemoteSwitchesDataSchema()
     model = switches
 
     @staticmethod
@@ -209,6 +211,10 @@ class SwitchesCopyAdminView(web.View, CreateMixin):
         try:
             switches_data = await self._get_switches_data()
         except (ClientConnectionError, ClientResponseError) as error:
+            return {'errors': error}
+        try:
+            switches_data = self.remote_validator.load(switches_data)
+        except ValidationError as error:
             return {'errors': error}
 
         for switch_data in switches_data['result']:
