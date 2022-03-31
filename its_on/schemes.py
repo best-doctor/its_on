@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate, EXCLUDE
 
 
 class SwitchListRequestSchema(Schema):
@@ -25,3 +25,25 @@ class SwitchScheme(Schema):
 
 class SwitchFullListResponseSchema(Schema):
     result = fields.List(fields.Nested(SwitchScheme))
+
+
+class SwitchRemoteDataSchema(Schema):
+    class Meta:
+        unknown = EXCLUDE
+
+    is_active = fields.Boolean()
+    version = fields.Int()
+    comment = fields.Str()
+    ttl = fields.Int(validate=validate.Range(min=1))
+    name = fields.Str()
+    groups = fields.List(fields.Str())
+    is_hidden = fields.Boolean()
+    created_at = fields.Str(allow_none=True)
+    updated_at = fields.Str(allow_none=True)
+
+
+class RemoteSwitchesDataSchema(Schema):
+    class Meta:
+        unknown = EXCLUDE
+
+    result = fields.List(fields.Nested(SwitchRemoteDataSchema))
