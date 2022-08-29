@@ -1,5 +1,6 @@
 import functools
 import json
+import textwrap
 from typing import Dict, List, Optional
 
 from aiocache import cached
@@ -9,6 +10,8 @@ from aiohttp_cors import CorsViewMixin
 from dynaconf import settings
 from sqlalchemy.sql import Select, false
 
+from its_on.admin.mixins import GetObjectMixin
+from its_on.utils import get_switch_badge_svg
 from its_on.cache import switch_list_cache_key_builder
 from its_on.models import switches
 from its_on.schemes import (
@@ -23,7 +26,7 @@ class SwitchListView(CorsViewMixin, web.View):
         description='Returns a list of active flags for the passed group.',
     )
     @request_schema(SwitchListRequestSchema(), locations=['query'])
-    @response_schema(SwitchListResponseSchema(), 200)
+    @response_schema(SwitchListResponseSchema(), code=200, description='Successful operation')
     async def get(self) -> web.Response:
         data = await self.get_response_data()
         return web.json_response(data)
@@ -77,7 +80,7 @@ class SwitchFullListView(CorsViewMixin, web.View):
         summary='List of all active flags with full info.',
         description='Returns a list of all active flags with all necessary info for recreation.',
     )
-    @response_schema(SwitchFullListResponseSchema(), 200)
+    @response_schema(SwitchFullListResponseSchema(), code=200, description='Successful operation')
     async def get(self) -> web.Response:
         data = await self.get_response_data()
         return web.json_response(data, dumps=functools.partial(json.dumps, cls=DateTimeJSONEncoder))
@@ -115,3 +118,37 @@ class SwitchFullListView(CorsViewMixin, web.View):
 
     def get_queryset(self) -> Select:
         return switches.select()
+
+
+class SwitchSvgBadgeView(CorsViewMixin, GetObjectMixin, web.View):
+    model = switches
+
+    @docs(
+        summary='SVG badge with actual flag information.',
+        description=textwrap.dedent(
+            """
+            Returns an SVG image with actual flag information:
+
+            | State | Badge |
+            |-----|-----|
+            | Active flag | <img src="/static/img/active-flag-badge.svg"/> |
+            | Inactive flag | <img src="/static/img/inactive-flag-badge.svg"/> |
+            | Deleted flag | <img src="/static/img/deleted-flag-badge.svg"/> |
+            | Unknown flag | <img src="/static/img/unknown-flag-badge.svg"/> |
+
+            `{host}` here means a host name of the request.
+            """,
+        ),
+        produces=['image/svg+xml'],
+        responses={
+            200: {
+                'description': 'Successful operation',
+            },
+        },
+    )
+    async def get(self) -> web.Response:
+        switch = await self.get_object(self.request)
+
+        svg_badge = get_switch_badge_svg(self.request.host, switch)
+
+        return web.Response(body=svg_badge, content_type='image/svg+xml')

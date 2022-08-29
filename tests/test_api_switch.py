@@ -1,5 +1,7 @@
 import pytest
 
+from its_on.utils import get_switch_badge_svg
+
 
 async def test_switch(setup_tables_and_data, client):
     response = await client.get('/api/v1/switch?group=group1')
@@ -76,10 +78,26 @@ async def test_switch_filter_by_version(version, expected_result, setup_tables_a
 
 
 async def test_switches_full_info(
-    switch_factory, client, asserted_switch_full_info_data,
+    switches_factory, client, asserted_switch_full_info_data,
 ):
-    all_switches = await switch_factory(batch_size=5)
+    all_switches = await switches_factory(batch_size=5)
     response = await client.get('/api/v1/switches_full_info')
 
     assert response.status == 200
     assert await response.json() == asserted_switch_full_info_data(all_switches)
+
+
+@pytest.mark.usefixtures('badge_mask_id_patch')
+async def test_switch_svg_badge_view(
+    switch_factory, client, asserted_switch_full_info_data,
+):
+    switch = await switch_factory()
+    expected_badge_svg = get_switch_badge_svg(
+        hostname=f'{client.host}:{client.port}',
+        switch=switch,
+    )
+
+    response = await client.get(f'/api/v1/switches/{switch.id}/svg-badge')
+
+    assert response.status == 200
+    assert await response.text() == expected_badge_svg

@@ -9,10 +9,12 @@ Flag/feature toggle service, written in aiohttp.
 
 ### Basic
 
-| Method  | Endpoint                   | Description                         |
-| ------- | ---------------------------| ----------------------------------- |
-| `GET`   | `/api/docs`                | Api documentation                   |
-| `GET`   | `/api/v1/switch`           | List of flags for the group.        |
+| Method  | Endpoint                         | Description                             |
+| ------- |----------------------------------|-----------------------------------------|
+| `GET`   | `/api/docs`                      | Api documentation                       |
+| `GET`   | `/api/v1/switch`                 | List of flags for the group.            |
+| `GET`   | `/api/v1/switches/{id}/svg-badge` | SVG badge with actual flag information |
+| `GET`   | `/api/v1/switches_full_info` | List of all active flags with full info. |
 
 ### Admin
 
@@ -30,6 +32,37 @@ Flag/feature toggle service, written in aiohttp.
     "result": ["test_flag3", "test_flag4"]
 }
 ```
+
+## SVG badges
+
+SVG badges can be useful for showing actual feature flag states.
+
+Open `Flag detail` page, find `SVG badge` section and copy badge.
+
+<details>
+  <summary>Screenshot</summary>
+
+  ![admin-flag-editing-page](docs/assets/img/admin-flag-editing-page.png)
+
+</details>
+
+You will get an image with a link in Markdown format:
+
+```markdown
+[![flag-name](link-to-svg-badge)](link-to-flag-editing-page)
+```
+
+Then paste text in a text editor with Markdown support (task tracker, Slack, Mattermost etc.).
+Actual flag state will be displayed as follows:
+
+| State         | Badge                                                             |
+|---------------|-------------------------------------------------------------------|
+| Active flag   | ![active-flag-badge](its_on/static/img/active-flag-badge.svg)     |
+| Inactive flag | ![inactive-flag-badge](its_on/static/img/inactive-flag-badge.svg) |
+| Deleted flag  | ![deleted-flag-badge](its_on/static/img/deleted-flag-badge.svg)   |
+| Unknown flag  | ![unknown-flag-badge](its_on/static/img/unknown-flag-badge.svg)   |
+
+See [settings.yaml](settings.yaml) for additional settings.
 
 ## Installation
 
@@ -75,7 +108,7 @@ and you are good to go!
 
 Example `docker-compose.yml` file:
 
-```
+```yaml
 version: '3'
 services:
   cache:

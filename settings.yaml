@@ -13,6 +13,13 @@ default:
   enable_switches_full_info_endpoint: false
   sync_from_its_on_url: '@none'
   flag_ttl_days: 14
+  flag_svg_badge:
+      background_color: '#ff6c6c'
+      prefix:
+          is_active: '✅'
+          is_inactive: '❌'
+          is_hidden: '⚠️'
+          not_found: '⛔'
 
 development:
   environment: Dev

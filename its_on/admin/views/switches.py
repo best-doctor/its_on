@@ -21,6 +21,7 @@ from its_on.admin.schemes import (
 from its_on.admin.utils import get_switch_history, save_switch_history
 from its_on.models import switches
 from its_on.schemes import RemoteSwitchesDataSchema
+from its_on.utils import get_switch_badge_svg, get_switch_markdown_badge
 
 
 class SwitchListAdminView(web.View):
@@ -83,12 +84,19 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
     model = switches
 
     async def get_context_data(
-        self, switch: Optional[RowProxy] = None, errors: ValidationError = None, updated: bool = False,
+        self, switch: Optional[RowProxy] = None, errors: ValidationError = None,
+        updated: bool = False,
     ) -> Dict[str, Any]:
         switch = switch if switch else await self.get_object(self.request)
         switch_history = await get_switch_history(self.request, switch)
+
+        svg_badge = get_switch_badge_svg(self.request.host, switch)
+        markdown_badge = get_switch_markdown_badge(self.request, switch)
+
         context_data = {
             'object': switch,
+            'svg_badge': svg_badge,
+            'markdown_badge': markdown_badge,
             'switch_history': switch_history,
             'errors': errors,
             'updated': updated,
