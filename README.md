@@ -64,6 +64,27 @@ Actual flag state will be displayed as follows:
 
 See [settings.yaml](settings.yaml) for additional settings.
 
+## Environment notice
+
+Environment notice helps to visually distinguish environments (e.g. development, staging, production).
+
+<details>
+  <summary>Screenshot</summary>
+
+  ![admin-environment-indicator](docs/assets/img/admin-environment-indicator.png)
+
+</details>
+
+To add the environment notice to every page in the admin, add following settings:
+
+```env
+export DYNACONF_ENVIRONMENT_NOTICE__show=true  # false by default
+export DYNACONF_ENVIRONMENT_NOTICE__environment_name='<Environment>'
+export DYNACONF_ENVIRONMENT_NOTICE__background_color='<HEX color>'
+```
+
+See [settings.yaml](settings.yaml) for default settings for each specified environment.
+
 ## Installation
 
 ### Prerequisites

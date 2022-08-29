@@ -55,12 +55,19 @@ def init_app(
             redis_pool.close()
             await redis_pool.wait_closed()
 
-    aiohttp_jinja2.setup(
+    jinja2_env = aiohttp_jinja2.setup(
         app,
         loader=jinja2.FileSystemLoader(
             str(BASE_DIR / 'its_on' / 'templates'),
         ),
     )
+
+    jinja2_env.globals.update({
+        'show_env_notice': settings.ENVIRONMENT_NOTICE.SHOW,
+        'env_notice_name': settings.ENVIRONMENT_NOTICE.ENVIRONMENT_NAME,
+        'env_notice_background_color': settings.ENVIRONMENT_NOTICE.BACKGROUND_COLOR,
+    })
+
     app['static_root_url'] = '/static'
 
     app.on_startup.append(init_pg)

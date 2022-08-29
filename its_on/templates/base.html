@@ -13,6 +13,20 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ static('css/style.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/css/select2.min.css" rel="stylesheet"/>
+    {% if show_env_notice %}
+      <style>
+        body:before {
+          display: block;
+          line-height: 35px;
+          text-align: center;
+          font-weight: bold;
+          text-transform: uppercase;
+          color: white;
+          content: "{{ env_notice_name }}";
+          background-color: {{ env_notice_background_color }};
+        }
+      </style>
+    {% endif %}
   {% endblock %}
   {% block head_js %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
