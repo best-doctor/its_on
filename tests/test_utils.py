@@ -9,7 +9,56 @@ from its_on.constants import (
     SWITCH_IS_ACTIVE_SVG_BADGE_PREFIX,
     SWITCH_IS_HIDDEN_SVG_BADGE_PREFIX,
 )
-from its_on.utils import get_switch_badge_svg, get_switch_markdown_badge
+from its_on.utils import (
+    get_switch_badge_prefix_and_value,
+    get_switch_badge_svg,
+    get_switch_markdown_badge,
+)
+
+
+@pytest.mark.usefixtures('setup_tables_and_data')
+@pytest.mark.parametrize(
+    ('switch_params', 'expected_prefix', 'expected_value'),
+    [
+        (
+            {
+                'name': 'feature-flag-1',
+                'is_active': True,
+                'is_hidden': False,
+            },
+            SWITCH_IS_ACTIVE_SVG_BADGE_PREFIX,
+            'feature-flag-1',
+        ),
+        (
+            {
+                'name': 'feature-flag-1',
+                'is_active': False,
+                'is_hidden': False,
+            },
+            SWITCH_IS_INACTIVE_SVG_BADGE_PREFIX,
+            'feature-flag-1',
+        ),
+
+        (
+            {
+                'name': 'feature-flag-1',
+                'is_hidden': True,
+            },
+            SWITCH_IS_HIDDEN_SVG_BADGE_PREFIX,
+            'feature-flag-1 (deleted)',
+        ),
+    ],
+    ids=['active-flag', 'inactive-flag', 'deleted-flag'],
+)
+async def test_get_switch_badge_prefix_and_value(
+    switch_factory, switch_params, expected_prefix, expected_value,
+):
+    switch = await switch_factory(**switch_params)
+
+    prefix, value = get_switch_badge_prefix_and_value(switch)
+
+    assert prefix == expected_prefix
+    assert value == expected_value
 
 
 @pytest.mark.usefixtures('setup_tables_and_data', 'badge_mask_id_patch')

@@ -38,17 +38,23 @@ def reverse(
     return str(request.url.join(path_url))
 
 
+def get_switch_badge_prefix_and_value(switch: RowProxy) -> tuple[str, str]:
+    value = switch.name
+
+    if switch.is_hidden:
+        prefix = SWITCH_IS_HIDDEN_SVG_BADGE_PREFIX
+        value = value + ' (deleted)'
+    elif switch.is_active:
+        prefix = SWITCH_IS_ACTIVE_SVG_BADGE_PREFIX
+    else:
+        prefix = SWITCH_IS_INACTIVE_SVG_BADGE_PREFIX
+
+    return prefix, value
+
+
 def get_switch_badge_svg(hostname: str, switch: RowProxy | None = None) -> str:
     if switch is not None:
-        value = switch.name
-
-        if switch.is_hidden:
-            prefix = SWITCH_IS_HIDDEN_SVG_BADGE_PREFIX
-            value = value + ' (deleted)'
-        elif switch.is_active:
-            prefix = SWITCH_IS_ACTIVE_SVG_BADGE_PREFIX
-        else:
-            prefix = SWITCH_IS_INACTIVE_SVG_BADGE_PREFIX
+        prefix, value = get_switch_badge_prefix_and_value(switch)
     else:
         prefix = SWITCH_NOT_FOUND_SVG_BADGE_PREFIX
         value = 'not found'
