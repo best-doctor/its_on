@@ -4,6 +4,8 @@ from unittest.mock import MagicMock
 
 import pytest
 import factory.fuzzy
+from anybadge import Badge
+from anybadge.config import MASK_ID_PREFIX
 from dynaconf import settings
 from sqlalchemy.orm import Session
 
@@ -228,7 +230,7 @@ def switch_data_factory_with_ttl(request, switch_data_factory):
 
 
 @pytest.fixture()
-async def switch_factory(setup_tables: Callable) -> Callable:
+async def switches_factory(setup_tables: Callable) -> Callable:
     engine = get_engine(settings.DATABASE.DSN)
     session = Session(engine)
 
@@ -250,3 +252,42 @@ async def switch_factory(setup_tables: Callable) -> Callable:
             return session.query(switches).all()
 
     return _with_params
+
+
+@pytest.fixture()
+async def switch_factory(loop, setup_tables: Callable) -> Callable:
+    engine = get_engine(settings.DATABASE.DSN)
+
+    async def _with_params(**kwargs) -> list:
+        switch_params = {
+            'name': factory.fuzzy.FuzzyText(length=10).fuzz(),
+            'is_active': factory.fuzzy.FuzzyChoice([True, False]).fuzz(),
+            'is_hidden': factory.fuzzy.FuzzyChoice([True, False]).fuzz(),
+            'groups': (
+                factory.fuzzy.FuzzyText(length=5).fuzz(), factory.fuzzy.FuzzyText(length=5).fuzz(),
+            ),
+            'version': factory.fuzzy.FuzzyInteger(low=0, high=100).fuzz(),
+            'jira_ticket': factory.fuzzy.FuzzyText(length=10).fuzz(),
+            'ttl': factory.fuzzy.FuzzyInteger(low=0, high=100).fuzz(),
+            **kwargs,
+        }
+
+        with engine.connect() as conn:
+            conn.execute(switches.insert(), switch_params)
+            query = switches.select(switches.c.name == switch_params['name'])
+            return conn.execute(query).fetchone()
+
+    return _with_params
+
+
+@pytest.fixture()
+def badge_mask_id_patch(mocker):
+    # anybadge increments mask_id for each badge to prevent
+    # SVG <mask id="..."> duplicates
+    # set it to 1 just to compare two SVG images without regard to anybadge internal details.
+
+    return mocker.patch.object(
+        Badge,
+        '_get_next_mask_str',
+        return_value=f'{MASK_ID_PREFIX}_1',
+    )

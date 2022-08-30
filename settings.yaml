@@ -13,6 +13,18 @@ default:
   enable_switches_full_info_endpoint: false
   sync_from_its_on_url: '@none'
   flag_ttl_days: 14
+  flag_svg_badge:
+      background_color: '#ff6c6c'
+      prefix:
+          is_active: '✅'
+          is_inactive: '❌'
+          is_hidden: '⚠️'
+          not_found: '⛔'
+  environment_notice:
+    show: false
+    environment_name: Development
+    background_color: '#74b91d'  # green
+
 
 development:
   environment: Dev
@@ -24,9 +36,17 @@ development:
 
 production:
   environment: Prod
+  environment_notice:
+    dynaconf_merge: true
+    environment_name: Production
+    background_color: '#e64747'  # red
 
 staging:
   environment: Staging
+  environment_notice:
+    dynaconf_merge: true
+    environment_name: Staging
+    background_color: '#c3721a'  # orange
 
 testing:
   environment: Test
@@ -36,3 +56,7 @@ testing:
     superuser_dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/its_on
   cache_ttl: 0
   cors_allow_origin: ['http://localhost:8081']
+  environment_notice:
+    dynaconf_merge: true
+    environment_name: Test
+    background_color: '#c3721a'  # orange

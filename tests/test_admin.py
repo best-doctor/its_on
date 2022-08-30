@@ -1,16 +1,18 @@
 import datetime
 
 import pytest
+from aiohttp.test_utils import make_mocked_request
 from aiohttp.web_exceptions import HTTPOk
 from freezegun import freeze_time
 from sqlalchemy import desc
 
 from auth.models import users
 from its_on.models import switch_history, switches
+from its_on.utils import get_switch_badge_svg, get_switch_markdown_badge
 
 
 @pytest.mark.usefixtures('setup_tables_and_data')
-async def test_switches_list_without_auhtorize(client):
+async def test_switches_list_without_authorization(client):
     response = await client.get('/zbs/switches')
 
     assert response.status == 401
@@ -189,7 +191,7 @@ async def test_resurrect_switch(client, login, switch):
     assert 'switch3' in content.decode('utf-8')
 
 
-async def test_switches_copy_without_auhtorize(setup_tables_and_data, client):
+async def test_switches_copy_without_authorization(setup_tables_and_data, client):
     response = await client.post('/zbs/switches/copy')
 
     assert response.status == 401
@@ -207,7 +209,8 @@ async def test_switches_copy_without_auhtorize(setup_tables_and_data, client):
     ],
 )
 @freeze_time(datetime.datetime(2020, 10, 15, tzinfo=datetime.timezone.utc))
-@pytest.mark.usefixtures('setup_tables_and_data', 'login', 'get_switches_data_mocked_existing_switch')
+@pytest.mark.usefixtures('setup_tables_and_data', 'login',
+                         'get_switches_data_mocked_existing_switch')
 async def test_switches_copy_existing_switch_foo(
     client,
     db_conn_acquirer,
@@ -258,3 +261,31 @@ async def test_switch_strip_spaces(
         created_switch = await result.first()
 
     assert created_switch.name == 'switch'
+
+
+@pytest.mark.usefixtures('setup_tables_and_data', 'login', 'badge_mask_id_patch')
+async def test_switch_detail_svg_badge(client, switch):
+    svg_badge_url = str(client.make_url(f'/api/v1/switches/{switch.id}/svg-badge'))
+    expected_svg_badge = get_switch_badge_svg(
+        hostname=f'{client.host}:{client.port}',
+        switch=switch,
+    )
+    expected_markdown_badge = get_switch_markdown_badge(
+        request=make_mocked_request(
+            method='GET',
+            path=svg_badge_url,
+            app=client.app,
+        ),
+        switch=switch,
+    )
+
+    response = await client.get('/zbs/switches/1')
+    content = await response.content.read()
+    content = content.decode('utf-8')
+
+    assert switch.name in content
+    assert 'block-svg-badge' in content
+    assert 'copy-md-badge-btn' in content
+    assert 'md-badge' in content
+    assert expected_svg_badge in content
+    assert expected_markdown_badge in content

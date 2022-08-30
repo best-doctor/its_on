@@ -1,5 +1,22 @@
 {% extends "base.html" %}
 
+{% block head_css %}
+  {{ super() }}
+  <style>
+    .block-svg-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .block-svg-badge button {
+      font-size: 10px;
+      padding: 2px 5px;
+      height: 20px;
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
 
   <div class="col-sm-9">
@@ -31,6 +48,24 @@
       {% else %}
         -
       {% endif %}
+
+      <br>
+      <label>SVG badge:
+        <span id="svg-badge-tooltip" class="glyphicon glyphicon-question-sign"
+              title="Copy as Markdown badge with link to this page"></span>
+      </label>
+      <br>
+
+      <div class="block-svg-badge">
+        {{ svg_badge | safe }}
+
+        <button id="copy-md-badge-btn" type="button" class="btn btn-primary">
+          <span id="copy-md-badge-span" class="glyphicon glyphicon-copy"></span>
+        </button>
+      </div>
+
+      <input id="md-badge" type="hidden" value="{{ markdown_badge | safe }}">
+
       <form action="/zbs/switches/{{ object.id }}" method="post">
         <br>
         <div class="form-group">
@@ -81,26 +116,26 @@
 
               <table class="table table-striped">
                 <thead>
-                  <tr>
-                    <th>Changed at</th>
-                    <th>Value</th>
-                  </tr>
+                <tr>
+                  <th>Changed at</th>
+                  <th>Value</th>
+                </tr>
                 </thead>
                 <tbody>
-                  {% for switch in switch_history %}
-                    <tr>
-                      <td>
-                        {{ switch.changed_at.strftime('%d-%m-%Y %H:%M:%S') }}
-                      </td>
-                      <td>
-                        {% if switch.new_value == '1' %}
-                          <span class="glyphicon glyphicon-ok green"></span>
-                        {% else %}
-                          <span class="glyphicon glyphicon-remove red"></span>
-                        {% endif %}
-                      </td>
-                    </tr>
-                  {% endfor %}
+                {% for switch in switch_history %}
+                  <tr>
+                    <td>
+                      {{ switch.changed_at.strftime('%d-%m-%Y %H:%M:%S') }}
+                    </td>
+                    <td>
+                      {% if switch.new_value == '1' %}
+                        <span class="glyphicon glyphicon-ok green"></span>
+                      {% else %}
+                        <span class="glyphicon glyphicon-remove red"></span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
                 </tbody>
               </table>
 
@@ -112,4 +147,34 @@
     {% endif %}
   </div>
 
+{% endblock %}
+
+{% block tail_js %}
+  {{ super() }}
+  <script>
+    $(document).ready(function () {
+      $('#svg-badge-tooltip').tooltip();
+
+      $('#copy-md-badge-btn').click(function () {
+        // only if browser supports Clipboard API
+
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText($('#md-badge').val());
+
+          let copyButtonSpan = $('#copy-md-badge-span');
+          copyButtonSpan.removeClass('glyphicon-copy');
+          copyButtonSpan.addClass('glyphicon-ok');
+
+          setTimeout(
+            () => {
+              copyButtonSpan.addClass('glyphicon-copy');
+              copyButtonSpan.removeClass('glyphicon-ok');
+            }, 1500
+          );
+        }
+      });
+
+
+    });
+  </script>
 {% endblock %}

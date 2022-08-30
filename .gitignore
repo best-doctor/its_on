@@ -185,3 +185,5 @@ yum-root-*
 
 .rozental.sqlite
 .tm_properties
+
+docker-compose.override.yml

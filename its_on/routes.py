@@ -6,7 +6,7 @@ from aiohttp_cors import CorsConfig
 from dynaconf import settings
 
 from auth.views import LoginView, LogoutView
-from its_on.views import SwitchFullListView, SwitchListView
+from its_on.views import SwitchFullListView, SwitchListView, SwitchSvgBadgeView
 from its_on.admin.views.switches import (
     SwitchAddAdminView,
     SwitchDeleteAdminView,
@@ -33,6 +33,13 @@ def setup_routes(app: Application, base_dir: Path, cors_config: CorsConfig) -> N
 
     get_switch_view = app.router.add_view('/api/v1/switch', SwitchListView)
     cors_config.add(get_switch_view)
+
+    get_switch_svg_badge_view = app.router.add_view(
+        '/api/v1/switches/{id}/svg-badge',
+        SwitchSvgBadgeView,
+        name='switch_svg_badge',
+    )
+    cors_config.add(get_switch_svg_badge_view)
 
     if settings.ENABLE_SWITCHES_FULL_INFO_ENDPOINT:
         get_switch_full_view = app.router.add_view('/api/v1/switches_full_info', SwitchFullListView)
