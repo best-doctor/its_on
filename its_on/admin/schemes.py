@@ -22,7 +22,7 @@ class BaseSwitchAdminPostRequestSchema(Schema):
     version = fields.Int()
     comment = fields.Str()
     ttl = fields.Int(validate=validate.Range(min=1))
-    jira_ticket = fields.Str()
+    deleted_at = fields.DateTime()
 
 
 class SwitchDetailAdminPostRequestSchema(BaseSwitchAdminPostRequestSchema):
@@ -50,6 +50,7 @@ class SwitchCopyFromAnotherItsOnAdminPostRequestSchema(BaseSwitchAdminPostReques
     is_hidden = fields.Boolean()
     created_at = fields.DateTime(required=False, allow_none=True)
     updated_at = fields.DateTime(required=False, allow_none=True)
+    deleted_at = fields.DateTime(required=False, allow_none=True)
 
 
 class SwitchListAdminRequestSchema(Schema):

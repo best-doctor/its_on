@@ -8,7 +8,9 @@ from sqlalchemy import desc
 
 from auth.models import users
 from its_on.models import switch_history, switches
-from its_on.utils import get_switch_badge_svg, get_switch_markdown_badge
+from its_on.utils import get_switch_badge_svg, get_switch_markdown_badge, local_timezone, utc_now
+
+from dynaconf import settings
 
 
 @pytest.mark.usefixtures('setup_tables_and_data')
@@ -30,6 +32,8 @@ async def test_update_switch_without_login(client):
     [
         ('switch1', True),
         ('switch2', True),
+        ('switch6', False),
+        ('switch8', False),
         ('switch1488', False),
     ],
 )
@@ -43,12 +47,27 @@ async def test_switches_list(client, switch_title, expected_result):
 
 
 @pytest.mark.parametrize(
-    'group_title, switch_title, expected_result',
+    'switch_title, expected_result',
     [
-        ('', 'switch1', True),
-        ('group1', 'switch1', True),
-        ('group3', 'switch1', False),
+        ('switch1', True),
+        ('switch2', True),
+        ('switch6', True),
+        ('switch8', True),
+        ('switch1488', False),
     ],
+)
+@pytest.mark.usefixtures('setup_tables_and_data', 'login')
+async def test_switches_list__show_hidden(client, switch_title, expected_result):
+    response = await client.get('/zbs/switches?show_hidden=True')
+
+    content = await response.content.read()
+
+    assert (switch_title in content.decode('utf-8')) is expected_result
+
+
+@pytest.mark.parametrize(
+    'group_title, switch_title, expected_result',
+    [('', 'switch1', True), ('group1', 'switch1', True), ('group3', 'switch1', False)],
 )
 @pytest.mark.usefixtures('setup_tables_and_data', 'login')
 async def test_switches_list_filter_by_group(client, group_title, switch_title, expected_result):
@@ -79,33 +98,27 @@ async def test_switch_add_get_method(client):
 @freeze_time(datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc))
 @pytest.mark.usefixtures('setup_tables_and_data')
 async def test_switch_add_post_method(
-    client, db_conn_acquirer, login, switch_data_factory_with_ttl,
+    client, db_conn_acquirer, login, create_switch_data_factory, switch_to_json_factory,
 ):
-    switch_data, asserted_ttl = switch_data_factory_with_ttl
+    switch_data = create_switch_data_factory(
+        deleted_at=datetime.datetime(2020, 4, 15, tzinfo=local_timezone()).isoformat(),
+    )
 
     response = await client.post('/zbs/switches/add', data=switch_data)
     content = await response.content.read()
-    switch_data['is_hidden'] = False
-
-    assert response.status == HTTPOk.status_code
-    assert 'Switches list' in content.decode('utf-8')
     async with db_conn_acquirer() as conn:
         result = await conn.execute(switches.select().where(switches.c.name == switch_data['name']))
         created_switch = await result.first()
-    for field_name, field_value in switch_data.items():
-        if field_name == 'groups':
-            field_value = ['check_adding', 'group2']
-        assert getattr(created_switch, field_name) == field_value
+
+    assert response.status == HTTPOk.status_code
+    assert 'Switches list' in content.decode('utf-8')
+    assert switch_to_json_factory(created_switch) == switch_data
     assert created_switch.created_at == datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc)
-    assert created_switch.ttl == asserted_ttl
 
 
 @pytest.mark.parametrize(
     ('blank_field', 'error_message'),
-    [
-        ('name', 'Empty name is not allowed.'),
-        ('groups', 'At least one group is required.'),
-    ],
+    [('name', 'Empty name is not allowed.'), ('groups', 'At least one group is required.')],
 )
 @pytest.mark.usefixtures('setup_tables_and_data')
 async def test_switch_add_blank_fields_not_allowed(blank_field, error_message, client, login):
@@ -124,6 +137,24 @@ async def test_switch_add_blank_fields_not_allowed(blank_field, error_message, c
 
     assert 'Flag adding' in content_decoded
     assert error_message in content_decoded
+
+
+@pytest.mark.usefixtures('setup_tables_and_data')
+async def test_switch_get(client, login, db_conn_acquirer):
+    response = await client.get('/zbs/switches/1')
+    content = (await response.content.read()).decode('utf-8')
+
+    assert 'switch1' in content
+
+
+@pytest.mark.usefixtures('setup_tables_and_data')
+@pytest.mark.freeze_time(datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc))
+async def test_switch_get__deleted(client, login, db_conn_acquirer):
+    response = await client.get('/zbs/switches/6')
+    content = (await response.content.read()).decode('utf-8')
+
+    assert 'Oops! this switch was &#34;deleted&#34;.' in content
+    assert 'switch6' not in content
 
 
 @pytest.mark.usefixtures('setup_tables_and_data')
@@ -153,7 +184,8 @@ async def test_switch_update(client, login, switch, db_conn_acquirer):
 
 
 @pytest.mark.usefixtures('setup_tables_and_data')
-async def test_switch_soft_delete(client, login, switch):
+@pytest.mark.freeze_time(datetime.datetime(2020, 5, 1, tzinfo=datetime.timezone.utc))
+async def test_switch_soft_delete(client, login, switch, db_conn_acquirer):
     response = await client.get('/zbs/switches')
     content = await response.content.read()
     assert 'switch7' in content.decode('utf-8')
@@ -161,8 +193,13 @@ async def test_switch_soft_delete(client, login, switch):
     await client.get('/zbs/switches/7/delete')
     response = await client.get('/zbs/switches')
     content = await response.content.read()
+    async with db_conn_acquirer() as conn:
+        deleted_switch = await(await conn.execute(switches.select().where(
+            switches.c.id == 7,
+        ))).first()
 
     assert 'switch7' not in content.decode('utf-8')
+    assert deleted_switch.deleted_at == utc_now() + datetime.timedelta(days=settings.FLAG_TTL_DAYS)
 
 
 @pytest.mark.usefixtures('setup_tables_and_data')
@@ -181,7 +218,7 @@ async def test_resurrect_switch(client, login, switch):
     switch_data = {
         'name': 'switch3',
         'is_active': False,
-        'is_hidden': False,
+        'deleted_at': None,
         'groups': 'group1',
         'version': 4,
     }
@@ -209,11 +246,11 @@ async def test_switches_copy_without_authorization(setup_tables_and_data, client
     ],
 )
 @freeze_time(datetime.datetime(2020, 10, 15, tzinfo=datetime.timezone.utc))
-@pytest.mark.usefixtures('setup_tables_and_data', 'login',
-                         'get_switches_data_mocked_existing_switch')
+@pytest.mark.usefixtures(
+    'setup_tables_and_data', 'login', 'get_switches_data_mocked_existing_switch',
+)
 async def test_switches_copy_existing_switch_foo(
-    client,
-    db_conn_acquirer,
+    client, db_conn_acquirer,
     http_get_arguments,
     old_switch_is_active_expected,
     expected_updated_at,
@@ -227,7 +264,7 @@ async def test_switches_copy_existing_switch_foo(
         old_switch = await result.first()
 
     assert response.status == 200
-    assert switches_count == 7
+    assert switches_count == 8
     assert old_switch.is_active == old_switch_is_active_expected
     assert old_switch.updated_at == expected_updated_at
 
@@ -249,13 +286,11 @@ async def test_switches_copy_new_switch(client, db_conn_acquirer):
 @pytest.mark.parametrize('switch_name', ['switch', ' switch', 'switch ', ' switch '])
 @pytest.mark.usefixtures('setup_tables_and_data')
 async def test_switch_strip_spaces(
-    client, db_conn_acquirer, login, switch_data_factory, switch_name,
+    client, db_conn_acquirer, login, create_switch_data_factory, switch_name,
 ):
-    switch_data = switch_data_factory
-    switch_data['name'] = switch_name
+    switch_data = create_switch_data_factory(name=switch_name)
 
     await client.post('/zbs/switches/add', data=switch_data)
-    switch_data['is_hidden'] = False
     async with db_conn_acquirer() as conn:
         result = await conn.execute(switches.select().order_by(desc('id')))
         created_switch = await result.first()
@@ -267,15 +302,10 @@ async def test_switch_strip_spaces(
 async def test_switch_detail_svg_badge(client, switch):
     svg_badge_url = str(client.make_url(f'/api/v1/switches/{switch.id}/svg-badge'))
     expected_svg_badge = get_switch_badge_svg(
-        hostname=f'{client.host}:{client.port}',
-        switch=switch,
+        hostname=f'{client.host}:{client.port}', switch=switch,
     )
     expected_markdown_badge = get_switch_markdown_badge(
-        request=make_mocked_request(
-            method='GET',
-            path=svg_badge_url,
-            app=client.app,
-        ),
+        request=make_mocked_request(method='GET', path=svg_badge_url, app=client.app),
         switch=switch,
     )
 

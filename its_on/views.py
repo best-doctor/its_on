@@ -1,23 +1,23 @@
 import functools
 import json
 import textwrap
-from typing import Dict, List, Optional
 
 from aiocache import cached
 from aiohttp import web
 from aiohttp_apispec import request_schema, response_schema, docs
 from aiohttp_cors import CorsViewMixin
 from dynaconf import settings
-from sqlalchemy.sql import Select, false
+from sqlalchemy.sql import Select
+from typing import Dict, List, Optional
 
 from its_on.admin.mixins import GetObjectMixin
-from its_on.utils import get_switch_badge_svg
 from its_on.cache import switch_list_cache_key_builder
 from its_on.models import switches
 from its_on.schemes import (
     SwitchListRequestSchema, SwitchListResponseSchema, SwitchFullListResponseSchema,
 )
 from its_on.utils import DateTimeJSONEncoder, reverse
+from its_on.utils import get_switch_badge_svg, utc_now
 
 
 class SwitchListView(CorsViewMixin, web.View):
@@ -57,7 +57,7 @@ class SwitchListView(CorsViewMixin, web.View):
         return queryset.where(switches.c.groups.any(group_name))
 
     def filter_hidden(self, queryset: Select) -> Select:
-        return queryset.where(switches.c.is_hidden == false())
+        return queryset.where(switches.c.deleted_at.is_(None) | (switches.c.deleted_at > utc_now()))
 
     def filter_version(self, queryset: Select, version: Optional[str] = None) -> Select:
         if version is not None:
@@ -91,13 +91,14 @@ class SwitchFullListView(CorsViewMixin, web.View):
             {
                 'name': obj.name,
                 'is_active': obj.is_active,
-                'is_hidden': obj.is_hidden,
+                'is_hidden': bool(obj.deleted_at),
                 'groups': obj.groups,
                 'version': obj.version,
                 'comment': obj.comment,
                 'ttl': obj.ttl,
                 'created_at': obj.created_at,
                 'updated_at': obj.updated_at,
+                'deleted_at': obj.deleted_at,
                 'flag_url': reverse(
                     request=self.request,
                     router_name='switch_detail',

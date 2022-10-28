@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Dict, Union, Optional
 
 from sqlalchemy.engine import ResultProxy
 from sqlalchemy import Table
@@ -10,7 +10,7 @@ from multidict import MultiDictProxy, MultiDict
 class GetObjectMixin:
     model: Table
 
-    async def get_object_pk(self, request: Request) -> str:
+    async def get_object_pk(self, request: Request) -> Optional[str]:
         return request.match_info.get('id')
 
     async def get_object(self, request: Request) -> ResultProxy:
