@@ -21,7 +21,7 @@ class BaseSwitchAdminPostRequestSchema(Schema):
     is_active = fields.Boolean()
     version = fields.Int()
     comment = fields.Str()
-    ttl = fields.Int(validate=validate.Range(min=1))
+    ttl = fields.Int(validate=validate.Range(min=0))
     deleted_at = fields.DateTime()
 
 
