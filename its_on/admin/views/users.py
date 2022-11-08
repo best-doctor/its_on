@@ -1,21 +1,24 @@
-from typing import Dict, List, Optional, Any, Union
-
-from aiopg.sa.result import RowProxy
 import aiohttp_jinja2
 from aiohttp import web
-from auth.decorators import login_required
+from aiopg.sa.result import RowProxy
 from marshmallow.exceptions import ValidationError
 from multidict import MultiDictProxy, MultiDict
+from sqlalchemy.sql import Select
+from typing import Dict, List, Optional, Any, Union
 
-from sqlalchemy.sql import false, Select
-
+from auth.decorators import login_required
 from auth.models import users
-from its_on.models import switches
 from its_on.admin.mixins import UpdateMixin
 from its_on.admin.permissions import CanEditUser
-from its_on.admin.utils import get_user_switches_names
-from its_on.admin.views.query_utils import create_new_user_switch, is_user_switch_exist, remove_user_switches
 from its_on.admin.schemes import UserDetailPostRequestSchema
+from its_on.admin.utils import get_user_switches_names
+from its_on.admin.views.query_utils import (
+    create_new_user_switch,
+    is_user_switch_exist,
+    remove_user_switches,
+)
+from its_on.models import switches
+from its_on.utils import utc_now
 
 
 class UserListAdminView(web.View):
@@ -69,7 +72,9 @@ class UserDetailAdminView(web.View, UpdateMixin):
 
     async def get_switches(self) -> RowProxy:
         async with self.request.app['db'].acquire() as conn:
-            queryset = switches.select(whereclause=(switches.c.is_hidden == false()))
+            queryset = switches.select(
+                whereclause=(switches.c.deleted_at.is_(None) | (switches.c.deleted_at > utc_now())),
+            )
             result = await conn.execute(queryset)
             return await result.fetchall()
 

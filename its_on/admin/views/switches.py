@@ -1,3 +1,5 @@
+import datetime
+
 import aiohttp_jinja2
 import psycopg2
 from aiohttp import ClientConnectionError, ClientResponseError, ClientSession
@@ -6,7 +8,7 @@ from aiopg.sa.result import RowProxy
 from dynaconf import settings
 from marshmallow.exceptions import ValidationError
 from multidict import MultiDictProxy
-from sqlalchemy.sql import Select, false
+from sqlalchemy.sql import Select
 from typing import Any, Dict, List, Optional, Union
 
 from auth.decorators import login_required
@@ -21,7 +23,7 @@ from its_on.admin.schemes import (
 from its_on.admin.utils import get_switch_history, save_switch_history
 from its_on.models import switches
 from its_on.schemes import RemoteSwitchesDataSchema
-from its_on.utils import get_switch_badge_svg, get_switch_markdown_badge
+from its_on.utils import get_switch_badge_svg, get_switch_markdown_badge, utc_now
 
 
 class SwitchListAdminView(web.View):
@@ -63,7 +65,7 @@ class SwitchListAdminView(web.View):
 
     def filter_hidden(self, qs: Select, request_params: Dict[str, Any]) -> Select:
         if not request_params.get('show_hidden'):
-            qs = qs.where(switches.c.is_hidden == false())
+            qs = qs.where(switches.c.deleted_at.is_(None))
         return qs
 
     def filter_group(self, qs: Select, request_params: Dict[str, Any]) -> Select:
@@ -110,7 +112,7 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
 
         switch_object = await self.get_object(self.request)
 
-        if switch_object.is_hidden:
+        if switch_object.deleted_at and switch_object.deleted_at <= utc_now():
             return {'object': None, 'errors': 'Oops! this switch was "deleted".'}
 
         return await self.get_context_data(switch=switch_object)
@@ -165,10 +167,10 @@ class SwitchAddAdminView(web.View, CreateMixin):
                     form_data = self._validate_form_data(form_data)  # type: ignore
                 except ValidationError as error:
                     return await self.get_context_data(errors=error, user_input=dict(form_data))
-                form_data['is_hidden'] = False  # type: ignore
+                form_data['deleted_at'] = None  # type: ignore
                 update_query = self.model.update().where(
-                    self.model.c.id == str(already_created_switch.id)).values(
-                    form_data)
+                    self.model.c.id == str(already_created_switch.id),
+                ).values(form_data)
                 await conn.execute(update_query)
 
                 new_value = str(form_data.get('is_active'))
@@ -261,7 +263,9 @@ class SwitchDeleteAdminView(web.View, GetObjectMixin):
     async def get(self) -> None:
         async with self.request.app['db'].acquire() as conn:
             object_pk = await self.get_object_pk(self.request)
-            update_query = self.model.update().where(self.model.c.id == object_pk).values({'is_hidden': True})
+            model_object = await self.get_object(self.request)
+            update_query = self.model.update().where(self.model.c.id == object_pk).values(
+                {'deleted_at': utc_now() + datetime.timedelta(days=model_object.ttl)})
 
             await conn.execute(update_query)
         location = self.request.app.router['switches_list'].url_for()

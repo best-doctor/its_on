@@ -40,7 +40,9 @@ def teardown_db(config: Settings) -> None:
             SELECT pg_terminate_backend(pg_stat_activity.pid)
             FROM pg_stat_activity
             WHERE pg_stat_activity.datname = '{0}' AND pid <> pg_backend_pid();
-            """.format(test_db_name),
+            """.format(
+                test_db_name,
+            ),
         )
         # Удаляем базу
         conn.execute('DROP DATABASE IF EXISTS {0}'.format(test_db_name))
@@ -69,36 +71,61 @@ def create_sample_data(config: Settings) -> None:
             switches.insert(),
             [
                 {
-                    'name': 'switch1', 'is_active': True, 'is_hidden': False,
-                    'groups': ('group1', 'group2'), 'version': None,
+                    'name': 'switch1',
+                    'is_active': True,
+                    'deleted_at': None,
+                    'groups': ('group1', 'group2'),
+                    'version': None,
                 },
                 {
-                    'name': 'switch2', 'is_active': True, 'is_hidden': False,
-                    'groups': ('group1',), 'version': None,
+                    'name': 'switch2',
+                    'is_active': True,
+                    'deleted_at': None,
+                    'groups': ('group1',),
+                    'version': None,
                 },
                 {
-                    'name': 'switch3', 'is_active': False, 'is_hidden': False,
-                    'groups': ('group1',), 'version': 4,
+                    'name': 'switch3',
+                    'is_active': False,
+                    'deleted_at': None,
+                    'groups': ('group1',),
+                    'version': 4,
                 },
                 {
-                    'id': 4, 'name': 'switch4', 'is_active': True, 'is_hidden': False,
-                    'groups': ('group1', 'group3'), 'version': 4,
+                    'name': 'switch4',
+                    'is_active': True,
+                    'deleted_at': None,
+                    'groups': ('group1', 'group3'),
+                    'version': 4,
                 },
                 {
-                    'id': 5, 'name': 'switch5', 'is_active': True, 'is_hidden': False,
-                    'groups': ('group2',), 'version': 4,
+                    'name': 'switch5',
+                    'is_active': True,
+                    'deleted_at': None,
+                    'groups': ('group2',),
+                    'version': 4,
                 },
                 {
-                    'id': 6, 'name': 'switch6', 'is_active': True, 'is_hidden': True,
-                    'groups': ('group2',), 'version': 4,
+                    'name': 'switch6',
+                    'is_active': True,
+                    'deleted_at': datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc),
+                    'groups': ('group2',),
+                    'version': 4,
                 },
                 {
-                    'id': 7,
                     'name': 'switch7',
                     'is_active': True,
-                    'is_hidden': False,
+                    'deleted_at': None,
                     'groups': ('soft_delete',),
                     'version': None,
+                },
+                {
+                    'id': 8,
+                    'name': 'switch8',
+                    'is_active': True,
+                    'deleted_at': datetime.datetime(2020, 5, 15, tzinfo=datetime.timezone.utc),
+                    'groups': ('group2',),
+                    'version': 4,
                 },
             ],
         )

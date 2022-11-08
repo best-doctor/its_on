@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from its_on.main import init_gunicorn_app
 from its_on.models import switches
+from its_on.utils import utc_now, localize_datetime
 from .helpers import (
     create_sample_data, create_tables, drop_tables, setup_db, teardown_db, get_engine,
 )
@@ -155,10 +156,15 @@ def asserted_switch_full_info_data(client):
                     'ttl': switch.ttl,
                     'created_at': switch.created_at.astimezone(datetime.timezone.utc).isoformat(),
                     'updated_at': switch.updated_at.astimezone(datetime.timezone.utc).isoformat(),
+                    'deleted_at': (
+                        switch.deleted_at.astimezone(datetime.timezone.utc).isoformat()
+                        if switch.deleted_at else None
+                    ),
                     'flag_url': str(client.make_url(f'/zbs/switches/{switch.id}')),
                 } for switch in switches_list
             ],
         }
+
     return _with_params
 
 
@@ -208,74 +214,85 @@ def get_switches_data_mocked_new_switch(mocker):
 
 
 @pytest.fixture()
-def switch_data_factory():
-    return {
-        'name': 'switch_to_check_add',
-        'is_active': True,
-        'groups': 'check_adding, group2,    ,,',
-        'version': 1,
-        'comment': 'This is the story of a big bad wolf an little girl whose name was...',
-    }
+def switch_to_json_factory():
+    def switch_to_json(switch):
+        return {
+            'name': switch.name,
+            'is_active': switch.is_active,
+            'deleted_at': switch.deleted_at.isoformat() if switch.deleted_at else None,
+            'groups': ', '.join(switch.groups),
+            'version': switch.version,
+            'ttl': switch.ttl,
+            'comment': switch.comment,
+        }
 
-
-@pytest.fixture(params=[True, False])
-def switch_data_factory_with_ttl(request, switch_data_factory):
-    switch_data = switch_data_factory
-    default_ttl = settings.FLAG_TTL_DAYS
-    passed_ttl = 100
-    if request.param is True:
-        switch_data['ttl'] = passed_ttl
-        return switch_data, passed_ttl
-    return switch_data, default_ttl
+    return switch_to_json
 
 
 @pytest.fixture()
-async def switches_factory(setup_tables: Callable) -> Callable:
-    engine = get_engine(settings.DATABASE.DSN)
-    session = Session(engine)
-
-    async def _with_params(batch_size: int = 1) -> list:
-        switches_list = [{
+def switch_data_factory():
+    def switch_data(**kwargs):
+        deleted_at = factory.fuzzy.FuzzyChoice(
+            [localize_datetime(factory.fuzzy.FuzzyDateTime(utc_now()).fuzz()), None],
+        ).fuzz()
+        return {
             'name': factory.fuzzy.FuzzyText(length=10).fuzz(),
             'is_active': factory.fuzzy.FuzzyChoice([True, False]).fuzz(),
-            'is_hidden': factory.fuzzy.FuzzyChoice([True, False]).fuzz(),
+            'deleted_at': deleted_at,
+            'is_hidden': bool(deleted_at),
             'groups': (
                 factory.fuzzy.FuzzyText(length=5).fuzz(), factory.fuzzy.FuzzyText(length=5).fuzz(),
             ),
             'version': factory.fuzzy.FuzzyInteger(low=0, high=100).fuzz(),
-            'jira_ticket': factory.fuzzy.FuzzyText(length=10).fuzz(),
             'ttl': factory.fuzzy.FuzzyInteger(low=0, high=100).fuzz(),
-        } for _ in range(0, batch_size)]
+            'comment': 'This is the story of a big bad wolf an little girl whose name was...',
+            **kwargs,
+        }
 
-        with engine.connect() as conn:
-            conn.execute(switches.insert(), switches_list)
-            return session.query(switches).all()
-
-    return _with_params
+    return switch_data
 
 
 @pytest.fixture()
-async def switch_factory(loop, setup_tables: Callable) -> Callable:
+def create_switch_data_factory(switch_data_factory):
+    def switch_data(**kwargs):
+        data = switch_data_factory()
+        data['groups'] = ', '.join(data['groups'])
+        deleted_at = data.pop('deleted_at')
+        if deleted_at:
+            data['deleted_at'] = deleted_at.isoformat()
+        del data['is_hidden']
+        data.update(kwargs)
+        return data
+
+    return switch_data
+
+
+@pytest.fixture()
+async def switch_factory(loop, setup_tables: Callable, switch_data_factory) -> Callable:
     engine = get_engine(settings.DATABASE.DSN)
 
     async def _with_params(**kwargs) -> list:
-        switch_params = {
-            'name': factory.fuzzy.FuzzyText(length=10).fuzz(),
-            'is_active': factory.fuzzy.FuzzyChoice([True, False]).fuzz(),
-            'is_hidden': factory.fuzzy.FuzzyChoice([True, False]).fuzz(),
-            'groups': (
-                factory.fuzzy.FuzzyText(length=5).fuzz(), factory.fuzzy.FuzzyText(length=5).fuzz(),
-            ),
-            'version': factory.fuzzy.FuzzyInteger(low=0, high=100).fuzz(),
-            'jira_ticket': factory.fuzzy.FuzzyText(length=10).fuzz(),
-            'ttl': factory.fuzzy.FuzzyInteger(low=0, high=100).fuzz(),
-            **kwargs,
-        }
+        switch_params = switch_data_factory(**kwargs)
 
         with engine.connect() as conn:
             conn.execute(switches.insert(), switch_params)
             query = switches.select(switches.c.name == switch_params['name'])
             return conn.execute(query).fetchone()
+
+    return _with_params
+
+
+@pytest.fixture()
+async def switches_factory(setup_tables: Callable, switch_data_factory) -> Callable:
+    engine = get_engine(settings.DATABASE.DSN)
+    session = Session(engine)
+
+    async def _with_params(batch_size: int = 1, **kwargs) -> list:
+        switches_list = [switch_data_factory(**kwargs) for _ in range(0, batch_size)]
+
+        with engine.connect() as conn:
+            conn.execute(switches.insert(), switches_list)
+            return session.query(switches).all()
 
     return _with_params
 

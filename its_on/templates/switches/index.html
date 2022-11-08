@@ -38,9 +38,12 @@
     <thead>
       <tr>
         <th>Switch name</th>
-        <th>Is active</th>
+        <th>Active</th>
+        <th>Groups</th>
+        <th>TTL</th>
         <th>Created at</th>
         <th>Updated at</th>
+        <th>Deleted at</th>
       </tr>
     </thead>
     <tbody>
@@ -55,15 +58,28 @@
             {% endif %}
           </td>
           <td>
+            {{ flag.groups|join(', ') }}
+          </td>
+          <td>
+            {{ flag.ttl }} days
+          </td>
+          <td>
             {% if flag.created_at %}
               {{ flag.created_at.strftime('%d-%m-%Y %H:%M:%S') }}
             {% else %}
               -
             {% endif %}
           </td>
-           <td>
+          <td>
             {% if flag.updated_at %}
               {{ flag.updated_at.strftime('%d-%m-%Y %H:%M:%S') }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>
+            {% if flag.deleted_at %}
+              {{ flag.deleted_at.strftime('%d-%m-%Y %H:%M:%S') }}
             {% else %}
               -
             {% endif %}

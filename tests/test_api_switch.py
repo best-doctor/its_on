@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 
 from its_on.utils import get_switch_badge_svg
@@ -49,7 +51,10 @@ async def test_switch_filter_by_group(group, expected_result, setup_tables_and_d
 
 
 async def test_switch_cors(client):
-    response = await client.get('/api/v1/switch?group=group1', headers={'Origin': 'http://localhost:8081'})
+    response = await client.get(
+        '/api/v1/switch?group=group1',
+        headers={'Origin': 'http://localhost:8081'},
+    )
 
     assert response.status == 200
     assert response.headers['Access-Control-Allow-Origin'] == 'http://localhost:8081'
@@ -85,6 +90,46 @@ async def test_switches_full_info(
 
     assert response.status == 200
     assert await response.json() == asserted_switch_full_info_data(all_switches)
+
+
+@pytest.mark.freeze_time(datetime.datetime(2020, 5, 1, tzinfo=datetime.timezone.utc))
+async def test_switches_deleted_at(
+    switch_factory, client, asserted_switch_full_info_data,
+):
+    expected_flags = [
+        await switch_factory(
+            name='switch1',
+            is_active=True,
+            groups=('backend',),
+            deleted_at=None,
+        ),
+        await switch_factory(
+            name='switch2',
+            is_active=True,
+            groups=('backend',),
+            deleted_at=datetime.datetime(2020, 5, 1, 1, tzinfo=datetime.timezone.utc),
+        ),
+    ]
+    await switch_factory(
+        name='switch3',
+        is_active=True,
+        groups=('backend',),
+        deleted_at=datetime.datetime(2020, 4, 1, tzinfo=datetime.timezone.utc),
+    )
+    await switch_factory(
+        name='switch4',
+        is_active=True,
+        groups=('backend',),
+        deleted_at=datetime.datetime(2020, 5, 1, tzinfo=datetime.timezone.utc),
+    )
+    expected_flag_names = [flag['name'] for flag in expected_flags]
+
+    response = await client.get('/api/v1/switch?group=backend')
+
+    assert response.status == 200
+    assert await response.json() == {
+        'count': len(expected_flag_names), 'result': expected_flag_names,
+    }
 
 
 @pytest.mark.usefixtures('badge_mask_id_patch')

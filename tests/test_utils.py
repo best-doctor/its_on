@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 from aiohttp.test_utils import make_mocked_request
 from anybadge import Badge
@@ -16,6 +18,7 @@ from its_on.utils import (
 )
 
 
+@pytest.mark.freeze_time(datetime.datetime(2020, 5, 1, tzinfo=datetime.timezone.utc))
 @pytest.mark.usefixtures('setup_tables_and_data')
 @pytest.mark.parametrize(
     ('switch_params', 'expected_prefix', 'expected_value'),
@@ -24,7 +27,7 @@ from its_on.utils import (
             {
                 'name': 'feature-flag-1',
                 'is_active': True,
-                'is_hidden': False,
+                'deleted_at': None,
             },
             SWITCH_IS_ACTIVE_SVG_BADGE_PREFIX,
             'feature-flag-1',
@@ -33,22 +36,29 @@ from its_on.utils import (
             {
                 'name': 'feature-flag-1',
                 'is_active': False,
-                'is_hidden': False,
+                'deleted_at': None,
             },
             SWITCH_IS_INACTIVE_SVG_BADGE_PREFIX,
             'feature-flag-1',
         ),
-
         (
             {
                 'name': 'feature-flag-1',
-                'is_hidden': True,
+                'deleted_at': datetime.datetime(2020, 5, 14, tzinfo=datetime.timezone.utc),
+            },
+            SWITCH_IS_HIDDEN_SVG_BADGE_PREFIX,
+            'feature-flag-1 (hidden)',
+        ),
+        (
+            {
+                'name': 'feature-flag-1',
+                'deleted_at': datetime.datetime(2020, 4, 1, tzinfo=datetime.timezone.utc),
             },
             SWITCH_IS_HIDDEN_SVG_BADGE_PREFIX,
             'feature-flag-1 (deleted)',
         ),
     ],
-    ids=['active-flag', 'inactive-flag', 'deleted-flag'],
+    ids=['active-flag', 'inactive-flag', 'hidden-flag', 'deleted-flag'],
 )
 async def test_get_switch_badge_prefix_and_value(
     switch_factory, switch_params, expected_prefix, expected_value,
@@ -64,7 +74,7 @@ async def test_get_switch_badge_prefix_and_value(
 @pytest.mark.usefixtures('setup_tables_and_data', 'badge_mask_id_patch')
 async def test_get_switch_badge_svg_for_active_switch(switch_factory):
     hostname = 'flags-staging.bestdoctor.ru'
-    switch = await switch_factory(is_active=True, is_hidden=False)
+    switch = await switch_factory(is_active=True, deleted_at=None)
     expected_badge = Badge(
         label=f'{SWITCH_IS_ACTIVE_SVG_BADGE_PREFIX} {hostname}', value=switch.name,
         default_color=SVG_BADGE_BACKGROUND_COLOR,
@@ -78,7 +88,7 @@ async def test_get_switch_badge_svg_for_active_switch(switch_factory):
 @pytest.mark.usefixtures('setup_tables_and_data', 'badge_mask_id_patch')
 async def test_get_switch_badge_svg_for_inactive_switch(switch_factory):
     hostname = 'flags-staging.bestdoctor.ru'
-    switch = await switch_factory(is_active=False, is_hidden=False)
+    switch = await switch_factory(is_active=False, deleted_at=None)
     expected_badge = Badge(
         label=f'{SWITCH_IS_INACTIVE_SVG_BADGE_PREFIX} {hostname}', value=switch.name,
         default_color=SVG_BADGE_BACKGROUND_COLOR,
@@ -90,9 +100,30 @@ async def test_get_switch_badge_svg_for_inactive_switch(switch_factory):
 
 
 @pytest.mark.usefixtures('setup_tables_and_data', 'badge_mask_id_patch')
+@pytest.mark.freeze_time(datetime.datetime(2020, 5, 1, tzinfo=datetime.timezone.utc))
+async def test_get_switch_badge_svg_for_hidden_switch(switch_factory):
+    hostname = 'flags-staging.bestdoctor.ru'
+    switch = await switch_factory(
+        deleted_at=datetime.datetime(2020, 5, 14, tzinfo=datetime.timezone.utc),
+    )
+    expected_badge = Badge(
+        label=f'{SWITCH_IS_HIDDEN_SVG_BADGE_PREFIX} {hostname}',
+        value=f'{switch.name} (hidden)',
+        default_color=SVG_BADGE_BACKGROUND_COLOR,
+    )
+
+    svg_badge = get_switch_badge_svg(hostname, switch)
+
+    assert svg_badge == expected_badge.badge_svg_text
+
+
+@pytest.mark.usefixtures('setup_tables_and_data', 'badge_mask_id_patch')
+@pytest.mark.freeze_time(datetime.datetime(2020, 5, 1, tzinfo=datetime.timezone.utc))
 async def test_get_switch_badge_svg_for_deleted_switch(switch_factory):
     hostname = 'flags-staging.bestdoctor.ru'
-    switch = await switch_factory(is_hidden=True)
+    switch = await switch_factory(
+        deleted_at=datetime.datetime(2020, 5, 1, tzinfo=datetime.timezone.utc),
+    )
     expected_badge = Badge(
         label=f'{SWITCH_IS_HIDDEN_SVG_BADGE_PREFIX} {hostname}',
         value=f'{switch.name} (deleted)',

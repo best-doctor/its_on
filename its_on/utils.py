@@ -40,10 +40,12 @@ def reverse(
 
 def get_switch_badge_prefix_and_value(switch: RowProxy) -> tuple[str, str]:
     value = switch.name
-
-    if switch.is_hidden:
+    if switch.deleted_at and switch.deleted_at <= utc_now():
         prefix = SWITCH_IS_HIDDEN_SVG_BADGE_PREFIX
         value = value + ' (deleted)'
+    elif switch.deleted_at:
+        prefix = SWITCH_IS_HIDDEN_SVG_BADGE_PREFIX
+        value = value + ' (hidden)'
     elif switch.is_active:
         prefix = SWITCH_IS_ACTIVE_SVG_BADGE_PREFIX
     else:
@@ -68,15 +70,9 @@ def get_switch_badge_svg(hostname: str, switch: RowProxy | None = None) -> str:
 
 
 def get_switch_markdown_badge(request: web.Request, switch: RowProxy) -> str:
-    flag_url = reverse(
-        request=request,
-        router_name='switch_detail',
-        params={'id': str(switch.id)},
-    )
+    flag_url = reverse(request=request, router_name='switch_detail', params={'id': str(switch.id)})
     svg_badge_url = reverse(
-        request=request,
-        router_name='switch_svg_badge',
-        params={'id': str(switch.id)},
+        request=request, router_name='switch_svg_badge', params={'id': str(switch.id)},
     )
 
     return f'[![{switch.name}]({svg_badge_url})]({flag_url})'
@@ -92,8 +88,7 @@ class AwareDateTime(sa.TypeDecorator):
     ) -> Optional[datetime.datetime]:
         if not value:
             return None
-        local_tzinfo = datetime.datetime.now().astimezone().tzinfo
-        return value.replace(tzinfo=datetime.timezone.utc).astimezone(local_tzinfo)
+        return localize_datetime(value)
 
 
 class DateTimeJSONEncoder(json.JSONEncoder):
@@ -104,3 +99,15 @@ class DateTimeJSONEncoder(json.JSONEncoder):
             return obj.isoformat()
 
         return super().default(obj)
+
+
+def utc_now() -> datetime.datetime:
+    return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+
+
+def localize_datetime(dt: datetime.datetime) -> datetime.datetime:
+    return dt.replace(tzinfo=datetime.timezone.utc).astimezone(local_timezone())
+
+
+def local_timezone() -> Optional[datetime.tzinfo]:
+    return datetime.datetime.now().astimezone().tzinfo

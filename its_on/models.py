@@ -13,13 +13,14 @@ switches = sa.Table(
     'switches', metadata,
     sa.Column('id', sa.Integer, primary_key=True),
     sa.Column('is_active', sa.Boolean, default=True),
-    sa.Column('is_hidden', sa.Boolean, default=False),
+    sa.Column('is_hidden', sa.Boolean, default=False),  # deprecated, use deleted_at
     sa.Column('name', sa.String(255), unique=True),
     sa.Column('group', sa.String(255)),
     sa.Column('groups', postgresql.ARRAY(sa.String(255))),
     sa.Column('version', sa.Integer, nullable=True),
     sa.Column('ttl', sa.Integer, nullable=False, default=lambda: settings.FLAG_TTL_DAYS),
     sa.Column('comment', sa.Text),
+    sa.Column('deleted_at', AwareDateTime, nullable=True),
     sa.Column('created_at', AwareDateTime, default=lambda: datetime.datetime.utcnow(), nullable=True),
     sa.Column(
         'updated_at', AwareDateTime,
