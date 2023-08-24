@@ -40,7 +40,7 @@ class SwitchListAdminView(web.View):
         for flag in flags:
             flag_dicts.append({
                 **dict(flag),
-                "estimate_at": flag.created_at + datetime.timedelta(days=flag.ttl),
+                'estimate_at': flag.created_at + datetime.timedelta(days=flag.ttl),
             })
         groups = await self.get_distinct_groups(request_params)
         return {
