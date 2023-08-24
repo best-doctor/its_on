@@ -35,10 +35,17 @@ class SwitchListAdminView(web.View):
     async def get(self) -> Dict[str, Union[Optional[List[RowProxy]], bool]]:
         request_params = self.validator.load(data=self.request.query)
         flags = await self.get_response_data(request_params)
+        # Move to dict because it's Raw
+        flag_dicts = []
+        for flag in flags:
+            flag_dicts.append({
+                **dict(flag),
+                "estimate_at": flag.created_at + datetime.timedelta(days=flag.ttl),
+            })
         groups = await self.get_distinct_groups(request_params)
         return {
             'active_group': request_params.get('group'),
-            'flags': flags,
+            'flags': flag_dicts,
             'groups': groups,
             'show_copy_button': bool(settings.SYNC_FROM_ITS_ON_URL),
         }

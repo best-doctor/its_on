@@ -34,16 +34,21 @@
 </div>
 
 <div class="col-sm-9">
-  <table class="table table-striped">
+  <table class="table table-striped"
+         id="table"
+         data-toggle="table"
+         data-search="true"
+  >
     <thead>
       <tr>
-        <th>Switch name</th>
-        <th>Active</th>
-        <th>Groups</th>
-        <th>TTL</th>
-        <th>Created at</th>
-        <th>Updated at</th>
-        <th>Deleted at</th>
+        <th data-field="id">Switch name</th>
+        <th data-field="is_active" data-sortable="true">Active</th>
+        <th data-field="groups">Groups</th>
+        <th data-field="ttl" data-sortable="true">TTL</th>
+        <th data-field="create_at" data-sortable="true">Created at</th>
+        <th data-field="updated_at" data-sortable="true">Updated at</th>
+        <th data-field="estimated_at" data-sortable="true">Estimated at</th>
+        <th data-field="deleted_at" data-sortable="true">Deleted at</th>
       </tr>
     </thead>
     <tbody>
@@ -65,21 +70,28 @@
           </td>
           <td>
             {% if flag.created_at %}
-              {{ flag.created_at.strftime('%d-%m-%Y %H:%M:%S') }}
+              {{ flag.created_at.strftime('%d-%m-%Y') }}
             {% else %}
               -
             {% endif %}
           </td>
           <td>
             {% if flag.updated_at %}
-              {{ flag.updated_at.strftime('%d-%m-%Y %H:%M:%S') }}
+              {{ flag.updated_at.strftime('%d-%m-%Y') }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>
+            {% if flag.estimate_at %}
+              {{ flag.estimate_at.strftime('%d-%m-%Y') }}
             {% else %}
               -
             {% endif %}
           </td>
           <td>
             {% if flag.deleted_at %}
-              {{ flag.deleted_at.strftime('%d-%m-%Y %H:%M:%S') }}
+              {{ flag.deleted_at.strftime('%d-%m-%Y') }}
             {% else %}
               -
             {% endif %}
