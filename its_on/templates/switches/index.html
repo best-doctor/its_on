@@ -70,28 +70,28 @@
           </td>
           <td>
             {% if flag.created_at %}
-              {{ flag.created_at.strftime('%d-%m-%Y') }}
+              {{ flag.created_at.strftime('%Y-%m-%d') }}
             {% else %}
               -
             {% endif %}
           </td>
           <td>
             {% if flag.updated_at %}
-              {{ flag.updated_at.strftime('%d-%m-%Y') }}
+              {{ flag.updated_at.strftime('%Y-%m-%d') }}
             {% else %}
               -
             {% endif %}
           </td>
           <td>
             {% if flag.estimate_at %}
-              {{ flag.estimate_at.strftime('%d-%m-%Y') }}
+              {{ flag.estimate_at.strftime('%Y-%m-%d') }}
             {% else %}
               -
             {% endif %}
           </td>
           <td>
             {% if flag.deleted_at %}
-              {{ flag.deleted_at.strftime('%d-%m-%Y') }}
+              {{ flag.deleted_at.strftime('%Y-%m-%d') }}
             {% else %}
               -
             {% endif %}
