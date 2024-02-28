@@ -308,3 +308,8 @@ def badge_mask_id_patch(mocker):
         '_get_next_mask_str',
         return_value=f'{MASK_ID_PREFIX}_1',
     )
+
+
+@pytest.fixture()
+def login_path():
+    return '/zbs/login'

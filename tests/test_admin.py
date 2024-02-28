@@ -14,17 +14,19 @@ from dynaconf import settings
 
 
 @pytest.mark.usefixtures('setup_tables_and_data')
-async def test_switches_list_without_authorization(client):
+async def test_switches_list_without_authorization(client, login_path):
     response = await client.get('/zbs/switches')
 
-    assert response.status == 401
+    assert response.status == 200
+    assert response.url.path == login_path
 
 
 @pytest.mark.usefixtures('setup_tables_and_data')
-async def test_update_switch_without_login(client):
+async def test_update_switch_without_login(client, login_path):
     response = await client.post('/zbs/switches/1', data={'version': 'some_shit'})
 
-    assert response.status == 401
+    assert response.status == 200
+    assert response.url.path == login_path
 
 
 @pytest.mark.parametrize(
@@ -228,10 +230,11 @@ async def test_resurrect_switch(client, login, switch):
     assert 'switch3' in content.decode('utf-8')
 
 
-async def test_switches_copy_without_authorization(setup_tables_and_data, client):
+async def test_switches_copy_without_authorization(setup_tables_and_data, client, login_path):
     response = await client.post('/zbs/switches/copy')
 
-    assert response.status == 401
+    assert response.status == 200
+    assert response.url.path == login_path
 
 
 @pytest.mark.parametrize(
