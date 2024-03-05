@@ -1,4 +1,5 @@
 import datetime
+from typing import Any, Dict, List, Optional, Union
 
 import aiohttp_jinja2
 import psycopg2
@@ -9,7 +10,6 @@ from dynaconf import settings
 from marshmallow.exceptions import ValidationError
 from multidict import MultiDictProxy
 from sqlalchemy.sql import Select
-from typing import Any, Dict, List, Optional, Union
 
 from auth.decorators import login_required
 from its_on.admin.mixins import CreateMixin, GetObjectMixin, UpdateMixin
@@ -20,7 +20,11 @@ from its_on.admin.schemes import (
     SwitchDetailAdminPostRequestSchema,
     SwitchListAdminRequestSchema,
 )
-from its_on.admin.utils import get_switch_history, save_switch_history
+from its_on.admin.utils import (
+    annotate_switch_with_expiration_date,
+    get_switch_history,
+    save_switch_history,
+)
 from its_on.models import switches
 from its_on.schemes import RemoteSwitchesDataSchema
 from its_on.utils import get_switch_badge_svg, get_switch_markdown_badge, utc_now
@@ -35,26 +39,21 @@ class SwitchListAdminView(web.View):
     async def get(self) -> Dict[str, Union[Optional[List[RowProxy]], bool]]:
         request_params = self.validator.load(data=self.request.query)
         flags = await self.get_response_data(request_params)
-        # Move to dict because it's Raw
-        flag_dicts = []
-        for flag in flags:
-            flag_dicts.append({
-                **dict(flag),
-                'estimate_at': flag.created_at + datetime.timedelta(days=flag.ttl),
-            })
         groups = await self.get_distinct_groups(request_params)
         return {
             'active_group': request_params.get('group'),
-            'flags': flag_dicts,
+            'flags': flags,
             'groups': groups,
             'show_copy_button': bool(settings.SYNC_FROM_ITS_ON_URL),
         }
 
-    async def get_response_data(self, request_params: Dict[str, Any]) -> List:
+    async def get_response_data(self, request_params: Dict[str, Any]) -> List[Dict]:
         async with self.request.app['db'].acquire() as conn:
             queryset = self.filter_queryset(self.get_queryset(), request_params)
             result = await conn.execute(queryset)
-            return await result.fetchall()
+            flags = await result.fetchall()
+
+        return [annotate_switch_with_expiration_date(switch=flag) for flag in flags]
 
     async def get_distinct_groups(self, request_params: Dict[str, Any]) -> List[str]:
         async with self.request.app['db'].acquire() as conn:

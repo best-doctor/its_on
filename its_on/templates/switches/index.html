@@ -47,7 +47,7 @@
         <th data-field="ttl" data-sortable="true">TTL</th>
         <th data-field="create_at" data-sortable="true">Created at</th>
         <th data-field="updated_at" data-sortable="true">Updated at</th>
-        <th data-field="estimated_at" data-sortable="true">Estimated at</th>
+        <th data-field="expires_at" data-sortable="true">Expires at</th>
         <th data-field="deleted_at" data-sortable="true">Deleted at</th>
       </tr>
     </thead>
@@ -83,8 +83,8 @@
             {% endif %}
           </td>
           <td>
-            {% if flag.estimate_at %}
-              {{ flag.estimate_at.strftime('%Y-%m-%d') }}
+            {% if flag.expires_at %}
+              {{ flag.expires_at.strftime('%Y-%m-%d') }}
             {% else %}
               -
             {% endif %}

@@ -4,6 +4,7 @@ import pytest
 from aiohttp.test_utils import make_mocked_request
 from anybadge import Badge
 
+from its_on.admin.utils import annotate_switch_with_expiration_date
 from its_on.constants import (
     SVG_BADGE_BACKGROUND_COLOR,
     SWITCH_NOT_FOUND_SVG_BADGE_PREFIX,
@@ -164,3 +165,48 @@ async def test_get_switch_markdown_badge(switch_factory, client):
     markdown_badge = get_switch_markdown_badge(request, switch)
 
     assert markdown_badge == expected_badge
+
+
+@pytest.mark.parametrize(
+    ('name', 'is_active', 'ttl', 'updated_at', 'expected_result'),
+    [
+        (
+            'inactive_switch',
+            False,
+            14,
+            datetime.datetime(2020, 5, 1),
+            None,
+        ),
+        (
+            'active_switch',
+            True,
+            14,
+            datetime.datetime(2020, 5, 1),
+            datetime.date(2020, 5, 15),
+        ),
+        (
+            'other_active_switch',
+            True,
+            21,
+            datetime.datetime(2020, 5, 5),
+            datetime.date(2020, 5, 26),
+        )
+    ]
+)
+@pytest.mark.usefixtures('setup_tables_and_data')
+@pytest.mark.freeze_time(datetime.datetime(2020, 5, 1, tzinfo=datetime.timezone.utc))
+async def test_annotate_flag_with_expiration_date(
+    switch_factory, name, is_active, ttl, updated_at, expected_result
+):
+    switch = await switch_factory(
+        name=name,
+        is_active=is_active,
+        groups=('backend',),
+        ttl=ttl,
+        updated_at=updated_at,
+        deleted_at=None,
+    )
+
+    result = annotate_switch_with_expiration_date(switch=switch)
+
+    assert (result['expires_at'] and result['expires_at'].date()) == expected_result
