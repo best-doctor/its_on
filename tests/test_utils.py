@@ -190,13 +190,13 @@ async def test_get_switch_markdown_badge(switch_factory, client):
             21,
             datetime.datetime(2020, 5, 5),
             datetime.date(2020, 5, 26),
-        )
-    ]
+        ),
+    ],
 )
 @pytest.mark.usefixtures('setup_tables_and_data')
 @pytest.mark.freeze_time(datetime.datetime(2020, 5, 1, tzinfo=datetime.timezone.utc))
 async def test_annotate_flag_with_expiration_date(
-    switch_factory, name, is_active, ttl, updated_at, expected_result
+    switch_factory, name, is_active, ttl, updated_at, expected_result,
 ):
     switch = await switch_factory(
         name=name,
