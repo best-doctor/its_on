@@ -1,4 +1,5 @@
-from typing import List
+import datetime
+from typing import List, Dict
 
 from aiohttp import web
 from aiopg.sa.result import RowProxy
@@ -51,3 +52,11 @@ async def get_switch_history(request: web.Request, switch: switches) -> List[Row
         ).order_by(switch_history.c.changed_at.desc())
         result = await conn.execute(query)
         return await result.fetchall()
+
+
+def annotate_switch_with_expiration_date(switch: switches) -> Dict:
+    if switch.is_active:
+        expires_at = switch.updated_at + datetime.timedelta(days=switch.ttl)
+    else:
+        expires_at = None
+    return {**dict(switch), 'expires_at': expires_at}
