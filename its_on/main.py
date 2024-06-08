@@ -14,7 +14,6 @@ import aioredis
 from aiohttp_session import setup
 from aiohttp_session.redis_storage import RedisStorage
 from dynaconf import settings
-import uvloop
 
 from auth.auth import DBAuthorizationPolicy
 from its_on.cache import setup_cache
@@ -40,7 +39,7 @@ def init_app(
     loop: asyncio.AbstractEventLoop,
     redis_pool: Optional[aioredis.ConnectionsPool] = None,
 ) -> web.Application:
-    app = web.Application(loop=loop)
+    app = web.Application()
 
     app['config'] = settings
 
@@ -103,7 +102,6 @@ def init_app(
 
 def main() -> None:
     logging.basicConfig(level=logging.DEBUG)
-    uvloop.install()
     loop = asyncio.get_event_loop()
     app = init_app(loop)
     web.run_app(app, host=settings.HOST, port=settings.PORT)
