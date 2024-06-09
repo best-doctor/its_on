@@ -6,7 +6,6 @@ import psycopg2
 from aiohttp import ClientConnectionError, ClientResponseError, ClientSession
 from aiohttp import web
 from aiopg.sa.result import RowProxy
-from dynaconf import settings
 from marshmallow.exceptions import ValidationError
 from multidict import MultiDictProxy
 from sqlalchemy.sql import Select
@@ -27,6 +26,7 @@ from its_on.admin.utils import (
 )
 from its_on.models import switches
 from its_on.schemes import RemoteSwitchesDataSchema
+from its_on.settings import settings
 from its_on.utils import get_switch_badge_svg, get_switch_markdown_badge, utc_now
 
 
@@ -44,7 +44,7 @@ class SwitchListAdminView(web.View):
             'active_group': request_params.get('group'),
             'flags': flags,
             'groups': groups,
-            'show_copy_button': bool(settings.SYNC_FROM_ITS_ON_URL),
+            'show_copy_button': bool(settings.sync_from_its_on_url),
         }
 
     async def get_response_data(self, request_params: Dict[str, Any]) -> List[Dict]:
@@ -156,7 +156,7 @@ class SwitchAddAdminView(web.View, CreateMixin):
     async def get_context_data(self, errors: ValidationError = None, user_input: Dict = None) -> Dict[str, Any]:
         context_data = {
             'errors': errors,
-            'ttl': settings.FLAG_TTL_DAYS,
+            'ttl': settings.flag_ttl_days,
         }
         if user_input:
             context_data.update(user_input)
@@ -216,7 +216,7 @@ class SwitchesCopyAdminView(web.View, CreateMixin):
     @staticmethod
     async def _get_switches_data() -> MultiDictProxy:
         async with ClientSession() as session:
-            async with session.get(settings.SYNC_FROM_ITS_ON_URL) as resp:
+            async with session.get(str(settings.sync_from_its_on_url)) as resp:  # TODO: проверить
                 resp.raise_for_status()
                 return await resp.json()
 

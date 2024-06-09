@@ -6,7 +6,6 @@ from aiocache import cached
 from aiohttp import web
 from aiohttp_apispec import request_schema, response_schema, docs
 from aiohttp_cors import CorsViewMixin
-from dynaconf import settings
 from sqlalchemy.sql import Select
 from typing import Dict, List, Optional
 
@@ -16,6 +15,7 @@ from its_on.models import switches
 from its_on.schemes import (
     SwitchListRequestSchema, SwitchListResponseSchema, SwitchFullListResponseSchema,
 )
+from its_on.settings import settings
 from its_on.utils import DateTimeJSONEncoder, reverse
 from its_on.utils import get_switch_badge_svg, utc_now
 
@@ -31,7 +31,7 @@ class SwitchListView(CorsViewMixin, web.View):
         data = await self.get_response_data()
         return web.json_response(data)
 
-    @cached(ttl=settings.CACHE_TTL, key_builder=switch_list_cache_key_builder)
+    @cached(ttl=settings.cache_ttl, key_builder=switch_list_cache_key_builder)
     async def get_response_data(self) -> Dict:
         objects = await self.load_objects()
         data = [obj.name for obj in objects]

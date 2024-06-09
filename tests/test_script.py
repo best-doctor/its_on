@@ -1,9 +1,9 @@
 import pytest
 from click.testing import CliRunner
-from dynaconf import settings
 from passlib.handlers.sha2_crypt import sha256_crypt
 
 from auth.models import users
+from its_on.settings import settings
 from scripts.create_user import create_user
 from tests.helpers import get_engine
 
@@ -17,7 +17,7 @@ from tests.helpers import get_engine
     ),
 )
 def test_create_user(login, password, is_superuser, setup_tables):
-    engine = get_engine(settings.DATABASE.DSN)
+    engine = get_engine(settings.database_dsn)
 
     runner = CliRunner()
     params = ['--login', login, '--password', password]

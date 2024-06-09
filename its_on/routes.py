@@ -3,9 +3,10 @@ from typing import TYPE_CHECKING
 
 from aiohttp.web import Application
 from aiohttp_cors import CorsConfig
-from dynaconf import settings
 
 from auth.views import LoginView, LogoutView
+from its_on.enums import Environment
+from its_on.settings import settings, app_settings
 from its_on.views import SwitchFullListView, SwitchListView, SwitchSvgBadgeView
 from its_on.admin.views.switches import (
     SwitchAddAdminView,
@@ -41,9 +42,9 @@ def setup_routes(app: Application, base_dir: Path, cors_config: CorsConfig) -> N
     )
     cors_config.add(get_switch_svg_badge_view)
 
-    if settings.ENABLE_SWITCHES_FULL_INFO_ENDPOINT:
+    if settings.enable_switches_full_info_endpoint:
         get_switch_full_view = app.router.add_view('/api/v1/switches_full_info', SwitchFullListView)
         cors_config.add(get_switch_full_view)
 
-    if settings.ENVIRONMENT == 'Dev':
+    if app_settings.environment is Environment.dev:
         app.router.add_static('/static', str(base_dir / 'its_on' / 'static'))

@@ -5,7 +5,8 @@ from typing import Callable
 
 
 def setup_cache(app: web.Application) -> None:
-    cache = Cache.from_url(app['config']['cache_url'])
+    cache_url = str(app['config'].cache_url)
+    cache = Cache.from_url(cache_url)
     cache.serializer = JsonSerializer()
     app['cache'] = cache
 

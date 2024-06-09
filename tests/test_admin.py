@@ -8,9 +8,8 @@ from sqlalchemy import desc
 
 from auth.models import users
 from its_on.models import switch_history, switches
+from its_on.settings import settings
 from its_on.utils import get_switch_badge_svg, get_switch_markdown_badge, local_timezone, utc_now
-
-from dynaconf import settings
 
 
 @pytest.mark.usefixtures('setup_tables_and_data')
@@ -201,7 +200,7 @@ async def test_switch_soft_delete(client, login, switch, db_conn_acquirer):
         ))).first()
 
     assert 'switch7' not in content.decode('utf-8')
-    assert deleted_switch.deleted_at == utc_now() + datetime.timedelta(days=settings.FLAG_TTL_DAYS)
+    assert deleted_switch.deleted_at == utc_now() + datetime.timedelta(days=settings.flag_ttl_days)
 
 
 @pytest.mark.usefixtures('setup_tables_and_data')

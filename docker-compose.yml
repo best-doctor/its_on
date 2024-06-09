@@ -17,10 +17,10 @@ services:
     build: .
     container_name: its-on
     environment:
-      DYNACONF_HOST: '0.0.0.0'
-      DYNACONF_DATABASE__dsn: postgresql://itson:strongpassword@db:5432/itson
-      DYNACONF_REDIS_URL: redis://cache:6379/0
-      DYNACONF_CACHE_URL: redis://cache:6379/1
+      HOST: '0.0.0.0'
+      DATABASE_DSN: postgresql://itson:strongpassword@db:5432/itson
+      REDIS_URL: redis://cache:6379/0
+      CACHE_URL: redis://cache:6379/1
     ports:
      - "127.0.0.1:8081:8081"
     depends_on:
