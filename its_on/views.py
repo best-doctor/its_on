@@ -1,13 +1,13 @@
 import functools
 import json
 import textwrap
+import typing
 
 from aiocache import cached
 from aiohttp import web
 from aiohttp_apispec import request_schema, response_schema, docs
 from aiohttp_cors import CorsViewMixin
 from sqlalchemy.sql import Select
-from typing import Dict, List, Optional
 
 from its_on.admin.mixins import GetObjectMixin
 from its_on.cache import switch_list_cache_key_builder
@@ -32,7 +32,7 @@ class SwitchListView(CorsViewMixin, web.View):
         return web.json_response(data)
 
     @cached(ttl=settings.cache_ttl, key_builder=switch_list_cache_key_builder)
-    async def get_response_data(self) -> Dict:
+    async def get_response_data(self) -> dict[str, typing.Any]:
         objects = await self.load_objects()
         data = [obj.name for obj in objects]
         return {
@@ -40,7 +40,7 @@ class SwitchListView(CorsViewMixin, web.View):
             'result': data,
         }
 
-    async def load_objects(self) -> List:
+    async def load_objects(self) -> list:
         async with self.request.app['db'].acquire() as conn:
             queryset = await self.get_queryset()
             result = await conn.execute(queryset)
@@ -59,7 +59,7 @@ class SwitchListView(CorsViewMixin, web.View):
     def filter_hidden(self, queryset: Select) -> Select:
         return queryset.where(switches.c.deleted_at.is_(None) | (switches.c.deleted_at > utc_now()))
 
-    def filter_version(self, queryset: Select, version: Optional[str] = None) -> Select:
+    def filter_version(self, queryset: Select, version: str | None = None) -> Select:
         if version is not None:
             queryset = queryset.where(switches.c.version <= version)
         return queryset
@@ -85,7 +85,7 @@ class SwitchFullListView(CorsViewMixin, web.View):
         data = await self.get_response_data()
         return web.json_response(data, dumps=functools.partial(json.dumps, cls=DateTimeJSONEncoder))
 
-    async def get_response_data(self) -> Dict:
+    async def get_response_data(self) -> dict[str, typing.Any]:
         objects = await self.load_objects()
         data = [
             {
@@ -111,7 +111,7 @@ class SwitchFullListView(CorsViewMixin, web.View):
             'result': data,
         }
 
-    async def load_objects(self) -> List:
+    async def load_objects(self) -> list:
         async with self.request.app['db'].acquire() as conn:
             queryset = self.get_queryset()
             result = await conn.execute(queryset)

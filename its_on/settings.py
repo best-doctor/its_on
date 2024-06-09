@@ -30,11 +30,11 @@ class EnvironmentNoticeSettings(BaseModel):
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_nested_delimiter="__",
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-        env_parse_none_str='null'
+        env_nested_delimiter='__',
+        env_file='.env',
+        env_file_encoding='utf-8',
+        extra='ignore',
+        env_parse_none_str='null',
     )
 
     debug: bool = False

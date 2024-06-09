@@ -1,12 +1,12 @@
-from typing import Callable, Any
+import typing
 
 from aiohttp.web import Response, View
 from aiohttp.web_exceptions import HTTPFound, HTTPUnauthorized
 from aiohttp_security import check_authorized
 
 
-def login_required(func: Callable) -> Callable:
-    async def _login_required(self: View, *args: Any, **kwargs: Any) -> Response:
+def login_required(func: typing.Callable) -> typing.Callable:
+    async def _login_required(self: View, *args: typing.Any, **kwargs: typing.Any) -> Response:
         try:
             await check_authorized(self.request)
         except HTTPUnauthorized:

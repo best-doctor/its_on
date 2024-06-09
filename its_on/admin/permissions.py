@@ -1,4 +1,4 @@
-from typing import Any
+import typing
 
 from aiohttp import web
 from aiohttp_security.api import check_authorized
@@ -10,7 +10,7 @@ from its_on.models import switches
 
 class BasePermission:
     @classmethod
-    async def is_allowed(cls, request: web.Request, *args: Any, **kwargs: Any) -> bool:
+    async def is_allowed(cls, request: web.Request, *args: typing.Any, **kwargs: typing.Any) -> bool:
         return await check_authorized(request) is not None
 
 

@@ -1,12 +1,10 @@
-from typing import List, Optional, Tuple
-
 from aiohttp import web
 from sqlalchemy.sql import not_, and_
 
 from auth.models import users
 
 
-async def remove_user_switches(request: web.Request, user: users, switches_ids: List[Optional[str]]) -> None:
+async def remove_user_switches(request: web.Request, user: users, switches_ids: list[str | None]) -> None:
     from its_on.models import user_switches
 
     async with request.app['db'].acquire() as conn:
@@ -20,9 +18,9 @@ async def remove_user_switches(request: web.Request, user: users, switches_ids: 
 
 async def is_user_switch_exist(
     request: web.Request,
-    switch_id: Optional[str],
+    switch_id: str | None,
     user_id: int,
-) -> List[Optional[Tuple[int, int]]]:
+) -> list[tuple[int, int] | None]:
     from its_on.models import user_switches
 
     query = user_switches.select().where(
@@ -37,7 +35,7 @@ async def is_user_switch_exist(
         return await result.fetchall()
 
 
-async def create_new_user_switch(request: web.Request, switch_id: Optional[str], user_id: int) -> None:
+async def create_new_user_switch(request: web.Request, switch_id: str | None, user_id: int) -> None:
     from its_on.models import user_switches
 
     async with request.app['db'].acquire() as conn:

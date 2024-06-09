@@ -1,5 +1,5 @@
 import datetime
-from typing import Callable, Generator
+import typing
 from unittest.mock import MagicMock
 
 import pytest
@@ -23,13 +23,13 @@ class AsyncMock(MagicMock):
 
 
 @pytest.fixture()
-async def client(aiohttp_client: Callable) -> None:
+async def client(aiohttp_client: typing.Callable) -> None:
     app = await init_gunicorn_app()
     return await aiohttp_client(app)
 
 
 @pytest.fixture()
-def db_conn_acquirer(client) -> Callable:
+def db_conn_acquirer(client) -> typing.Callable:
     return client.server.app['db'].acquire
 
 
@@ -51,21 +51,21 @@ async def user_login(client):
 
 
 @pytest.fixture(scope='session')
-def setup_database() -> Generator:
+def setup_database() -> typing.Generator:
     setup_db(settings=settings)
     yield
     teardown_db(settings=settings)
 
 
 @pytest.fixture(scope='function')
-def setup_tables(setup_database: Callable) -> Generator:
+def setup_tables(setup_database: typing.Callable) -> typing.Generator:
     create_tables(settings=settings)
     yield
     drop_tables(settings=settings)
 
 
 @pytest.fixture(scope='function')
-def setup_tables_and_data(setup_tables: Callable) -> Generator:
+def setup_tables_and_data(setup_tables: typing.Callable) -> typing.Generator:
     create_sample_data(settings=settings)
     yield
 
@@ -268,7 +268,7 @@ def create_switch_data_factory(switch_data_factory):
 
 
 @pytest.fixture()
-async def switch_factory(loop, setup_tables: Callable, switch_data_factory) -> Callable:
+async def switch_factory(loop, setup_tables: typing.Callable, switch_data_factory) -> typing.Callable:
     engine = get_engine(settings.database_dsn)
 
     async def _with_params(**kwargs) -> list:
@@ -283,7 +283,7 @@ async def switch_factory(loop, setup_tables: Callable, switch_data_factory) -> C
 
 
 @pytest.fixture()
-async def switches_factory(setup_tables: Callable, switch_data_factory) -> Callable:
+async def switches_factory(setup_tables: typing.Callable, switch_data_factory) -> typing.Callable:
     engine = get_engine(settings.database_dsn)
     session = Session(engine)
 

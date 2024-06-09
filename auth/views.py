@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
 import aiohttp_jinja2
 from aiohttp.abc import StreamResponse
@@ -11,17 +10,14 @@ from multidict import MultiDictProxy
 from auth.auth import check_credentials
 from auth.schemes import LoginPostRequestSchema
 
-if TYPE_CHECKING:
-    from typing import Optional, Dict
-
 
 class LoginView(View):
     @aiohttp_jinja2.template('users/login.html')
-    async def get(self, error: Optional[str] = None) -> Dict[str, str]:
+    async def get(self, error: str | None = None) -> dict[str, str]:
         return {'context': ''}
 
     @aiohttp_jinja2.template('users/login.html')
-    async def error(self) -> Dict[str, str]:
+    async def error(self) -> dict[str, str]:
         return {'context': '', 'error': 'Authorization failed'}
 
     async def authorise(
@@ -44,7 +40,7 @@ class LoginView(View):
 
         return await self.authorise(response_location, login, password)
 
-    def validate_form_data(self, form_data: MultiDictProxy) -> Optional[Dict[str, str]]:
+    def validate_form_data(self, form_data: MultiDictProxy) -> dict[str, str] | None:
         try:
             return LoginPostRequestSchema().load(form_data)
         except ValidationError:

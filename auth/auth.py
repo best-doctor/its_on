@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
 from aiopg.sa.engine import Engine
 from aiopg.sa.result import RowProxy
@@ -9,9 +8,6 @@ from passlib.hash import sha256_crypt
 from sqlalchemy import and_, func, not_
 
 from auth import models
-
-if TYPE_CHECKING:
-    from typing import Optional
 
 
 async def check_credentials(db_engine: Engine, username: str, password: str) -> bool:
@@ -36,7 +32,7 @@ class DBAuthorizationPolicy(AbstractAuthorizationPolicy):
     def __init__(self, app: Application) -> None:
         self.app: Application = app
 
-    async def authorized_userid(self, identity: str) -> Optional[str]:
+    async def authorized_userid(self, identity: str) -> str | None:
         if self.app.get('db') is None:
             return None
 

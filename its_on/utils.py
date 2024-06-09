@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime
 import json
-from typing import Any, Optional, Dict
+import typing
 
 import sqlalchemy as sa
 from aiocache import Cache
@@ -29,8 +29,8 @@ def setup_cache(app: web.Application) -> None:
 def reverse(
     request: web.Request,
     router_name: str,
-    params: Optional[Dict[str, str]] = None,
-    with_query: Optional[Dict[str, Any]] = None,
+    params: dict[str, str] | None = None,
+    with_query: dict[str, typing.Any] | None = None,
 ) -> str:
     if not params:
         params = {}
@@ -84,15 +84,15 @@ class AwareDateTime(sa.TypeDecorator):
     impl = sa.DateTime
 
     def process_result_value(
-        self, value: Optional[datetime.datetime], dialect: Any,
-    ) -> Optional[datetime.datetime]:
+        self, value: datetime.datetime | None, dialect: typing.Any,
+    ) -> datetime.datetime | None:
         if not value:
             return None
         return localize_datetime(value)
 
 
 class DateTimeJSONEncoder(json.JSONEncoder):
-    def default(self, obj: Any) -> Any:
+    def default(self, obj: typing.Any) -> typing.Any:
         if isinstance(obj, datetime.datetime):
             return obj.astimezone(datetime.timezone.utc).isoformat()
         if isinstance(obj, (datetime.date, datetime.time)):
@@ -109,5 +109,5 @@ def localize_datetime(dt: datetime.datetime) -> datetime.datetime:
     return dt.replace(tzinfo=datetime.timezone.utc).astimezone(local_timezone())
 
 
-def local_timezone() -> Optional[datetime.tzinfo]:
+def local_timezone() -> datetime.tzinfo | None:
     return datetime.datetime.now().astimezone().tzinfo

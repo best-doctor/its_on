@@ -1,7 +1,8 @@
+import typing
+
 from aiocache import Cache
 from aiocache.serializers import JsonSerializer
 from aiohttp import web
-from typing import Callable
 
 
 def setup_cache(app: web.Application) -> None:
@@ -11,7 +12,7 @@ def setup_cache(app: web.Application) -> None:
     app['cache'] = cache
 
 
-def switch_list_cache_key_builder(method: Callable, view: web.View) -> str:
+def switch_list_cache_key_builder(method: typing.Callable, view: web.View) -> str:
     validated_data = view.request['validated_data']
     group_name = validated_data['group']
     is_active = validated_data.get('is_active')

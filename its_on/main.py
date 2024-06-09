@@ -1,4 +1,3 @@
-from typing import Optional
 import logging
 import asyncio
 import pathlib
@@ -37,7 +36,7 @@ async def make_redis_pool() -> aioredis.ConnectionsPool:
 
 def init_app(
     loop: asyncio.AbstractEventLoop,
-    redis_pool: Optional[aioredis.ConnectionsPool] = None,
+    redis_pool: aioredis.ConnectionsPool | None = None,
 ) -> web.Application:
     app = web.Application()
 

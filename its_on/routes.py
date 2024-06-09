@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+
+import typing
 
 from aiohttp.web import Application
 from aiohttp_cors import CorsConfig
@@ -17,7 +18,7 @@ from its_on.admin.views.switches import (
 )
 from its_on.admin.views.users import UserDetailAdminView, UserListAdminView
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from pathlib import Path
 
 

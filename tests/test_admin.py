@@ -195,7 +195,7 @@ async def test_switch_soft_delete(client, login, switch, db_conn_acquirer):
     response = await client.get('/zbs/switches')
     content = await response.content.read()
     async with db_conn_acquirer() as conn:
-        deleted_switch = await(await conn.execute(switches.select().where(
+        deleted_switch = await (await conn.execute(switches.select().where(
             switches.c.id == 7,
         ))).first()
 
