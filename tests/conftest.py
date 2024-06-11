@@ -1,16 +1,16 @@
 import datetime
-from typing import Callable, Generator
+import typing
 from unittest.mock import MagicMock
 
 import pytest
 import factory.fuzzy
 from anybadge import Badge
 from anybadge.config import MASK_ID_PREFIX
-from dynaconf import settings
 from sqlalchemy.orm import Session
 
 from its_on.main import init_gunicorn_app
 from its_on.models import switches
+from its_on.settings import settings
 from its_on.utils import utc_now, localize_datetime
 from .helpers import (
     create_sample_data, create_tables, drop_tables, setup_db, teardown_db, get_engine,
@@ -23,13 +23,13 @@ class AsyncMock(MagicMock):
 
 
 @pytest.fixture()
-async def client(aiohttp_client: Callable) -> None:
+async def client(aiohttp_client: typing.Callable) -> None:
     app = await init_gunicorn_app()
     return await aiohttp_client(app)
 
 
 @pytest.fixture()
-def db_conn_acquirer(client) -> Callable:
+def db_conn_acquirer(client) -> typing.Callable:
     return client.server.app['db'].acquire
 
 
@@ -51,22 +51,22 @@ async def user_login(client):
 
 
 @pytest.fixture(scope='session')
-def setup_database() -> Generator:
-    setup_db(config=settings)
+def setup_database() -> typing.Generator:
+    setup_db(settings=settings)
     yield
-    teardown_db(config=settings)
+    teardown_db(settings=settings)
 
 
 @pytest.fixture(scope='function')
-def setup_tables(setup_database: Callable) -> Generator:
-    create_tables(config=settings)
+def setup_tables(setup_database: typing.Callable) -> typing.Generator:
+    create_tables(settings=settings)
     yield
-    drop_tables(config=settings)
+    drop_tables(settings=settings)
 
 
 @pytest.fixture(scope='function')
-def setup_tables_and_data(setup_tables: Callable) -> Generator:
-    create_sample_data(config=settings)
+def setup_tables_and_data(setup_tables: typing.Callable) -> typing.Generator:
+    create_sample_data(settings=settings)
     yield
 
 
@@ -268,8 +268,8 @@ def create_switch_data_factory(switch_data_factory):
 
 
 @pytest.fixture()
-async def switch_factory(loop, setup_tables: Callable, switch_data_factory) -> Callable:
-    engine = get_engine(settings.DATABASE.DSN)
+async def switch_factory(loop, setup_tables: typing.Callable, switch_data_factory) -> typing.Callable:
+    engine = get_engine(settings.database_dsn)
 
     async def _with_params(**kwargs) -> list:
         switch_params = switch_data_factory(**kwargs)
@@ -283,8 +283,8 @@ async def switch_factory(loop, setup_tables: Callable, switch_data_factory) -> C
 
 
 @pytest.fixture()
-async def switches_factory(setup_tables: Callable, switch_data_factory) -> Callable:
-    engine = get_engine(settings.DATABASE.DSN)
+async def switches_factory(setup_tables: typing.Callable, switch_data_factory) -> typing.Callable:
+    engine = get_engine(settings.database_dsn)
     session = Session(engine)
 
     async def _with_params(batch_size: int = 1, **kwargs) -> list:

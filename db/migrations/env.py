@@ -2,7 +2,6 @@ import os
 from logging.config import fileConfig
 import sys
 
-from dynaconf import settings
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
@@ -11,10 +10,12 @@ from alembic import context
 parent_dir = os.path.abspath(os.path.join(os.getcwd()))
 sys.path.append(parent_dir)
 
+from its_on.settings import settings
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option('sqlalchemy.url', settings.DATABASE.DSN)
+config.set_main_option('sqlalchemy.url', str(settings.database_dsn))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

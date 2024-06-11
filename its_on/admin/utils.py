@@ -1,5 +1,4 @@
 import datetime
-from typing import List, Dict
 
 from aiohttp import web
 from aiopg.sa.result import RowProxy
@@ -10,7 +9,7 @@ from auth.utils import get_current_user
 from its_on.models import switch_history, switches
 
 
-async def get_user_switches(request: web.Request, user: users) -> List[RowProxy]:
+async def get_user_switches(request: web.Request, user: users) -> list[RowProxy]:
     async with request.app['db'].acquire() as conn:
         from its_on.models import user_switches  # Почему-то алхимия не видит этот импорт наверху
 
@@ -28,7 +27,7 @@ async def get_user_switches(request: web.Request, user: users) -> List[RowProxy]
         return user_switches
 
 
-async def get_user_switches_names(request: web.Request, user: users) -> List[str]:
+async def get_user_switches_names(request: web.Request, user: users) -> list[str]:
     user_switches = await get_user_switches(request, user)
     return [user_switch.name for user_switch in user_switches]
 
@@ -45,7 +44,7 @@ async def save_switch_history(request: web.Request, switch: switches, new_value:
         await conn.execute(create_query)
 
 
-async def get_switch_history(request: web.Request, switch: switches) -> List[RowProxy]:
+async def get_switch_history(request: web.Request, switch: switches) -> list[RowProxy]:
     async with request.app['db'].acquire() as conn:
         query = switch_history.select(
             whereclause=(switch_history.c.switch_id == switch.id),
@@ -54,7 +53,7 @@ async def get_switch_history(request: web.Request, switch: switches) -> List[Row
         return await result.fetchall()
 
 
-def annotate_switch_with_expiration_date(switch: switches) -> Dict:
+def annotate_switch_with_expiration_date(switch: switches) -> dict:
     if switch.is_active:
         expires_at = switch.updated_at + datetime.timedelta(days=switch.ttl)
     else:

@@ -1,4 +1,3 @@
-from typing import Optional
 import logging
 import asyncio
 import pathlib
@@ -13,14 +12,13 @@ from aiohttp_apispec import setup_aiohttp_apispec
 import aioredis
 from aiohttp_session import setup
 from aiohttp_session.redis_storage import RedisStorage
-from dynaconf import settings
-import uvloop
 
 from auth.auth import DBAuthorizationPolicy
 from its_on.cache import setup_cache
 from its_on.db_utils import init_pg, close_pg
 from its_on.middlewares import setup_middlewares
 from its_on.routes import setup_routes
+from its_on.settings import settings
 
 BASE_DIR = pathlib.Path(__file__).parent.parent
 
@@ -32,15 +30,15 @@ async def init_gunicorn_app() -> web.Application:
 
 
 async def make_redis_pool() -> aioredis.ConnectionsPool:
-    redis_address = settings.REDIS_URL
+    redis_address = str(settings.redis_url)
     return await aioredis.create_redis_pool(redis_address, timeout=1)
 
 
 def init_app(
     loop: asyncio.AbstractEventLoop,
-    redis_pool: Optional[aioredis.ConnectionsPool] = None,
+    redis_pool: aioredis.ConnectionsPool | None = None,
 ) -> web.Application:
-    app = web.Application(loop=loop)
+    app = web.Application()
 
     app['config'] = settings
 
@@ -63,9 +61,9 @@ def init_app(
     )
 
     jinja2_env.globals.update({
-        'show_env_notice': settings.ENVIRONMENT_NOTICE.SHOW,
-        'env_notice_name': settings.ENVIRONMENT_NOTICE.ENVIRONMENT_NAME,
-        'env_notice_background_color': settings.ENVIRONMENT_NOTICE.BACKGROUND_COLOR,
+        'show_env_notice': settings.environment_notice.show,
+        'env_notice_name': settings.environment_notice.environment_name,
+        'env_notice_background_color': settings.environment_notice.background_color,
     })
 
     app['static_root_url'] = '/static'
@@ -80,8 +78,8 @@ def init_app(
 
     cors_config = {
         origin: aiohttp_cors.ResourceOptions(
-            allow_methods=['GET', 'OPTIONS'], allow_headers=settings.CORS_ALLOW_HEADERS)
-        for origin in settings.CORS_ALLOW_ORIGIN
+            allow_methods=['GET', 'OPTIONS'], allow_headers=settings.cors_allow_headers)
+        for origin in settings.cors_allow_origin
     }
     cors = aiohttp_cors.setup(app, defaults=cors_config)
 
@@ -103,10 +101,9 @@ def init_app(
 
 def main() -> None:
     logging.basicConfig(level=logging.DEBUG)
-    uvloop.install()
     loop = asyncio.get_event_loop()
     app = init_app(loop)
-    web.run_app(app, host=settings.HOST, port=settings.PORT)
+    web.run_app(app, host=settings.host, port=settings.port)
 
 
 if __name__ == '__main__':

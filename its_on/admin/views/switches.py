@@ -1,12 +1,11 @@
 import datetime
-from typing import Any, Dict, List, Optional, Union
+import typing
 
 import aiohttp_jinja2
 import psycopg2
 from aiohttp import ClientConnectionError, ClientResponseError, ClientSession
 from aiohttp import web
 from aiopg.sa.result import RowProxy
-from dynaconf import settings
 from marshmallow.exceptions import ValidationError
 from multidict import MultiDictProxy
 from sqlalchemy.sql import Select
@@ -27,6 +26,7 @@ from its_on.admin.utils import (
 )
 from its_on.models import switches
 from its_on.schemes import RemoteSwitchesDataSchema
+from its_on.settings import settings
 from its_on.utils import get_switch_badge_svg, get_switch_markdown_badge, utc_now
 
 
@@ -36,7 +36,7 @@ class SwitchListAdminView(web.View):
 
     @aiohttp_jinja2.template('switches/index.html')
     @login_required
-    async def get(self) -> Dict[str, Union[Optional[List[RowProxy]], bool]]:
+    async def get(self) -> dict[str, list[RowProxy] | None | bool | list[str] | list[dict]]:
         request_params = self.validator.load(data=self.request.query)
         flags = await self.get_response_data(request_params)
         groups = await self.get_distinct_groups(request_params)
@@ -44,10 +44,10 @@ class SwitchListAdminView(web.View):
             'active_group': request_params.get('group'),
             'flags': flags,
             'groups': groups,
-            'show_copy_button': bool(settings.SYNC_FROM_ITS_ON_URL),
+            'show_copy_button': bool(settings.sync_from_its_on_url),
         }
 
-    async def get_response_data(self, request_params: Dict[str, Any]) -> List[Dict]:
+    async def get_response_data(self, request_params: dict[str, typing.Any]) -> list[dict]:
         async with self.request.app['db'].acquire() as conn:
             queryset = self.filter_queryset(self.get_queryset(), request_params)
             result = await conn.execute(queryset)
@@ -55,7 +55,7 @@ class SwitchListAdminView(web.View):
 
         return [annotate_switch_with_expiration_date(switch=flag) for flag in flags]
 
-    async def get_distinct_groups(self, request_params: Dict[str, Any]) -> List[str]:
+    async def get_distinct_groups(self, request_params: dict[str, typing.Any]) -> list[str]:
         async with self.request.app['db'].acquire() as conn:
             queryset = self.filter_hidden(self.get_queryset(), request_params)
             result = await conn.execute(queryset)
@@ -65,22 +65,22 @@ class SwitchListAdminView(web.View):
     def get_queryset(self) -> Select:
         return switches.select()
 
-    def order_queryset(self, qs: Select, request_params: Dict[str, Any]) -> Select:
+    def order_queryset(self, qs: Select, request_params: dict[str, typing.Any]) -> Select:
         # Default ordering
         return qs.order_by(switches.c.created_at.desc())
 
-    def filter_hidden(self, qs: Select, request_params: Dict[str, Any]) -> Select:
+    def filter_hidden(self, qs: Select, request_params: dict[str, typing.Any]) -> Select:
         if not request_params.get('show_hidden'):
             qs = qs.where(switches.c.deleted_at.is_(None))
         return qs
 
-    def filter_group(self, qs: Select, request_params: Dict[str, Any]) -> Select:
+    def filter_group(self, qs: Select, request_params: dict[str, typing.Any]) -> Select:
         group = request_params.get('group')
         if group:
             qs = qs.where(switches.c.groups.any(group))
         return qs
 
-    def filter_queryset(self, qs: Select, request_params: Dict[str, Any]) -> Select:
+    def filter_queryset(self, qs: Select, request_params: dict[str, typing.Any]) -> Select:
         qs = self.filter_hidden(qs, request_params)
         qs = self.filter_group(qs, request_params)
         return self.order_queryset(qs, request_params)
@@ -92,9 +92,9 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
     model = switches
 
     async def get_context_data(
-        self, switch: Optional[RowProxy] = None, errors: ValidationError = None,
+        self, switch: RowProxy | None = None, errors: ValidationError | None = None,
         updated: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, typing.Any]:
         switch = switch if switch else await self.get_object(self.request)
         switch_history = await get_switch_history(self.request, switch)
 
@@ -113,7 +113,7 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
 
     @aiohttp_jinja2.template('switches/detail.html')
     @login_required
-    async def get(self) -> Dict[str, Any]:
+    async def get(self) -> dict[str, typing.Any]:
         await self._check_permissions()
 
         switch_object = await self.get_object(self.request)
@@ -125,7 +125,7 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
 
     @aiohttp_jinja2.template('switches/detail.html')
     @login_required
-    async def post(self) -> Dict[str, Dict]:
+    async def post(self) -> dict[str, dict]:
         await self._check_permissions()
 
         form_data = await self.request.post()
@@ -153,16 +153,18 @@ class SwitchAddAdminView(web.View, CreateMixin):
     validator = SwitchAddAdminPostRequestSchema()
     model = switches
 
-    async def get_context_data(self, errors: ValidationError = None, user_input: Dict = None) -> Dict[str, Any]:
+    async def get_context_data(
+        self, errors: ValidationError | None = None, user_input: dict | None = None,
+    ) -> dict[str, typing.Any]:
         context_data = {
             'errors': errors,
-            'ttl': settings.FLAG_TTL_DAYS,
+            'ttl': settings.flag_ttl_days,
         }
         if user_input:
             context_data.update(user_input)
         return context_data
 
-    async def resurrect_deleted_flag(self, form_data: MultiDictProxy) -> Optional[Dict[str, Any]]:
+    async def resurrect_deleted_flag(self, form_data: MultiDictProxy) -> dict[str, typing.Any] | None:
         async with self.request.app['db'].acquire() as conn:
             result = await conn.execute(
                 switches.select().where(switches.c.name == form_data['name']))
@@ -187,12 +189,12 @@ class SwitchAddAdminView(web.View, CreateMixin):
 
     @aiohttp_jinja2.template('switches/add.html')
     @login_required
-    async def get(self) -> Dict[str, RowProxy]:
+    async def get(self) -> dict[str, RowProxy]:
         return await self.get_context_data()
 
     @aiohttp_jinja2.template('switches/add.html')
     @login_required
-    async def post(self) -> Dict[str, Dict]:
+    async def post(self) -> dict[str, dict]:
         form_data = await self.request.post()
 
         resurrect_deleted_flag_raised_error = await self.resurrect_deleted_flag(form_data=form_data)
@@ -216,13 +218,13 @@ class SwitchesCopyAdminView(web.View, CreateMixin):
     @staticmethod
     async def _get_switches_data() -> MultiDictProxy:
         async with ClientSession() as session:
-            async with session.get(settings.SYNC_FROM_ITS_ON_URL) as resp:
+            async with session.get(str(settings.sync_from_its_on_url)) as resp:
                 resp.raise_for_status()
                 return await resp.json()
 
     @aiohttp_jinja2.template('switches/error.html')
     @login_required
-    async def post(self) -> Dict[str, Exception]:
+    async def post(self) -> dict[str, Exception]:
         update_existing = bool(self.request.rel_url.query.get('update_existing'))
         try:
             switches_data = await self._get_switches_data()

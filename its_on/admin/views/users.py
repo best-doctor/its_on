@@ -1,10 +1,11 @@
+import typing
+
 import aiohttp_jinja2
 from aiohttp import web
 from aiopg.sa.result import RowProxy
 from marshmallow.exceptions import ValidationError
 from multidict import MultiDictProxy, MultiDict
 from sqlalchemy.sql import Select
-from typing import Dict, List, Optional, Any, Union
 
 from auth.decorators import login_required
 from auth.models import users
@@ -26,15 +27,15 @@ class UserListAdminView(web.View):
 
     @aiohttp_jinja2.template('users/list.html')
     @login_required
-    async def get(self) -> Dict[str, Optional[List[RowProxy]]]:
+    async def get(self) -> dict[str, list[RowProxy] | None]:
         users = await self.get_response_data()
         return {'users': users}
 
-    async def get_response_data(self) -> List[RowProxy]:
+    async def get_response_data(self) -> list[RowProxy]:
         objects = await self.load_objects()
         return objects
 
-    async def load_objects(self) -> List:
+    async def load_objects(self) -> list:
         async with self.request.app['db'].acquire() as conn:
             queryset = self.get_queryset()
             result = await conn.execute(queryset)
@@ -51,11 +52,11 @@ class UserDetailAdminView(web.View, UpdateMixin):
 
     async def get_context_data(
         self,
-        errors: ValidationError = None,
+        errors: ValidationError | None = None,
         updated: bool = False,
-        switches: List = None,
-        user_switches: List = None,
-    ) -> Dict[str, Any]:
+        switches: list | None = None,
+        user_switches: list | None = None,
+    ) -> dict[str, typing.Any]:
 
         user_object = await self.get_object(self.request)
         switches = switches if switches else await self.get_switches()
@@ -80,14 +81,14 @@ class UserDetailAdminView(web.View, UpdateMixin):
 
     @aiohttp_jinja2.template('users/detail.html')
     @login_required
-    async def get(self) -> Dict[str, RowProxy]:
+    async def get(self) -> dict[str, RowProxy]:
         await self._check_permissions()
 
         return await self.get_context_data()
 
     @aiohttp_jinja2.template('users/detail.html')
     @login_required
-    async def post(self) -> Dict[str, Dict]:
+    async def post(self) -> dict[str, dict]:
         await self._check_permissions()
 
         form_data = await self.request.post()
@@ -101,7 +102,7 @@ class UserDetailAdminView(web.View, UpdateMixin):
 
         return await self.get_context_data(updated=True)
 
-    def _get_to_update(self, form_data: MultiDictProxy) -> Union[MultiDict, MultiDictProxy]:
+    def _get_to_update(self, form_data: MultiDictProxy) -> MultiDict | MultiDictProxy:
         """
         Удаляет поля switch_ids, которых нет в модели users.
 
@@ -114,8 +115,8 @@ class UserDetailAdminView(web.View, UpdateMixin):
         to_update.popall('switch_ids')
         return to_update
 
-    def _get_user_switches_ids_to_update(self, form_data: MultiDictProxy) -> List[Optional[str]]:
-        switches_ids: List
+    def _get_user_switches_ids_to_update(self, form_data: MultiDictProxy) -> list[str | None]:
+        switches_ids: list
 
         if form_data.get('switch_ids') is None:
             switches_ids = []

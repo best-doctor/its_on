@@ -1,10 +1,10 @@
 import datetime
 
 import sqlalchemy as sa
-from dynaconf import settings
 from sqlalchemy.dialects import postgresql
 
 from auth import models
+from its_on.settings import settings
 from its_on.utils import AwareDateTime
 
 metadata = sa.MetaData()
@@ -18,7 +18,7 @@ switches = sa.Table(
     sa.Column('group', sa.String(255)),
     sa.Column('groups', postgresql.ARRAY(sa.String(255))),
     sa.Column('version', sa.Integer, nullable=True),
-    sa.Column('ttl', sa.Integer, nullable=False, default=lambda: settings.FLAG_TTL_DAYS),
+    sa.Column('ttl', sa.Integer, nullable=False, default=lambda: settings.flag_ttl_days),
     sa.Column('comment', sa.Text),
     sa.Column('deleted_at', AwareDateTime, nullable=True),
     sa.Column('created_at', AwareDateTime, default=lambda: datetime.datetime.utcnow(), nullable=True),

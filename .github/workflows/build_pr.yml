@@ -5,10 +5,10 @@ on:
     branches: [ master ]
 
 env:
-  DYNACONF_REDIS_URL: redis://localhost:6379/1
-  DYNACONF_CACHE_URL: redis://localhost:6379/1
-  DYNACONF_DATABASE__dsn: postgresql://postgres:password@localhost:5432/tests
-  DYNACONF_DATABASE__superuser_dsn: postgresql://postgres:password@localhost:5432/postgres
+  REDIS_URL: redis://localhost:6379/1
+  CACHE_URL: redis://localhost:6379/1
+  DATABASE_DSN: postgresql://postgres:password@localhost:5432/tests
+  DATABASE_SUPERUSER_DSN: postgresql://postgres:password@localhost:5432/postgres
 
 jobs:
   build:
@@ -36,7 +36,7 @@ jobs:
           --health-retries 5
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: [3.12]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}

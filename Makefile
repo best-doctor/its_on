@@ -1,8 +1,8 @@
 test:
-	ENV_FOR_DYNACONF=TESTING python -m pytest
+	ENVIRONMENT=test python -m pytest
 
 coverage:
-	ENV_FOR_DYNACONF=TESTING python -m pytest --cov=its_on --cov-report=xml
+	ENVIRONMENT=test python -m pytest --cov=its_on --cov-report=xml
 
 style:
 	flake8 .
