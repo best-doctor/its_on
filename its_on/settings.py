@@ -40,12 +40,12 @@ class Settings(BaseSettings):
     debug: bool = False
     host: str = 'localhost'
     port: PositiveInt = 8081
-    database_dsn: PostgresDsn = 'postgresql://bestdoctor:bestdoctor@localhost:5432/its_on'
+    database_dsn: PostgresDsn = 'postgresql://bestdoctor:bestdoctor@localhost:5432/its_on'  # type: ignore
     database_superuser_dsn: PostgresDsn | None = None
     enable_db_logging: bool = False
-    cache_url: RedisDsn = 'redis://127.0.0.1:6379/1'
+    cache_url: RedisDsn = 'redis://127.0.0.1:6379/1'  # type: ignore
     cache_ttl: int = 300
-    redis_url: RedisDsn = 'redis://127.0.0.1:6379/1'
+    redis_url: RedisDsn = 'redis://127.0.0.1:6379/1'  # type: ignore
     cors_allow_origin: list[str] = ['http://localhost:8081']
     cors_allow_headers: list[str] = []
     enable_switches_full_info_endpoint: bool = False

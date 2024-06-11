@@ -16,7 +16,7 @@ class BasePermission:
 
 class CanEditSwitch(BasePermission):
     @classmethod
-    async def is_allowed(cls, request: web.Request, object_to_check: switches) -> bool:  # type: ignore
+    async def is_allowed(cls, request: web.Request, object_to_check: switches) -> bool:
         if await is_superuser(request):
             return True
 
@@ -28,5 +28,5 @@ class CanEditSwitch(BasePermission):
 
 class CanEditUser(BasePermission):
     @classmethod
-    async def is_allowed(cls, request: web.Request) -> bool:  # type: ignore
+    async def is_allowed(cls, request: web.Request) -> bool:
         return await is_superuser(request)

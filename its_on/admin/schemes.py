@@ -8,8 +8,8 @@ class SplitList(fields.List):
     def deserialize(
         self,
         value: typing.Any,
-        attr: str = None,
-        data: typing.Mapping[str, typing.Any] = None,
+        attr: str | None = None,
+        data: typing.Mapping[str, typing.Any] | None = None,
         **kwargs: typing.Any,
     ) -> typing.List[typing.Any]:
         value = value or ''

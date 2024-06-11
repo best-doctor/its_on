@@ -52,10 +52,10 @@ class UserDetailAdminView(web.View, UpdateMixin):
 
     async def get_context_data(
         self,
-        errors: ValidationError = None,
+        errors: ValidationError | None = None,
         updated: bool = False,
-        switches: list = None,
-        user_switches: list = None,
+        switches: list | None = None,
+        user_switches: list | None = None,
     ) -> dict[str, typing.Any]:
 
         user_object = await self.get_object(self.request)

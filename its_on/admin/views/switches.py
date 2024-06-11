@@ -36,7 +36,7 @@ class SwitchListAdminView(web.View):
 
     @aiohttp_jinja2.template('switches/index.html')
     @login_required
-    async def get(self) -> dict[str, list[RowProxy] | None | bool]:
+    async def get(self) -> dict[str, list[RowProxy] | None | bool | list[str] | list[dict]]:
         request_params = self.validator.load(data=self.request.query)
         flags = await self.get_response_data(request_params)
         groups = await self.get_distinct_groups(request_params)
@@ -92,7 +92,7 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
     model = switches
 
     async def get_context_data(
-        self, switch: RowProxy | None = None, errors: ValidationError = None,
+        self, switch: RowProxy | None = None, errors: ValidationError | None = None,
         updated: bool = False,
     ) -> dict[str, typing.Any]:
         switch = switch if switch else await self.get_object(self.request)
@@ -153,7 +153,9 @@ class SwitchAddAdminView(web.View, CreateMixin):
     validator = SwitchAddAdminPostRequestSchema()
     model = switches
 
-    async def get_context_data(self, errors: ValidationError = None, user_input: dict = None) -> dict[str, typing.Any]:
+    async def get_context_data(
+        self, errors: ValidationError | None = None, user_input: dict | None = None,
+    ) -> dict[str, typing.Any]:
         context_data = {
             'errors': errors,
             'ttl': settings.flag_ttl_days,

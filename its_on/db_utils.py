@@ -19,4 +19,6 @@ async def close_pg(app: web.Application) -> None:
 
 
 def db_name_from_dsn(dsn: PostgresDsn) -> str:
-    return dsn.path.split('/')[1]
+    if path := dsn.path:
+        return path.split('/')[1]
+    raise ValueError('DSN does not contain database name')
