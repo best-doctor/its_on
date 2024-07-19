@@ -4,6 +4,13 @@ default:
   port: 8081
   database:
     dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/its_on
+  oauth:
+    is_used: false
+    only_oauth: false
+    client_id: '@none'
+    client_secret: '@none'
+    authorize_url: '@none'
+    token_url: '@none'
   enable_db_logging: false
   cache_url: redis://127.0.0.1:6379/1
   cache_ttl: 300

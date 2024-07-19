@@ -4,6 +4,7 @@ import asyncio
 import pathlib
 
 from aiohttp import web
+from aiohttp_oauth2 import oauth2_app
 from aiohttp_security import setup as setup_security
 from aiohttp_security import SessionIdentityPolicy
 import aiohttp_cors
@@ -16,7 +17,7 @@ from aiohttp_session.redis_storage import RedisStorage
 from dynaconf import settings
 import uvloop
 
-from auth.auth import DBAuthorizationPolicy
+from auth.auth import DBAuthorizationPolicy, oauth_on_login, oauth_on_error
 from its_on.cache import setup_cache
 from its_on.db_utils import init_pg, close_pg
 from its_on.middlewares import setup_middlewares
@@ -41,6 +42,20 @@ def init_app(
     redis_pool: Optional[aioredis.ConnectionsPool] = None,
 ) -> web.Application:
     app = web.Application(loop=loop)
+
+    if settings.OAUTH.IS_USED:
+        app.add_subapp(
+            '/oauth/',
+            oauth2_app(
+                client_id=settings.OAUTH.CLIENT_ID,
+                client_secret=settings.OAUTH.CLIENT_SECRET,
+                authorize_url=settings.OAUTH.AUTHORIZE_URL,
+                token_url=settings.OAUTH.TOKEN_URL,
+                on_login=oauth_on_login,
+                on_error=oauth_on_error,
+                json_data=False,
+            ),
+        )
 
     app['config'] = settings
 
