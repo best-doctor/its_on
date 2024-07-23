@@ -35,7 +35,7 @@
   {%- endif -%}
   {%- if use_oauth -%}
       <div class="form-group">
-        <a href="/oauth/auth" class="col-sm-offset-2 btn btn-default"> Sign in with "Bestdoctor ID"</a>
+        <a href="/oauth/auth" class="col-sm-offset-2 btn btn-default"> {{ oauth_sign_in_title }} </a>
       </div>
   {%- endif -%}
     {%- if error is defined -%}

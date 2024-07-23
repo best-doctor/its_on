@@ -22,7 +22,13 @@ if TYPE_CHECKING:
 async def get_login_context(error: str | None = None) -> Dict[str, Union[str | bool]]:
     use_oauth = getattr(getattr(settings, 'OAUTH', None), 'IS_USED', False)
     only_oauth = getattr(getattr(settings, 'OAUTH', None), 'ONLY_OAUTH', False)
-    context = {'context': '', 'use_oauth': use_oauth, 'only_oauth': only_oauth}
+    oauth_sign_in_title = getattr(getattr(settings, 'OAUTH', None), 'SIGN_IN_TITLE', '')
+    context = {
+        'context': '',
+        'use_oauth': use_oauth,
+        'only_oauth': only_oauth,
+        'oauth_sign_in_title': oauth_sign_in_title,
+    }
     if error:
         context['error'] = error
     return context
