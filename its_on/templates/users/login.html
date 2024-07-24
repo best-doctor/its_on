@@ -12,6 +12,7 @@
   <div class="container">
     <h2>ITS ON</h2>
     <br>
+  {%- if not only_oauth -%}
     <form class="form-horizontal" action="/zbs/login" method="post">
       <div class="form-group">
         <label class="control-label col-sm-2" for="email">Login:</label>
@@ -31,6 +32,12 @@
         </div>
       </div>
     </form>
+  {%- endif -%}
+  {%- if use_oauth -%}
+      <div class="form-group">
+        <a href="/oauth/auth" class="col-sm-offset-2 btn btn-default"> {{ oauth_sign_in_title }} </a>
+      </div>
+  {%- endif -%}
     {%- if error is defined -%}
     <div class="alert alert-danger" role="alert">{{ error }}</div>
     {%- endif -%}
