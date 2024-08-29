@@ -5,12 +5,13 @@ default:
   database:
     dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/its_on
   oauth:
-    is_used: false
+    is_used: true
     only_oauth: false
     client_id: '@none'
     client_secret: '@none'
     authorize_url: '@none'
     token_url: '@none'
+    force_https: true
     sign_in_title: 'Sign in with "Bestdoctor ID"'
   enable_db_logging: false
   cache_url: redis://127.0.0.1:6379/1

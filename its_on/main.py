@@ -3,7 +3,7 @@ import logging
 import asyncio
 import pathlib
 
-from aiohttp import web
+from aiohttp import web, ClientSession
 from aiohttp_oauth2 import oauth2_app
 from aiohttp_security import setup as setup_security
 from aiohttp_security import SessionIdentityPolicy
@@ -21,7 +21,7 @@ from auth.auth import DBAuthorizationPolicy, oauth_on_login, oauth_on_error
 from its_on.cache import setup_cache
 from its_on.db_utils import init_pg, close_pg
 from its_on.middlewares import setup_middlewares
-from its_on.routes import setup_routes
+from its_on.routes import setup_routes, setup_oauth_route
 
 BASE_DIR = pathlib.Path(__file__).parent.parent
 
@@ -37,6 +37,12 @@ async def make_redis_pool() -> aioredis.ConnectionsPool:
     return await aioredis.create_redis_pool(redis_address, timeout=1)
 
 
+async def client_session(app: web.Application):  # type:ignore
+    async with ClientSession() as session:
+        app['session'] = session
+        yield
+
+
 def init_app(
     loop: asyncio.AbstractEventLoop,
     redis_pool: Optional[aioredis.ConnectionsPool] = None,
@@ -44,6 +50,18 @@ def init_app(
     app = web.Application(loop=loop)
 
     if settings.OAUTH.IS_USED:
+        client_id = settings.OAUTH.CLIENT_ID
+        authorize_url = settings.OAUTH.AUTHORIZE_URL
+        scopes = None
+        auth_extras = None
+        app.update(  # pylint: disable=no-member
+            CLIENT_ID=client_id,
+            AUTHORIZE_URL=authorize_url,
+            SCOPES=scopes,
+            AUTH_EXTRAS=auth_extras or {},
+        )
+        app.cleanup_ctx.append(client_session)
+        setup_oauth_route(app)
         app.add_subapp(
             '/oauth/',
             oauth2_app(
