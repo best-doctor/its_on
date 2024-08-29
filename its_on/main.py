@@ -37,7 +37,7 @@ async def make_redis_pool() -> aioredis.ConnectionsPool:
     return await aioredis.create_redis_pool(redis_address, timeout=1)
 
 
-async def client_session(app: web.Application) -> None:
+async def client_session(app: web.Application):  # type:ignore
     async with ClientSession() as session:
         app['session'] = session
         yield
@@ -60,7 +60,7 @@ def init_app(
             SCOPES=scopes,
             AUTH_EXTRAS=auth_extras or {},
         )
-        app.cleanup_ctx.append(client_session)
+        app.cleanup_ctx.append(client_session)  # type:ignore
         setup_oauth_route(app)
         app.add_subapp(
             '/oauth/',
