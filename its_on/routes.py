@@ -5,7 +5,7 @@ from aiohttp.web import Application
 from aiohttp_cors import CorsConfig
 from dynaconf import settings
 
-from auth.views import LoginView, LogoutView
+from auth.views import LoginView, LogoutView, OauthViewForceHttps
 from its_on.views import SwitchFullListView, SwitchListView, SwitchSvgBadgeView
 from its_on.admin.views.switches import (
     SwitchAddAdminView,
@@ -18,6 +18,10 @@ from its_on.admin.views.users import UserDetailAdminView, UserListAdminView
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+
+def setup_oauth_route(app: Application) -> None:
+    app.router.add_view('/oauth/auth', OauthViewForceHttps)
 
 
 def setup_routes(app: Application, base_dir: Path, cors_config: CorsConfig) -> None:
