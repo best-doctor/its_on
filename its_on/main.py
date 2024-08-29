@@ -37,9 +37,9 @@ async def make_redis_pool() -> aioredis.ConnectionsPool:
     return await aioredis.create_redis_pool(redis_address, timeout=1)
 
 
-async def client_session(app: web.Application):
+async def client_session(app: web.Application) -> None:
     async with ClientSession() as session:
-        app["session"] = session
+        app['session'] = session
         yield
 
 
