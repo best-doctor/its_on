@@ -60,7 +60,7 @@ def init_app(
             SCOPES=scopes,
             AUTH_EXTRAS=auth_extras or {},
         )
-        app.cleanup_ctx.append(client_session)  # type:ignore
+        app.cleanup_ctx.append(client_session)
         setup_oauth_route(app)
         app.add_subapp(
             '/oauth/',
