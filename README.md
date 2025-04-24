@@ -96,7 +96,7 @@ Currently, only PostgreSQL and Redis are supported as respective backends.
 
 Clone repo:
 
-`$ git clone git@gitlab.com:bestdoctor/public/its_on.git`
+`$ git clone git@github.com:best-doctor/its_on.git`
 
 Install python packages:
 
