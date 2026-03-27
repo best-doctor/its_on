@@ -1,0 +1,23 @@
+its_on/config.py
+  e7f52252536752b3 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "69caf3ebfca9938f928d2ff91e527c53436a0159",
+  "prompts": {
+    "e7f52252536752b3": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "50398c7f-7754-4071-932b-1835b59d7fa5",
+        "model": "claude-4.6-opus-high-thinking"
+      },
+      "human_author": "Vladislav Katolyk <v.katolyk@bestdoctor.ru>",
+      "messages": [],
+      "total_additions": 8,
+      "total_deletions": 0,
+      "accepted_lines": 8,
+      "overriden_lines": 0
+    }
+  }
+}
