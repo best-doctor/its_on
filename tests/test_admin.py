@@ -10,7 +10,7 @@ from auth.models import users
 from its_on.models import switch_history, switches
 from its_on.utils import get_switch_badge_svg, get_switch_markdown_badge, local_timezone, utc_now
 
-from dynaconf import settings
+from its_on.config import settings
 
 
 @pytest.mark.usefixtures('setup_tables_and_data')

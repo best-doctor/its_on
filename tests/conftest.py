@@ -6,7 +6,7 @@ import pytest
 import factory.fuzzy
 from anybadge import Badge
 from anybadge.config import MASK_ID_PREFIX
-from dynaconf import settings
+from its_on.config import settings
 from sqlalchemy.orm import Session
 
 from its_on.db_utils import parse_dsn, make_dsn
@@ -59,7 +59,8 @@ def _configure_test_database():
     if not parsed['database'].startswith('test_'):
         parsed['database'] = f'test_{parsed["database"]}'
     test_dsn = make_dsn(**parsed)
-    settings.set('DATABASE', {'DSN': test_dsn, 'SUPERUSER_DSN': base_dsn})
+    superuser_dsn = getattr(settings.DATABASE, 'SUPERUSER_DSN', base_dsn)
+    settings.set('DATABASE', {'DSN': test_dsn, 'SUPERUSER_DSN': superuser_dsn})
 
 
 @pytest.fixture(scope='session')

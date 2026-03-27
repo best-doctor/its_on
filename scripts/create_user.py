@@ -2,7 +2,7 @@ import click
 import pathlib
 import sys
 import sqlalchemy as sa
-from dynaconf import settings
+from its_on.config import settings
 from passlib.handlers.sha2_crypt import sha256_crypt
 
 BASE_DIR = pathlib.Path(__file__).parent.parent

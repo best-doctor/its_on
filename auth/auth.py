@@ -9,7 +9,7 @@ from aiopg.sa.engine import Engine
 from aiopg.sa.result import RowProxy
 from aiohttp.web import Application
 from aiohttp_security.abc import AbstractAuthorizationPolicy
-from dynaconf import settings
+from its_on.config import settings
 from passlib.hash import sha256_crypt
 from sqlalchemy import and_, func, not_
 

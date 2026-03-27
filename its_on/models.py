@@ -1,7 +1,7 @@
 import datetime
 
 import sqlalchemy as sa
-from dynaconf import settings
+from its_on.config import settings
 from sqlalchemy.dialects import postgresql
 
 from auth import models

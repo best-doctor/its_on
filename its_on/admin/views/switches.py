@@ -6,7 +6,7 @@ import psycopg2
 from aiohttp import ClientConnectionError, ClientResponseError, ClientSession
 from aiohttp import web
 from aiopg.sa.result import RowProxy
-from dynaconf import settings
+from its_on.config import settings
 from marshmallow.exceptions import ValidationError
 from multidict import MultiDictProxy
 from sqlalchemy.sql import Select

@@ -13,7 +13,7 @@ from aiohttp_apispec import setup_aiohttp_apispec
 import redis.asyncio as aioredis
 from aiohttp_session import setup
 from aiohttp_session.redis_storage import RedisStorage
-from dynaconf import settings
+from its_on.config import settings
 import uvloop
 
 from auth.auth import DBAuthorizationPolicy, oauth_on_login, oauth_on_error

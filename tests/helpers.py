@@ -1,6 +1,6 @@
 import datetime
 
-from dynaconf.base import Settings
+from dynaconf import Dynaconf as Settings
 from freezegun import freeze_time
 from sqlalchemy import create_engine, MetaData, text
 from sqlalchemy.engine import Engine

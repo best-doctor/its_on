@@ -7,7 +7,7 @@ from aiohttp.web import HTTPFound, View, Response
 from aiohttp.web_exceptions import HTTPTemporaryRedirect
 from aiohttp.web_request import Request
 from aiohttp_security import forget, remember
-from dynaconf import settings
+from its_on.config import settings
 from marshmallow.exceptions import ValidationError
 from multidict import MultiDictProxy
 from yarl import URL

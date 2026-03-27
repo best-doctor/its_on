@@ -6,7 +6,7 @@ from aiocache import cached
 from aiohttp import web
 from aiohttp_apispec import request_schema, response_schema, docs
 from aiohttp_cors import CorsViewMixin
-from dynaconf import settings
+from its_on.config import settings
 from sqlalchemy.sql import Select
 from typing import Dict, List, Optional
 

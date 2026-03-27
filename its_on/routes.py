@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from aiohttp.web import Application
 from aiohttp_cors import CorsConfig
-from dynaconf import settings
+from its_on.config import settings
 
 from auth.views import LoginView, LogoutView, OauthViewForceHttps
 from its_on.views import SwitchFullListView, SwitchListView, SwitchSvgBadgeView
