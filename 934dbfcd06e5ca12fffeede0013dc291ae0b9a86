@@ -1,0 +1,25 @@
+pyproject.toml
+  e7f52252536752b3 9-28,64,67
+requirements.txt
+  e7f52252536752b3 4-39,43-66,84-90,94-126,148-151,172,176-178,209,223,243-253,257-267,291
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "934dbfcd06e5ca12fffeede0013dc291ae0b9a86",
+  "prompts": {
+    "e7f52252536752b3": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "50398c7f-7754-4071-932b-1835b59d7fa5",
+        "model": "claude-4.6-opus-high-thinking"
+      },
+      "human_author": "Vladislav Katolyk <v.katolyk@bestdoctor.ru>",
+      "messages": [],
+      "total_additions": 159,
+      "total_deletions": 648,
+      "accepted_lines": 155,
+      "overriden_lines": 0
+    }
+  }
+}
