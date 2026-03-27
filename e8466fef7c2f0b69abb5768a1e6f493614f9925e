@@ -1,0 +1,23 @@
+requirements_dev.txt
+  e7f52252536752b3 4-291
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "e8466fef7c2f0b69abb5768a1e6f493614f9925e",
+  "prompts": {
+    "e7f52252536752b3": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "50398c7f-7754-4071-932b-1835b59d7fa5",
+        "model": "claude-4.6-opus-high-thinking"
+      },
+      "human_author": "Vladislav Katolyk <v.katolyk@bestdoctor.ru>",
+      "messages": [],
+      "total_additions": 288,
+      "total_deletions": 0,
+      "accepted_lines": 288,
+      "overriden_lines": 0
+    }
+  }
+}
