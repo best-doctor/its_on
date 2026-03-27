@@ -4,7 +4,7 @@ import pytest
 from aiohttp.test_utils import make_mocked_request
 from aiohttp.web_exceptions import HTTPOk
 from freezegun import freeze_time
-from sqlalchemy import desc
+from sqlalchemy import desc, func, select
 
 from auth.models import users
 from its_on.models import switch_history, switches
@@ -260,7 +260,7 @@ async def test_switches_copy_existing_switch_foo(
 ):
     response = await client.post(f'/zbs/switches/copy{http_get_arguments}')
     async with db_conn_acquirer() as conn:
-        result = await conn.execute(switches.count())
+        result = await conn.execute(select(func.count()).select_from(switches))
         switches_count = await result.first()
         switches_count = switches_count[0]
         result = await conn.execute(switches.select().where(switches.c.name == 'switch7'))

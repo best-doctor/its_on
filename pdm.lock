@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default"]
+groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
 content_hash = "sha256:b9abe5654e44c37a47b12e1eca56df09822161d2196e32fcbf98638b6e18eace"
@@ -54,7 +54,7 @@ name = "aiohappyeyeballs"
 version = "2.6.1"
 requires_python = ">=3.9"
 summary = "Happy Eyeballs for asyncio"
-groups = ["default"]
+groups = ["default", "dev"]
 files = [
     {file = "aiohappyeyeballs-2.6.1-py3-none-any.whl", hash = "sha256:f349ba8f4b75cb25c99c5c2d84e997e485204d2902a9597802b0371f09331fb8"},
     {file = "aiohappyeyeballs-2.6.1.tar.gz", hash = "sha256:c3f9d0113123803ccadfdf3f0faa505bc78e6a72d1cc4806cbd719826e943558"},
@@ -65,7 +65,7 @@ name = "aiohttp"
 version = "3.13.3"
 requires_python = ">=3.9"
 summary = "Async http client/server framework (asyncio)"
-groups = ["default"]
+groups = ["default", "dev"]
 dependencies = [
     "aiohappyeyeballs>=2.5.0",
     "aiosignal>=1.4.0",
@@ -202,7 +202,7 @@ name = "aiosignal"
 version = "1.4.0"
 requires_python = ">=3.9"
 summary = "aiosignal: a list of registered asynchronous callbacks"
-groups = ["default"]
+groups = ["default", "dev"]
 dependencies = [
     "frozenlist>=1.1.0",
     "typing-extensions>=4.2; python_version < \"3.13\"",
@@ -273,10 +273,36 @@ name = "attrs"
 version = "26.1.0"
 requires_python = ">=3.9"
 summary = "Classes Without Boilerplate"
-groups = ["default"]
+groups = ["default", "dev"]
 files = [
     {file = "attrs-26.1.0-py3-none-any.whl", hash = "sha256:c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309"},
     {file = "attrs-26.1.0.tar.gz", hash = "sha256:d03ceb89cb322a8fd706d4fb91940737b6642aa36998fe130a9bc96c985eff32"},
+]
+
+[[package]]
+name = "beautifulsoup4"
+version = "4.14.3"
+requires_python = ">=3.7.0"
+summary = "Screen-scraping library"
+groups = ["dev"]
+dependencies = [
+    "soupsieve>=1.6.1",
+    "typing-extensions>=4.0.0",
+]
+files = [
+    {file = "beautifulsoup4-4.14.3-py3-none-any.whl", hash = "sha256:0918bfe44902e6ad8d57732ba310582e98da931428d231a5ecb9e7c703a735bb"},
+    {file = "beautifulsoup4-4.14.3.tar.gz", hash = "sha256:6292b1c5186d356bba669ef9f7f051757099565ad9ada5dd630bd9de5fa7fb86"},
+]
+
+[[package]]
+name = "certifi"
+version = "2026.2.25"
+requires_python = ">=3.7"
+summary = "Python package for providing Mozilla's CA Bundle."
+groups = ["dev"]
+files = [
+    {file = "certifi-2026.2.25-py3-none-any.whl", hash = "sha256:027692e4402ad994f1c42e52a4997a9763c646b73e4096e4d5d6db8af1d6f0fa"},
+    {file = "certifi-2026.2.25.tar.gz", hash = "sha256:e887ab5cee78ea814d3472169153c2d12cd43b14bd03329a39a9c6e2e80bfba7"},
 ]
 
 [[package]]
@@ -307,11 +333,38 @@ files = [
 ]
 
 [[package]]
+name = "charset-normalizer"
+version = "3.4.6"
+requires_python = ">=3.7"
+summary = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
+groups = ["dev"]
+files = [
+    {file = "charset_normalizer-3.4.6-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:82060f995ab5003a2d6e0f4ad29065b7672b6593c8c63559beefe5b443242c3e"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:60c74963d8350241a79cb8feea80e54d518f72c26db618862a8f53e5023deaf9"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:f6e4333fb15c83f7d1482a76d45a0818897b3d33f00efd215528ff7c51b8e35d"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-manylinux2014_s390x.manylinux_2_17_s390x.manylinux_2_28_s390x.whl", hash = "sha256:bc72863f4d9aba2e8fd9085e63548a324ba706d2ea2c83b260da08a59b9482de"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9cc4fc6c196d6a8b76629a70ddfcd4635a6898756e2d9cac5565cf0654605d73"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-manylinux_2_31_armv7l.whl", hash = "sha256:0c173ce3a681f309f31b87125fecec7a5d1347261ea11ebbb856fa6006b23c8c"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:c907cdc8109f6c619e6254212e794d6548373cc40e1ec75e6e3823d9135d29cc"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:404a1e552cf5b675a87f0651f8b79f5f1e6fd100ee88dc612f89aa16abd4486f"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-musllinux_1_2_armv7l.whl", hash = "sha256:e3c701e954abf6fc03a49f7c579cc80c2c6cc52525340ca3186c41d3f33482ef"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-musllinux_1_2_ppc64le.whl", hash = "sha256:7a6967aaf043bceabab5412ed6bd6bd26603dae84d5cb75bf8d9a74a4959d398"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-musllinux_1_2_riscv64.whl", hash = "sha256:5feb91325bbceade6afab43eb3b508c63ee53579fe896c77137ded51c6b6958e"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-musllinux_1_2_s390x.whl", hash = "sha256:f820f24b09e3e779fe84c3c456cb4108a7aa639b0d1f02c28046e11bfcd088ed"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:b35b200d6a71b9839a46b9b7fff66b6638bb52fc9658aa58796b0326595d3021"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-win32.whl", hash = "sha256:9ca4c0b502ab399ef89248a2c84c54954f77a070f28e546a85e91da627d1301e"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-win_amd64.whl", hash = "sha256:a9e68c9d88823b274cf1e72f28cb5dc89c990edf430b0bfd3e2fb0785bfeabf4"},
+    {file = "charset_normalizer-3.4.6-cp311-cp311-win_arm64.whl", hash = "sha256:97d0235baafca5f2b09cf332cc275f021e694e8362c6bb9c96fc9a0eb74fc316"},
+    {file = "charset_normalizer-3.4.6-py3-none-any.whl", hash = "sha256:947cf925bc916d90adba35a64c82aace04fa39b46b52d4630ece166655905a69"},
+    {file = "charset_normalizer-3.4.6.tar.gz", hash = "sha256:1ae6b62897110aa7c79ea2f5dd38d1abca6db663687c0b1ad9aed6f6bae3d9d6"},
+]
+
+[[package]]
 name = "click"
 version = "8.3.1"
 requires_python = ">=3.10"
 summary = "Composable command line interface toolkit"
-groups = ["default"]
+groups = ["default", "dev"]
 dependencies = [
     "colorama; platform_system == \"Windows\"",
 ]
@@ -325,11 +378,37 @@ name = "colorama"
 version = "0.4.6"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 summary = "Cross-platform colored terminal text."
-groups = ["default"]
-marker = "platform_system == \"Windows\""
+groups = ["default", "dev"]
+marker = "platform_system == \"Windows\" or sys_platform == \"win32\""
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
+]
+
+[[package]]
+name = "coverage"
+version = "7.13.5"
+requires_python = ">=3.10"
+summary = "Code coverage measurement for Python"
+groups = ["dev"]
+files = [
+    {file = "coverage-7.13.5-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:66a80c616f80181f4d643b0f9e709d97bcea413ecd9631e1dedc7401c8e6695d"},
+    {file = "coverage-7.13.5-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:145ede53ccbafb297c1c9287f788d1bc3efd6c900da23bf6931b09eafc931587"},
+    {file = "coverage-7.13.5-cp311-cp311-manylinux1_i686.manylinux_2_28_i686.manylinux_2_5_i686.whl", hash = "sha256:0672854dc733c342fa3e957e0605256d2bf5934feeac328da9e0b5449634a642"},
+    {file = "coverage-7.13.5-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:ec10e2a42b41c923c2209b846126c6582db5e43a33157e9870ba9fb70dc7854b"},
+    {file = "coverage-7.13.5-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:be3d4bbad9d4b037791794ddeedd7d64a56f5933a2c1373e18e9e568b9141686"},
+    {file = "coverage-7.13.5-cp311-cp311-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:4d2afbc5cc54d286bfb54541aa50b64cdb07a718227168c87b9e2fb8f25e1743"},
+    {file = "coverage-7.13.5-cp311-cp311-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:3ad050321264c49c2fa67bb599100456fc51d004b82534f379d16445da40fb75"},
+    {file = "coverage-7.13.5-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:7300c8a6d13335b29bb76d7651c66af6bd8658517c43499f110ddc6717bfc209"},
+    {file = "coverage-7.13.5-cp311-cp311-musllinux_1_2_i686.whl", hash = "sha256:eb07647a5738b89baab047f14edd18ded523de60f3b30e75c2acc826f79c839a"},
+    {file = "coverage-7.13.5-cp311-cp311-musllinux_1_2_ppc64le.whl", hash = "sha256:9adb6688e3b53adffefd4a52d72cbd8b02602bfb8f74dcd862337182fd4d1a4e"},
+    {file = "coverage-7.13.5-cp311-cp311-musllinux_1_2_riscv64.whl", hash = "sha256:7c8d4bc913dd70b93488d6c496c77f3aff5ea99a07e36a18f865bca55adef8bd"},
+    {file = "coverage-7.13.5-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:0e3c426ffc4cd952f54ee9ffbdd10345709ecc78a3ecfd796a57236bfad0b9b8"},
+    {file = "coverage-7.13.5-cp311-cp311-win32.whl", hash = "sha256:259b69bb83ad9894c4b25be2528139eecba9a82646ebdda2d9db1ba28424a6bf"},
+    {file = "coverage-7.13.5-cp311-cp311-win_amd64.whl", hash = "sha256:258354455f4e86e3e9d0d17571d522e13b4e1e19bf0f8596bcf9476d61e7d8a9"},
+    {file = "coverage-7.13.5-cp311-cp311-win_arm64.whl", hash = "sha256:bff95879c33ec8da99fc9b6fe345ddb5be6414b41d6d1ad1c8f188d26f36e028"},
+    {file = "coverage-7.13.5-py3-none-any.whl", hash = "sha256:34b02417cf070e173989b3db962f7ed56d2f644307b2cf9d5a0f258e13084a61"},
+    {file = "coverage-7.13.5.tar.gz", hash = "sha256:c81f6515c4c40141f83f502b07bbfa5c240ba25bbe73da7b33f1e5b6120ff179"},
 ]
 
 [[package]]
@@ -364,11 +443,296 @@ files = [
 ]
 
 [[package]]
+name = "esprima"
+version = "4.0.1"
+summary = "ECMAScript parsing infrastructure for multipurpose analysis in Python"
+groups = ["dev"]
+files = [
+    {file = "esprima-4.0.1.tar.gz", hash = "sha256:08db1a876d3c2910db9cfaeb83108193af5411fc3a3a66ebefacd390d21323ee"},
+]
+
+[[package]]
+name = "factory-boy"
+version = "3.2.0"
+requires_python = ">=3.6"
+summary = "A versatile test fixtures replacement based on thoughtbot's factory_bot for Ruby."
+groups = ["dev"]
+dependencies = [
+    "Faker>=0.7.0",
+]
+files = [
+    {file = "factory_boy-3.2.0-py2.py3-none-any.whl", hash = "sha256:1d3db4b44b8c8c54cdd8b83ae4bdb9aeb121e464400035f1f03ae0e1eade56a4"},
+    {file = "factory_boy-3.2.0.tar.gz", hash = "sha256:401cc00ff339a022f84d64a4339503d1689e8263a4478d876e58a3295b155c5b"},
+]
+
+[[package]]
+name = "faker"
+version = "40.11.1"
+requires_python = ">=3.10"
+summary = "Faker is a Python package that generates fake data for you."
+groups = ["dev"]
+dependencies = [
+    "tzdata; platform_system == \"Windows\"",
+]
+files = [
+    {file = "faker-40.11.1-py3-none-any.whl", hash = "sha256:3af3a213ba8fb33ce6ba2af7aef2ac91363dae35d0cec0b2b0337d189e5bee2a"},
+    {file = "faker-40.11.1.tar.gz", hash = "sha256:61965046e79e8cfde4337d243eac04c0d31481a7c010033141103b43f603100c"},
+]
+
+[[package]]
+name = "flake8"
+version = "3.9.0"
+requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
+summary = "the modular source code checker: pep8 pyflakes and co"
+groups = ["dev"]
+dependencies = [
+    "configparser; python_version < \"3.2\"",
+    "enum34; python_version < \"3.4\"",
+    "functools32; python_version < \"3.2\"",
+    "importlib-metadata; python_version < \"3.8\"",
+    "mccabe<0.7.0,>=0.6.0",
+    "pycodestyle<2.8.0,>=2.7.0",
+    "pyflakes<2.4.0,>=2.3.0",
+    "typing; python_version < \"3.5\"",
+]
+files = [
+    {file = "flake8-3.9.0-py2.py3-none-any.whl", hash = "sha256:12d05ab02614b6aee8df7c36b97d1a3b2372761222b19b58621355e82acddcff"},
+    {file = "flake8-3.9.0.tar.gz", hash = "sha256:78873e372b12b093da7b5e5ed302e8ad9e988b38b063b61ad937f26ca58fc5f0"},
+]
+
+[[package]]
+name = "flake8-annotations-complexity"
+version = "0.0.6"
+summary = "A flake8 extension that checks for type annotations complexity"
+groups = ["dev"]
+dependencies = [
+    "setuptools",
+]
+files = [
+    {file = "flake8_annotations_complexity-0.0.6-py3-none-any.whl", hash = "sha256:078a84e8269ef82c4c9de5198638e9a91a2089307d4e559666464a87b528ea69"},
+    {file = "flake8_annotations_complexity-0.0.6.tar.gz", hash = "sha256:32dfc8f42df3b16fb4fbc66a287433e176ae1bd39894d9aec898cfc70aef25cb"},
+]
+
+[[package]]
+name = "flake8-blind-except"
+version = "0.1.1"
+summary = "A flake8 extension that checks for blind except: statements"
+groups = ["dev"]
+dependencies = [
+    "setuptools",
+]
+files = [
+    {file = "flake8-blind-except-0.1.1.tar.gz", hash = "sha256:aca3356633825544cec51997260fe31a8f24a1a2795ce8e81696b9916745e599"},
+]
+
+[[package]]
+name = "flake8-broken-line"
+version = "0.1.0"
+requires_python = ">=3.6,<4.0"
+summary = "Flake8 plugin to forbid backslashes for line breaks"
+groups = ["dev"]
+dependencies = [
+    "flake8<4.0,>=3.5",
+]
+files = [
+    {file = "flake8-broken-line-0.1.0.tar.gz", hash = "sha256:84147d38a1562d011a8de0bb1de299a715f7dea1a7332bd6946db04a1e4c3ddd"},
+    {file = "flake8_broken_line-0.1.0-py3-none-any.whl", hash = "sha256:3eb823f48b4ec67735ebbe8e282319826c8e8be7dfc185c9e259228084c21de2"},
+]
+
+[[package]]
+name = "flake8-bugbear"
+version = "19.3.0"
+requires_python = ">=3.5"
+summary = "A plugin for flake8 finding likely bugs and design problems in your program. Contains warnings that don't belong in pyflakes and pycodestyle."
+groups = ["dev"]
+dependencies = [
+    "attrs",
+    "flake8>=3.0.0",
+]
+files = [
+    {file = "flake8-bugbear-19.3.0.tar.gz", hash = "sha256:5070774b668be92c4312e5ca82748ddf4ecaa7a24ff062662681bb745c7896eb"},
+]
+
+[[package]]
+name = "flake8-builtins"
+version = "1.4.1"
+summary = "Check for python builtins being used as variables or parameters."
+groups = ["dev"]
+dependencies = [
+    "flake8",
+]
+files = [
+    {file = "flake8-builtins-1.4.1.tar.gz", hash = "sha256:cd7b1b7fec4905386a3643b59f9ca8e305768da14a49a7efb31fe9364f33cd04"},
+    {file = "flake8_builtins-1.4.1-py2.py3-none-any.whl", hash = "sha256:8d806360767947c0035feada4ddef3ede32f0a586ef457e62d811b8456ad9a51"},
+]
+
+[[package]]
+name = "flake8-class-attributes-order"
+version = "0.1.2"
+requires_python = ">=3.6"
+summary = "A flake8 extension that checks classes attributes order"
+groups = ["dev"]
+dependencies = [
+    "flake8",
+    "setuptools",
+    "typing-extensions",
+]
+files = [
+    {file = "flake8_class_attributes_order-0.1.2.tar.gz", hash = "sha256:48c68828590078eba062782c611f9540fd7c0fb8450dc4576b9cb6e826d9fdcf"},
+]
+
+[[package]]
+name = "flake8-commas"
+version = "2.0.0"
+summary = "Flake8 lint for trailing commas."
+groups = ["dev"]
+dependencies = [
+    "flake8<4.0.0,>=2",
+]
+files = [
+    {file = "flake8-commas-2.0.0.tar.gz", hash = "sha256:d3005899466f51380387df7151fb59afec666a0f4f4a2c6a8995b975de0f44b7"},
+    {file = "flake8_commas-2.0.0-py2.py3-none-any.whl", hash = "sha256:ee2141a3495ef9789a3894ed8802d03eff1eaaf98ce6d8653a7c573ef101935e"},
+]
+
+[[package]]
+name = "flake8-comprehensions"
+version = "2.1.0"
+requires_python = ">=3.4"
+summary = "A flake8 plugin to help you write better list/set/dict comprehensions."
+groups = ["dev"]
+dependencies = [
+    "flake8!=3.2.0",
+]
+files = [
+    {file = "flake8-comprehensions-2.1.0.tar.gz", hash = "sha256:f0b61d983d608790abf3664830d68efd3412265c2d10f6a4ba1a353274dbeb64"},
+    {file = "flake8_comprehensions-2.1.0-py3-none-any.whl", hash = "sha256:35f826956e87f230415cde9c3b8b454e785736cf5ff0be551c441b41b937f699"},
+]
+
+[[package]]
+name = "flake8-debugger"
+version = "3.1.0"
+summary = "ipdb/pdb statement checker plugin for flake8"
+groups = ["dev"]
+dependencies = [
+    "flake8>=1.5",
+    "pycodestyle",
+]
+files = [
+    {file = "flake8-debugger-3.1.0.tar.gz", hash = "sha256:be4fb88de3ee8f6dd5053a2d347e2c0a2b54bab6733a2280bb20ebd3c4ca1d97"},
+]
+
+[[package]]
+name = "flake8-docstrings"
+version = "1.3.0"
+summary = "Extension for flake8 which uses pydocstyle to check docstrings"
+groups = ["dev"]
+dependencies = [
+    "flake8",
+    "flake8-polyfill",
+    "pydocstyle>=2.1",
+]
+files = [
+    {file = "flake8-docstrings-1.3.0.tar.gz", hash = "sha256:4e0ce1476b64e6291520e5570cf12b05016dd4e8ae454b8a8a9a48bc5f84e1cd"},
+    {file = "flake8_docstrings-1.3.0-py2.py3-none-any.whl", hash = "sha256:8436396b5ecad51a122a2c99ba26e5b4e623bf6e913b0fea0cb6c2c4050f91eb"},
+]
+
+[[package]]
+name = "flake8-polyfill"
+version = "1.0.2"
+summary = "Polyfill package for Flake8 plugins"
+groups = ["dev"]
+dependencies = [
+    "flake8",
+]
+files = [
+    {file = "flake8-polyfill-1.0.2.tar.gz", hash = "sha256:e44b087597f6da52ec6393a709e7108b2905317d0c0b744cdca6208e670d8eda"},
+    {file = "flake8_polyfill-1.0.2-py2.py3-none-any.whl", hash = "sha256:12be6a34ee3ab795b19ca73505e7b55826d5f6ad7230d31b18e106400169b9e9"},
+]
+
+[[package]]
+name = "flake8-print"
+version = "3.1.0"
+summary = "print statement checker plugin for flake8"
+groups = ["dev"]
+dependencies = [
+    "flake8>=1.5",
+    "pycodestyle",
+    "six",
+]
+files = [
+    {file = "flake8-print-3.1.0.tar.gz", hash = "sha256:5010e6c138b63b62400da4b06afa33becc5e08bd1fcce9af3752445cf3342f54"},
+]
+
+[[package]]
+name = "flake8-quotes"
+version = "3.0.0"
+summary = "Flake8 lint for quotes."
+groups = ["dev"]
+dependencies = [
+    "flake8",
+]
+files = [
+    {file = "flake8-quotes-3.0.0.tar.gz", hash = "sha256:39762e16a1ea6b7f0e998a04be14d71b55e74de09b5026bd41907c996a8c82cf"},
+]
+
+[[package]]
+name = "flake8-string-format"
+version = "0.2.3"
+summary = "string format checker, plugin for flake8"
+groups = ["dev"]
+dependencies = [
+    "flake8",
+]
+files = [
+    {file = "flake8-string-format-0.2.3.tar.gz", hash = "sha256:774d56103d9242ed968897455ef49b7d6de272000cfa83de5814273a868832f1"},
+    {file = "flake8_string_format-0.2.3-py2.py3-none-any.whl", hash = "sha256:68ea72a1a5b75e7018cae44d14f32473c798cf73d75cbaed86c6a9a907b770b2"},
+]
+
+[[package]]
+name = "flake8-todo"
+version = "0.7"
+summary = "TODO notes checker, plugin for flake8"
+groups = ["dev"]
+dependencies = [
+    "pycodestyle<3.0.0,>=2.0.0",
+]
+files = [
+    {file = "flake8-todo-0.7.tar.gz", hash = "sha256:6e4c5491ff838c06fe5a771b0e95ee15fc005ca57196011011280fc834a85915"},
+]
+
+[[package]]
+name = "flake8-variables-names"
+version = "0.0.2"
+summary = "A flake8 extension that helps to make more readable variables names"
+groups = ["dev"]
+dependencies = [
+    "setuptools",
+]
+files = [
+    {file = "flake8_variables_names-0.0.2.tar.gz", hash = "sha256:f9ee2edf0892a73fff33ef3eda37a7182cb91cd4c3a19a592ad432b68b261927"},
+]
+
+[[package]]
+name = "freezegun"
+version = "0.3.15"
+requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+summary = "Let your Python tests travel through time"
+groups = ["dev"]
+dependencies = [
+    "python-dateutil!=2.0,>=1.0",
+    "six",
+]
+files = [
+    {file = "freezegun-0.3.15-py2.py3-none-any.whl", hash = "sha256:82c757a05b7c7ca3e176bfebd7d6779fd9139c7cb4ef969c38a28d74deef89b2"},
+    {file = "freezegun-0.3.15.tar.gz", hash = "sha256:e2062f2c7f95cc276a834c22f1a17179467176b624cc6f936e8bc3be5535ad1b"},
+]
+
+[[package]]
 name = "frozenlist"
 version = "1.8.0"
 requires_python = ">=3.9"
 summary = "A list-like structure which implements collections.abc.MutableSequence"
-groups = ["default"]
+groups = ["default", "dev"]
 files = [
     {file = "frozenlist-1.8.0-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:09474e9831bc2b2199fad6da3c14c7b0fbdd377cce9d3d77131be28906cb7d84"},
     {file = "frozenlist-1.8.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:17c883ab0ab67200b5f964d2b9ed6b00971917d5d8a92df149dc2c9779208ee9"},
@@ -429,10 +793,21 @@ name = "idna"
 version = "3.11"
 requires_python = ">=3.8"
 summary = "Internationalized Domain Names in Applications (IDNA)"
-groups = ["default"]
+groups = ["default", "dev"]
 files = [
     {file = "idna-3.11-py3-none-any.whl", hash = "sha256:771a87f49d9defaf64091e6e6fe9c18d4833f140bd19464795bc32d966ca37ea"},
     {file = "idna-3.11.tar.gz", hash = "sha256:795dafcc9c04ed0c1fb032c2aa73654d8e8c5023a7df64a53f39190ada629902"},
+]
+
+[[package]]
+name = "iniconfig"
+version = "2.3.0"
+requires_python = ">=3.10"
+summary = "brain-dead simple config-ini parsing"
+groups = ["dev"]
+files = [
+    {file = "iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12"},
+    {file = "iniconfig-2.3.0.tar.gz", hash = "sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730"},
 ]
 
 [[package]]
@@ -461,6 +836,17 @@ dependencies = [
 files = [
     {file = "mako-1.3.10-py3-none-any.whl", hash = "sha256:baef24a52fc4fc514a0887ac600f9f1cff3d82c61d4d700a1fa84d597b88db59"},
     {file = "mako-1.3.10.tar.gz", hash = "sha256:99579a6f39583fa7e5630a28c3c1f440e4e97a414b80372649c0ce338da2ea28"},
+]
+
+[[package]]
+name = "markdown"
+version = "3.10.2"
+requires_python = ">=3.10"
+summary = "Python implementation of John Gruber's Markdown."
+groups = ["dev"]
+files = [
+    {file = "markdown-3.10.2-py3-none-any.whl", hash = "sha256:e91464b71ae3ee7afd3017d9f358ef0baf158fd9a298db92f1d4761133824c36"},
+    {file = "markdown-3.10.2.tar.gz", hash = "sha256:994d51325d25ad8aa7ce4ebaec003febcce822c3f8c911e3b17c52f7f589f950"},
 ]
 
 [[package]]
@@ -499,11 +885,21 @@ files = [
 ]
 
 [[package]]
+name = "mccabe"
+version = "0.6.1"
+summary = "McCabe checker, plugin for flake8"
+groups = ["dev"]
+files = [
+    {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
+    {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
+]
+
+[[package]]
 name = "multidict"
 version = "6.7.1"
 requires_python = ">=3.9"
 summary = "multidict implementation"
-groups = ["default"]
+groups = ["default", "dev"]
 dependencies = [
     "typing-extensions>=4.1.0; python_version < \"3.11\"",
 ]
@@ -531,11 +927,40 @@ files = [
 ]
 
 [[package]]
+name = "mypy"
+version = "0.812"
+requires_python = ">=3.5"
+summary = "Optional static typing for Python"
+groups = ["dev"]
+dependencies = [
+    "mypy-extensions<0.5.0,>=0.4.3",
+    "typed-ast<1.5.0,>=1.4.0",
+    "typing-extensions>=3.7.4",
+]
+files = [
+    {file = "mypy-0.812-py3-none-any.whl", hash = "sha256:2f9b3407c58347a452fc0736861593e105139b905cca7d097e413453a1d650b4"},
+    {file = "mypy-0.812.tar.gz", hash = "sha256:cd07039aa5df222037005b08fbbfd69b3ab0b0bd7a07d7906de75ae52c4e3119"},
+]
+
+[[package]]
+name = "mypy-extensions"
+version = "0.4.4"
+requires_python = ">=2.7"
+summary = "Experimental type system extensions for programs checked with the mypy typechecker."
+groups = ["dev"]
+dependencies = [
+    "typing>=3.5.3; python_version < \"3.5\"",
+]
+files = [
+    {file = "mypy_extensions-0.4.4.tar.gz", hash = "sha256:c8b707883a96efe9b4bb3aaf0dcc07e7e217d7d8368eec4db4049ee9e142f4fd"},
+]
+
+[[package]]
 name = "packaging"
 version = "26.0"
 requires_python = ">=3.8"
 summary = "Core utilities for Python packages"
-groups = ["default"]
+groups = ["default", "dev"]
 files = [
     {file = "packaging-26.0-py3-none-any.whl", hash = "sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529"},
     {file = "packaging-26.0.tar.gz", hash = "sha256:00243ae351a257117b6a241061796684b084ed1c516a08c48a3f7e147a9d80b4"},
@@ -552,11 +977,35 @@ files = [
 ]
 
 [[package]]
+name = "pep8-naming"
+version = "0.7.0"
+summary = "Check PEP-8 naming conventions, plugin for flake8"
+groups = ["dev"]
+dependencies = [
+    "flake8-polyfill<2,>=1.0.2",
+]
+files = [
+    {file = "pep8-naming-0.7.0.tar.gz", hash = "sha256:624258e0dd06ef32a9daf3c36cc925ff7314da7233209c5b01f7e5cdd3c34826"},
+    {file = "pep8_naming-0.7.0-py2.py3-none-any.whl", hash = "sha256:360308d2c5d2fff8031c1b284820fbdb27a63274c0c1a8ce884d631836da4bdd"},
+]
+
+[[package]]
+name = "pluggy"
+version = "1.6.0"
+requires_python = ">=3.9"
+summary = "plugin and hook calling mechanisms for python"
+groups = ["dev"]
+files = [
+    {file = "pluggy-1.6.0-py3-none-any.whl", hash = "sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746"},
+    {file = "pluggy-1.6.0.tar.gz", hash = "sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3"},
+]
+
+[[package]]
 name = "propcache"
 version = "0.4.1"
 requires_python = ">=3.9"
 summary = "Accelerated property cache"
-groups = ["default"]
+groups = ["default", "dev"]
 files = [
     {file = "propcache-0.4.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:60a8fda9644b7dfd5dece8c61d8a85e271cb958075bfc4e01083c148b61a7caf"},
     {file = "propcache-0.4.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:c30b53e7e6bda1d547cabb47c825f3843a0a1a42b0496087bb58d8fedf9f41b5"},
@@ -625,6 +1074,17 @@ files = [
 ]
 
 [[package]]
+name = "pycodestyle"
+version = "2.7.0"
+requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+summary = "Python style guide checker"
+groups = ["dev"]
+files = [
+    {file = "pycodestyle-2.7.0-py2.py3-none-any.whl", hash = "sha256:514f76d918fcc0b55c6680472f0a37970994e07bbb80725808c17089be302068"},
+    {file = "pycodestyle-2.7.0.tar.gz", hash = "sha256:c389c1d06bf7904078ca03399a4816f974a1d590090fecea0c63ec26ebaf1cef"},
+]
+
+[[package]]
 name = "pycparser"
 version = "3.0"
 requires_python = ">=3.10"
@@ -637,6 +1097,119 @@ files = [
 ]
 
 [[package]]
+name = "pydocstyle"
+version = "3.0.0"
+summary = "Python docstring style checker"
+groups = ["dev"]
+dependencies = [
+    "six",
+    "snowballstemmer",
+]
+files = [
+    {file = "pydocstyle-3.0.0-py3-none-any.whl", hash = "sha256:ed79d4ec5e92655eccc21eb0c6cf512e69512b4a97d215ace46d17e4990f2039"},
+    {file = "pydocstyle-3.0.0.tar.gz", hash = "sha256:5741c85e408f9e0ddf873611085e819b809fca90b619f5fd7f34bd4959da3dd4"},
+]
+
+[[package]]
+name = "pyflakes"
+version = "2.3.1"
+requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+summary = "passive checker of Python programs"
+groups = ["dev"]
+files = [
+    {file = "pyflakes-2.3.1-py2.py3-none-any.whl", hash = "sha256:7893783d01b8a89811dd72d7dfd4d84ff098e5eed95cfa8905b22bbffe52efc3"},
+    {file = "pyflakes-2.3.1.tar.gz", hash = "sha256:f5bc8ecabc05bb9d291eb5203d6810b49040f6ff446a756326104746cc00c1db"},
+]
+
+[[package]]
+name = "pygments"
+version = "2.19.2"
+requires_python = ">=3.8"
+summary = "Pygments is a syntax highlighting package written in Python."
+groups = ["dev"]
+files = [
+    {file = "pygments-2.19.2-py3-none-any.whl", hash = "sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b"},
+    {file = "pygments-2.19.2.tar.gz", hash = "sha256:636cb2477cec7f8952536970bc533bc43743542f70392ae026374600add5b887"},
+]
+
+[[package]]
+name = "pytest"
+version = "9.0.2"
+requires_python = ">=3.10"
+summary = "pytest: simple powerful testing with Python"
+groups = ["dev"]
+dependencies = [
+    "colorama>=0.4; sys_platform == \"win32\"",
+    "exceptiongroup>=1; python_version < \"3.11\"",
+    "iniconfig>=1.0.1",
+    "packaging>=22",
+    "pluggy<2,>=1.5",
+    "pygments>=2.7.2",
+    "tomli>=1; python_version < \"3.11\"",
+]
+files = [
+    {file = "pytest-9.0.2-py3-none-any.whl", hash = "sha256:711ffd45bf766d5264d487b917733b453d917afd2b0ad65223959f59089f875b"},
+    {file = "pytest-9.0.2.tar.gz", hash = "sha256:75186651a92bd89611d1d9fc20f0b4345fd827c41ccd5c299a868a05d70edf11"},
+]
+
+[[package]]
+name = "pytest-aiohttp"
+version = "0.3.0"
+summary = "pytest plugin for aiohttp support"
+groups = ["dev"]
+dependencies = [
+    "aiohttp>=2.3.5",
+    "pytest",
+]
+files = [
+    {file = "pytest-aiohttp-0.3.0.tar.gz", hash = "sha256:c929854339637977375838703b62fef63528598bc0a9d451639eba95f4aaa44f"},
+    {file = "pytest_aiohttp-0.3.0-py3-none-any.whl", hash = "sha256:0b9b660b146a65e1313e2083d0d2e1f63047797354af9a28d6b7c9f0726fa33d"},
+]
+
+[[package]]
+name = "pytest-cov"
+version = "2.8.1"
+requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+summary = "Pytest plugin for measuring coverage."
+groups = ["dev"]
+dependencies = [
+    "coverage>=4.4",
+    "pytest>=3.6",
+]
+files = [
+    {file = "pytest-cov-2.8.1.tar.gz", hash = "sha256:cc6742d8bac45070217169f5f72ceee1e0e55b0221f54bcf24845972d3a47f2b"},
+    {file = "pytest_cov-2.8.1-py2.py3-none-any.whl", hash = "sha256:cdbdef4f870408ebdbfeb44e63e07eb18bb4619fae852f6e760645fa36172626"},
+]
+
+[[package]]
+name = "pytest-freezegun"
+version = "0.4.2"
+summary = "Wrap tests with fixtures in freeze_time"
+groups = ["dev"]
+dependencies = [
+    "freezegun>0.3",
+    "pytest>=3.0.0",
+]
+files = [
+    {file = "pytest-freezegun-0.4.2.zip", hash = "sha256:19c82d5633751bf3ec92caa481fb5cffaac1787bd485f0df6436fd6242176949"},
+    {file = "pytest_freezegun-0.4.2-py2.py3-none-any.whl", hash = "sha256:5318a6bfb8ba4b709c8471c94d0033113877b3ee02da5bfcd917c1889cde99a7"},
+]
+
+[[package]]
+name = "pytest-mock"
+version = "3.1.0"
+requires_python = ">=3.5"
+summary = "Thin-wrapper around the mock package for easier use with pytest"
+groups = ["dev"]
+dependencies = [
+    "pytest>=2.7",
+]
+files = [
+    {file = "pytest-mock-3.1.0.tar.gz", hash = "sha256:ce610831cedeff5331f4e2fc453a5dd65384303f680ab34bee2c6533855b431c"},
+    {file = "pytest_mock-3.1.0-py2.py3-none-any.whl", hash = "sha256:997729451dfc36b851a9accf675488c7020beccda15e11c75632ee3d1b1ccd71"},
+]
+
+[[package]]
 name = "python-box"
 version = "3.4.6"
 summary = "Advanced Python dictionaries with dot notation access"
@@ -644,6 +1217,20 @@ groups = ["default"]
 files = [
     {file = "python-box-3.4.6.tar.gz", hash = "sha256:694a7555e3ff9fbbce734bbaef3aad92b8e4ed0659d3ed04d56b6a0a0eff26a9"},
     {file = "python_box-3.4.6-py2.py3-none-any.whl", hash = "sha256:a71d3dc9dbaa34c8597d3517c89a8041bd62fa875f23c0f3dad55e1958e3ce10"},
+]
+
+[[package]]
+name = "python-dateutil"
+version = "2.9.0.post0"
+requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+summary = "Extensions to the standard Python datetime module"
+groups = ["dev"]
+dependencies = [
+    "six>=1.5",
+]
+files = [
+    {file = "python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3"},
+    {file = "python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"},
 ]
 
 [[package]]
@@ -691,6 +1278,101 @@ files = [
 ]
 
 [[package]]
+name = "requests"
+version = "2.33.0"
+requires_python = ">=3.10"
+summary = "Python HTTP for Humans."
+groups = ["dev"]
+dependencies = [
+    "certifi>=2023.5.7",
+    "charset-normalizer<4,>=2",
+    "idna<4,>=2.5",
+    "urllib3<3,>=1.26",
+]
+files = [
+    {file = "requests-2.33.0-py3-none-any.whl", hash = "sha256:3324635456fa185245e24865e810cecec7b4caf933d7eb133dcde67d48cee69b"},
+    {file = "requests-2.33.0.tar.gz", hash = "sha256:c7ebc5e8b0f21837386ad0e1c8fe8b829fa5f544d8df3b2253bff14ef29d7652"},
+]
+
+[[package]]
+name = "rozental-as-a-service"
+version = "1.1.2"
+summary = "Package to find typos in russian text."
+groups = ["dev"]
+dependencies = [
+    "Markdown>=3.1.1",
+    "beautifulsoup4>=4.8.0",
+    "esprima==4.0.1",
+    "mypy-extensions>=0.4.1",
+    "requests>=2.22.0",
+    "sentry-sdk>=0.14.3",
+    "setuptools",
+    "tabulate>=0.8",
+]
+files = [
+    {file = "rozental_as_a_service-1.1.2.tar.gz", hash = "sha256:365dc7febc3d2d647390c9740df4049ece855f70405b9d3cd98764cafa519ef4"},
+]
+
+[[package]]
+name = "sentry-sdk"
+version = "2.56.0"
+requires_python = ">=3.6"
+summary = "Python client for Sentry (https://sentry.io)"
+groups = ["dev"]
+dependencies = [
+    "certifi",
+    "urllib3>=1.26.11",
+]
+files = [
+    {file = "sentry_sdk-2.56.0-py2.py3-none-any.whl", hash = "sha256:5afafb744ceb91d22f4cc650c6bd048ac6af5f7412dcc6c59305a2e36f4dbc02"},
+    {file = "sentry_sdk-2.56.0.tar.gz", hash = "sha256:fdab72030b69625665b2eeb9738bdde748ad254e8073085a0ce95382678e8168"},
+]
+
+[[package]]
+name = "setuptools"
+version = "82.0.1"
+requires_python = ">=3.9"
+summary = "Most extensible Python build backend with support for C/C++ extension modules"
+groups = ["dev"]
+files = [
+    {file = "setuptools-82.0.1-py3-none-any.whl", hash = "sha256:a59e362652f08dcd477c78bb6e7bd9d80a7995bc73ce773050228a348ce2e5bb"},
+    {file = "setuptools-82.0.1.tar.gz", hash = "sha256:7d872682c5d01cfde07da7bccc7b65469d3dca203318515ada1de5eda35efbf9"},
+]
+
+[[package]]
+name = "six"
+version = "1.17.0"
+requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+summary = "Python 2 and 3 compatibility utilities"
+groups = ["dev"]
+files = [
+    {file = "six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"},
+    {file = "six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81"},
+]
+
+[[package]]
+name = "snowballstemmer"
+version = "3.0.1"
+requires_python = "!=3.0.*,!=3.1.*,!=3.2.*"
+summary = "This package provides 32 stemmers for 30 languages generated from Snowball algorithms."
+groups = ["dev"]
+files = [
+    {file = "snowballstemmer-3.0.1-py3-none-any.whl", hash = "sha256:6cd7b3897da8d6c9ffb968a6781fa6532dce9c3618a4b127d920dab764a19064"},
+    {file = "snowballstemmer-3.0.1.tar.gz", hash = "sha256:6d5eeeec8e9f84d4d56b847692bacf79bc2c8e90c7f80ca4444ff8b6f2e52895"},
+]
+
+[[package]]
+name = "soupsieve"
+version = "2.8.3"
+requires_python = ">=3.9"
+summary = "A modern CSS selector implementation for Beautiful Soup."
+groups = ["dev"]
+files = [
+    {file = "soupsieve-2.8.3-py3-none-any.whl", hash = "sha256:ed64f2ba4eebeab06cc4962affce381647455978ffc1e36bb79a545b91f45a95"},
+    {file = "soupsieve-2.8.3.tar.gz", hash = "sha256:3267f1eeea4251fb42728b6dfb746edc9acaffc4a45b27e19450b676586e8349"},
+]
+
+[[package]]
 name = "sqlalchemy"
 version = "1.4.54"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
@@ -710,6 +1392,17 @@ files = [
 ]
 
 [[package]]
+name = "tabulate"
+version = "0.10.0"
+requires_python = ">=3.10"
+summary = "Pretty-print tabular data"
+groups = ["dev"]
+files = [
+    {file = "tabulate-0.10.0-py3-none-any.whl", hash = "sha256:f0b0622e567335c8fabaaa659f1b33bcb6ddfe2e496071b743aa113f8774f2d3"},
+    {file = "tabulate-0.10.0.tar.gz", hash = "sha256:e2cfde8f79420f6deeffdeda9aaec3b6bc5abce947655d17ac662b126e48a60d"},
+]
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 requires_python = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
@@ -721,14 +1414,46 @@ files = [
 ]
 
 [[package]]
+name = "typed-ast"
+version = "1.4.3"
+summary = "a fork of Python 2 and 3 ast modules with type comment support"
+groups = ["dev"]
+files = [
+    {file = "typed_ast-1.4.3.tar.gz", hash = "sha256:fb1bbeac803adea29cedd70781399c99138358c26d05fcbd23c13016b7f5ec65"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.15.0"
 requires_python = ">=3.9"
 summary = "Backported and Experimental Type Hints for Python 3.9+"
-groups = ["default"]
+groups = ["default", "dev"]
 files = [
     {file = "typing_extensions-4.15.0-py3-none-any.whl", hash = "sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"},
     {file = "typing_extensions-4.15.0.tar.gz", hash = "sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466"},
+]
+
+[[package]]
+name = "tzdata"
+version = "2025.3"
+requires_python = ">=2"
+summary = "Provider of IANA time zone data"
+groups = ["dev"]
+marker = "platform_system == \"Windows\""
+files = [
+    {file = "tzdata-2025.3-py2.py3-none-any.whl", hash = "sha256:06a47e5700f3081aab02b2e513160914ff0694bce9947d6b76ebd6bf57cfc5d1"},
+    {file = "tzdata-2025.3.tar.gz", hash = "sha256:de39c2ca5dc7b0344f2eba86f49d614019d29f060fc4ebc8a417896a620b56a7"},
+]
+
+[[package]]
+name = "urllib3"
+version = "2.6.3"
+requires_python = ">=3.9"
+summary = "HTTP library with thread-safe connection pooling, file post, and more."
+groups = ["dev"]
+files = [
+    {file = "urllib3-2.6.3-py3-none-any.whl", hash = "sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4"},
+    {file = "urllib3-2.6.3.tar.gz", hash = "sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed"},
 ]
 
 [[package]]
@@ -765,7 +1490,7 @@ name = "yarl"
 version = "1.23.0"
 requires_python = ">=3.10"
 summary = "Yet another URL library"
-groups = ["default"]
+groups = ["default", "dev"]
 dependencies = [
     "idna>=2.0",
     "multidict>=4.0",

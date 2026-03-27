@@ -60,9 +60,6 @@ staging:
 testing:
   environment: Test
   enable_switches_full_info_endpoint: true
-  database:
-    dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/test_its_on
-    superuser_dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/its_on
   cache_ttl: 0
   cors_allow_origin: ['http://localhost:8081']
   environment_notice:

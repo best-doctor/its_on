@@ -9,6 +9,7 @@ from anybadge.config import MASK_ID_PREFIX
 from dynaconf import settings
 from sqlalchemy.orm import Session
 
+from its_on.db_utils import parse_dsn, make_dsn
 from its_on.main import init_gunicorn_app
 from its_on.models import switches
 from its_on.utils import utc_now, localize_datetime
@@ -50,8 +51,19 @@ async def user_login(client):
     await client.post('/zbs/login', data={'login': 'user1', 'password': 'password'})
 
 
+@pytest.fixture(scope='session', autouse=True)
+def _configure_test_database():
+    """Derive test DSN from base DSN by adding test_ prefix to DB name."""
+    base_dsn = settings.DATABASE.DSN
+    parsed = parse_dsn(base_dsn)
+    if not parsed['database'].startswith('test_'):
+        parsed['database'] = f'test_{parsed["database"]}'
+    test_dsn = make_dsn(**parsed)
+    settings.set('DATABASE', {'DSN': test_dsn, 'SUPERUSER_DSN': base_dsn})
+
+
 @pytest.fixture(scope='session')
-def setup_database() -> Generator:
+def setup_database(_configure_test_database) -> Generator:
     setup_db(config=settings)
     yield
     teardown_db(config=settings)
@@ -268,7 +280,7 @@ def create_switch_data_factory(switch_data_factory):
 
 
 @pytest.fixture()
-async def switch_factory(loop, setup_tables: Callable, switch_data_factory) -> Callable:
+async def switch_factory(setup_tables: Callable, switch_data_factory) -> Callable:
     engine = get_engine(settings.DATABASE.DSN)
 
     async def _with_params(**kwargs) -> list:
