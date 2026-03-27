@@ -1,0 +1,78 @@
+[project]
+name = "its_on"
+version = "0.1.0"
+description = "Flag/feature toggle service, written in aiohttp."
+authors = [
+    {name = "Luchi Insurance JSC", email = "info@luchi.ru"},
+]
+dependencies = [
+    "aiohttp>=3.9,<4",
+    "aiohttp-apispec>=2.2,<3",
+    "aiohttp-cors>=0.7.0",
+    "aiohttp-jinja2>=1.5",
+    "aiohttp-security>=0.4",
+    "aiohttp-session>=2.12",
+    "aiohttp-oauth2>=0.0.5",
+    "aiodns>=2.0.0",
+    "aiopg>=1.4",
+    "redis>=4.5",
+    "anybadge>=1.11",
+    "sqlalchemy>=1.3,<2",
+    "alembic>=1.4",
+    "aiocache[redis]>=0.12",
+    "dynaconf[yaml]>=2.2,<3",
+    "webargs>=5.5,<6",
+    "marshmallow>=3,<4",
+    "passlib>=1.7",
+    "gunicorn>=20",
+    "uvloop>=0.17",
+]
+requires-python = "==3.11.*"
+readme = "README.md"
+license = {text = "Trade Secret License"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[dependency-groups]
+dev = [
+    "pytest-cov==2.8.1",
+    "pytest-aiohttp==0.3.0",
+    "pytest-mock==3.1.0",
+    "pytest-freezegun==0.4.2",
+    "factory-boy==3.2.0",
+    "pydocstyle==3.0.0",
+    "flake8==3.9.0",
+    "flake8-blind-except==0.1.1",
+    "flake8-bugbear==19.3.0",
+    "flake8-builtins==1.4.1",
+    "flake8-commas==2.0.0",
+    "flake8-comprehensions==2.1.0",
+    "flake8-debugger==3.1.0",
+    "flake8-docstrings==1.3.0",
+    "flake8-polyfill==1.0.2",
+    "flake8-print==3.1.0",
+    "flake8-quotes==3.0.0",
+    "flake8-string-format==0.2.3",
+    "flake8-todo==0.7",
+    "flake8-annotations-complexity==0.0.6",
+    "flake8-variables-names==0.0.2",
+    "flake8-class-attributes-order==0.1.2",
+    "flake8-broken-line==0.1.0",
+    "mypy==0.812",
+    "typing-extensions>=4.1",
+    "pep8-naming==0.7.0",
+    "rozental-as-a-service==1.1.2",
+    "click>=7.0",
+    "freezegun==0.3.15",
+]
+darwin = [
+    "appnope==0.1.3; sys_platform == \"darwin\"",
+]
+
+[tool.pdm]
+distribution = false
+
+[tool.pdm.resolution]
+respect-source-order = true

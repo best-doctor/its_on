@@ -1,6 +1,5 @@
 from typing import Optional
 import logging
-import asyncio
 import pathlib
 
 from aiohttp import web, ClientSession
@@ -11,7 +10,7 @@ import aiohttp_cors
 import aiohttp_jinja2
 import jinja2
 from aiohttp_apispec import setup_aiohttp_apispec
-import aioredis
+import redis.asyncio as aioredis
 from aiohttp_session import setup
 from aiohttp_session.redis_storage import RedisStorage
 from dynaconf import settings
@@ -27,14 +26,11 @@ BASE_DIR = pathlib.Path(__file__).parent.parent
 
 
 async def init_gunicorn_app() -> web.Application:
-    redis_pool = await make_redis_pool()
-    loop = asyncio.get_event_loop()
-    return init_app(loop, redis_pool)
+    return await init_app()
 
 
-async def make_redis_pool() -> aioredis.ConnectionsPool:
-    redis_address = settings.REDIS_URL
-    return await aioredis.create_redis_pool(redis_address, timeout=1)
+async def make_redis_client() -> aioredis.Redis:
+    return aioredis.from_url(settings.REDIS_URL, socket_connect_timeout=1)
 
 
 async def client_session(app: web.Application):  # type:ignore
@@ -43,11 +39,10 @@ async def client_session(app: web.Application):  # type:ignore
         yield
 
 
-def init_app(
-    loop: asyncio.AbstractEventLoop,
-    redis_pool: Optional[aioredis.ConnectionsPool] = None,
+async def init_app(
+    redis_client: Optional[aioredis.Redis] = None,
 ) -> web.Application:
-    app = web.Application(loop=loop)
+    app = web.Application()
 
     if settings.OAUTH.IS_USED:
         client_id = settings.OAUTH.CLIENT_ID
@@ -77,16 +72,15 @@ def init_app(
 
     app['config'] = settings
 
-    if not redis_pool:
-        redis_pool = loop.run_until_complete(make_redis_pool())
+    if not redis_client:
+        redis_client = await make_redis_client()
 
-    storage = RedisStorage(redis_pool, cookie_name='sesssionid')
+    storage = RedisStorage(redis_client, cookie_name='sesssionid')
     setup(app, storage)
 
-    async def dispose_redis_pool(app: web.Application) -> None:
-        if redis_pool is not None:
-            redis_pool.close()
-            await redis_pool.wait_closed()
+    async def dispose_redis_client(app: web.Application) -> None:
+        if redis_client is not None:
+            await redis_client.aclose()
 
     jinja2_env = aiohttp_jinja2.setup(
         app,
@@ -105,7 +99,7 @@ def init_app(
 
     app.on_startup.append(init_pg)
     app.on_cleanup.append(close_pg)
-    app.on_cleanup.append(dispose_redis_pool)
+    app.on_cleanup.append(dispose_redis_client)
 
     setup_security(app,
                    SessionIdentityPolicy(session_key='sessionkey'),
@@ -137,9 +131,7 @@ def init_app(
 def main() -> None:
     logging.basicConfig(level=logging.DEBUG)
     uvloop.install()
-    loop = asyncio.get_event_loop()
-    app = init_app(loop)
-    web.run_app(app, host=settings.HOST, port=settings.PORT)
+    web.run_app(init_app(), host=settings.HOST, port=settings.PORT)
 
 
 if __name__ == '__main__':
