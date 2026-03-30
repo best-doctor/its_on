@@ -1,0 +1,25 @@
+.github/workflows/build_pr.yml
+  60d62a8c5c048801 49
+.github/workflows/build.yml
+  60d62a8c5c048801 49-50,56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "e89b000a4a3ec0fd597aa24b6d34f6675434fcbc",
+  "prompts": {
+    "60d62a8c5c048801": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "50e7575b-d09f-46de-9951-37721a884be3",
+        "model": "claude-4.6-opus-high-thinking"
+      },
+      "human_author": "Vladislav Katolyk <v.katolyk@bestdoctor.ru>",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 4,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}
