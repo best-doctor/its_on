@@ -1,0 +1,39 @@
+pytest.ini
+  60d62a8c5c048801 4-6
+pyproject.toml
+  e7f52252536752b3 45-56,58-61,64
+  60d62a8c5c048801 43,67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "4201b4b0c1f0311497703d20bea883523684e8d1",
+  "prompts": {
+    "60d62a8c5c048801": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "50e7575b-d09f-46de-9951-37721a884be3",
+        "model": "claude-4.6-opus-high-thinking"
+      },
+      "human_author": "Vladislav Katolyk <v.katolyk@bestdoctor.ru>",
+      "messages": [],
+      "total_additions": 6,
+      "total_deletions": 2,
+      "accepted_lines": 6,
+      "overriden_lines": 0
+    },
+    "e7f52252536752b3": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "50398c7f-7754-4071-932b-1835b59d7fa5",
+        "model": "claude-4.6-opus-high-thinking"
+      },
+      "human_author": "Vladislav Katolyk <v.katolyk@bestdoctor.ru>",
+      "messages": [],
+      "total_additions": 18,
+      "total_deletions": 19,
+      "accepted_lines": 17,
+      "overriden_lines": 0
+    }
+  }
+}
