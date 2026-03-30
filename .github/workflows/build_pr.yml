@@ -46,6 +46,6 @@ jobs:
       - name: Install dependencies
         run: pip install --no-deps -r requirements.txt -r requirements_dev.txt
       - name: Run mdl
-        uses: actionshub/markdownlint@main
+        uses: actionshub/markdownlint@v3.1.4
       - name: Run checks
         run: make check
