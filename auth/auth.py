@@ -82,7 +82,7 @@ class DBAuthorizationPolicy(AbstractAuthorizationPolicy):
         self, identity: str | None, permission: str | Enum, context: Any = None,
     ) -> bool:
         """Нужно для имплементации абстрактного метода."""
-        return True
+        return False
 
     async def _is_authorised(self, identity: str) -> RowProxy:
         async with self.app[db_key].acquire() as conn:

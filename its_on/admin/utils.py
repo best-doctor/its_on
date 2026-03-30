@@ -61,4 +61,4 @@ def annotate_switch_with_expiration_date(switch: switches) -> Dict:
         expires_at = switch.updated_at + datetime.timedelta(days=switch.ttl)
     else:
         expires_at = None
-    return {**dict(switch), 'expires_at': expires_at}
+    return {**switch, 'expires_at': expires_at}

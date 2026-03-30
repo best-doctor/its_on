@@ -77,7 +77,7 @@ async def init_app(
     if not redis_client:
         redis_client = await make_redis_client()
 
-    storage = RedisStorage(redis_client, cookie_name='sesssionid')
+    storage = RedisStorage(redis_client, cookie_name='sessionid')
     setup(app, storage)
 
     async def dispose_redis_client(app: web.Application) -> None:
