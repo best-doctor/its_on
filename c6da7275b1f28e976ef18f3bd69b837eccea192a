@@ -1,0 +1,23 @@
+.gitignore
+  60d62a8c5c048801 190-192
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "c6da7275b1f28e976ef18f3bd69b837eccea192a",
+  "prompts": {
+    "60d62a8c5c048801": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "50e7575b-d09f-46de-9951-37721a884be3",
+        "model": "claude-4.6-opus-high-thinking"
+      },
+      "human_author": "Vladislav Katolyk <v.katolyk@bestdoctor.ru>",
+      "messages": [],
+      "total_additions": 3,
+      "total_deletions": 18,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    }
+  }
+}
