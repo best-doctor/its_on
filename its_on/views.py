@@ -10,6 +10,7 @@ from its_on.config import settings
 from sqlalchemy.sql import Select
 from typing import Dict, List, Optional
 
+from its_on.app_keys import db_key
 from its_on.admin.mixins import GetObjectMixin
 from its_on.cache import switch_list_cache_key_builder
 from its_on.models import switches
@@ -41,13 +42,13 @@ class SwitchListView(CorsViewMixin, web.View):
         }
 
     async def load_objects(self) -> List:
-        async with self.request.app['db'].acquire() as conn:
+        async with self.request.app[db_key].acquire() as conn:
             queryset = await self.get_queryset()
             result = await conn.execute(queryset)
             return await result.fetchall()
 
     async def get_queryset(self) -> Select:
-        qs = switches.select().with_only_columns([switches.c.name]).order_by(switches.c.name)
+        qs = switches.select().with_only_columns(switches.c.name).order_by(switches.c.name)
         return await self.filter_queryset(qs)
 
     def filter_active(self, queryset: Select, is_active: bool = True) -> Select:
@@ -112,7 +113,7 @@ class SwitchFullListView(CorsViewMixin, web.View):
         }
 
     async def load_objects(self) -> List:
-        async with self.request.app['db'].acquire() as conn:
+        async with self.request.app[db_key].acquire() as conn:
             queryset = self.get_queryset()
             result = await conn.execute(queryset)
             return await result.fetchall()

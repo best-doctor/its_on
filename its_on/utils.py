@@ -4,11 +4,7 @@ import datetime
 import json
 from typing import Any, Optional, Dict
 
-from urllib.parse import urlparse
-
 import sqlalchemy as sa
-from aiocache import Cache
-from aiocache.serializers import JsonSerializer
 from aiohttp import web
 from aiopg.sa.result import RowProxy
 from anybadge import Badge
@@ -20,18 +16,6 @@ from its_on.constants import (
     SWITCH_IS_INACTIVE_SVG_BADGE_PREFIX,
     SWITCH_NOT_FOUND_SVG_BADGE_PREFIX,
 )
-
-
-def setup_cache(app: web.Application) -> None:
-    parsed = urlparse(app['config']['cache_url'])
-    cache = Cache(
-        Cache.REDIS,
-        endpoint=parsed.hostname or 'localhost',
-        port=parsed.port or 6379,
-        db=int(parsed.path.lstrip('/') or 0),
-    )
-    cache.serializer = JsonSerializer()
-    app['cache'] = cache
 
 
 def reverse(

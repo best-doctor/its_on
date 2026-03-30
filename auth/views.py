@@ -14,6 +14,9 @@ from yarl import URL
 
 from auth.auth import check_credentials, get_login_context
 from auth.schemes import LoginPostRequestSchema
+from its_on.app_keys import (
+    db_key, oauth_auth_extras_key, oauth_authorize_url_key, oauth_client_id_key, oauth_scopes_key,
+)
 
 if TYPE_CHECKING:
     from typing import Optional, Dict
@@ -32,18 +35,18 @@ class OauthViewForceHttps(View):
 
     async def get(self) -> Response:
         params = {
-            'client_id': self.request.app['CLIENT_ID'],
+            'client_id': self.request.app[oauth_client_id_key],
             'redirect_uri': redirect_uri(self.request),
             'response_type': 'code',
-            **self.request.app['AUTH_EXTRAS'],
+            **self.request.app[oauth_auth_extras_key],
         }
 
-        if self.request.app['SCOPES']:
-            params['scope'] = ' '.join(self.request.app['SCOPES'])
+        if self.request.app[oauth_scopes_key]:
+            params['scope'] = ' '.join(self.request.app[oauth_scopes_key])
 
-        location = str(URL(self.request.app['AUTHORIZE_URL']).with_query(params))
+        location = str(URL(self.request.app[oauth_authorize_url_key]).with_query(params))
 
-        return HTTPTemporaryRedirect(location=location)
+        raise HTTPTemporaryRedirect(location=location)
 
 
 class LoginView(View):
@@ -60,11 +63,11 @@ class LoginView(View):
         return await get_login_context('Classic login is forbidden')
 
     async def authorise(
-        self, response_location: Response, login: str, password: str,
+        self, response_location: HTTPFound, login: str, password: str,
     ) -> StreamResponse:
-        if await check_credentials(self.request.app['db'], login, password):
+        if await check_credentials(self.request.app[db_key], login, password):
             await remember(self.request, response_location, login)
-            return response_location
+            raise response_location
         return await self.error()
 
     async def post(self) -> StreamResponse:
@@ -76,7 +79,7 @@ class LoginView(View):
         validated_data = self.validate_form_data(form_data)
 
         if not validated_data:
-            return HTTPFound('/zbs')
+            raise HTTPFound('/zbs')
 
         login, password = validated_data.get('login', ''), validated_data.get('password', '')
 
@@ -94,4 +97,4 @@ class LogoutView(View):
         response = HTTPFound('/zbs/login')
 
         await forget(self.request, response)
-        return response
+        raise response

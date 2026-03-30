@@ -44,7 +44,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install --no-deps -r requirements.txt -r requirements_dev.txt
       - name: Run mdl
         uses: actionshub/markdownlint@main
       - uses: hadolint/hadolint-action@v1.5.0

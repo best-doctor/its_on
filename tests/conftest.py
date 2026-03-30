@@ -9,6 +9,7 @@ from anybadge.config import MASK_ID_PREFIX
 from its_on.config import settings
 from sqlalchemy.orm import Session
 
+from its_on.app_keys import db_key
 from its_on.db_utils import parse_dsn, make_dsn
 from its_on.main import init_gunicorn_app
 from its_on.models import switches
@@ -31,7 +32,7 @@ async def client(aiohttp_client: Callable) -> None:
 
 @pytest.fixture()
 def db_conn_acquirer(client) -> Callable:
-    return client.server.app['db'].acquire
+    return client.server.app[db_key].acquire
 
 
 @pytest.fixture()
@@ -289,7 +290,7 @@ async def switch_factory(setup_tables: Callable, switch_data_factory) -> Callabl
 
         with engine.connect() as conn:
             conn.execute(switches.insert(), switch_params)
-            query = switches.select(switches.c.name == switch_params['name'])
+            query = switches.select().where(switches.c.name == switch_params['name'])
             return conn.execute(query).fetchone()
 
     return _with_params

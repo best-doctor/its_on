@@ -7,6 +7,7 @@ from sqlalchemy.sql import Select
 from typing import Dict, List, Optional, Any, Union
 
 from auth.decorators import login_required
+from its_on.app_keys import db_key
 from auth.models import users
 from its_on.admin.mixins import UpdateMixin
 from its_on.admin.permissions import CanEditUser
@@ -35,7 +36,7 @@ class UserListAdminView(web.View):
         return objects
 
     async def load_objects(self) -> List:
-        async with self.request.app['db'].acquire() as conn:
+        async with self.request.app[db_key].acquire() as conn:
             queryset = self.get_queryset()
             result = await conn.execute(queryset)
             return await result.fetchall()
@@ -51,10 +52,10 @@ class UserDetailAdminView(web.View, UpdateMixin):
 
     async def get_context_data(
         self,
-        errors: ValidationError = None,
+        errors: Optional[ValidationError] = None,
         updated: bool = False,
-        switches: List = None,
-        user_switches: List = None,
+        switches: Optional[List] = None,
+        user_switches: Optional[List] = None,
     ) -> Dict[str, Any]:
 
         user_object = await self.get_object(self.request)
@@ -71,9 +72,9 @@ class UserDetailAdminView(web.View, UpdateMixin):
         return context_data
 
     async def get_switches(self) -> RowProxy:
-        async with self.request.app['db'].acquire() as conn:
-            queryset = switches.select(
-                whereclause=(switches.c.deleted_at.is_(None) | (switches.c.deleted_at > utc_now())),
+        async with self.request.app[db_key].acquire() as conn:
+            queryset = switches.select().where(
+                switches.c.deleted_at.is_(None) | (switches.c.deleted_at > utc_now()),
             )
             result = await conn.execute(queryset)
             return await result.fetchall()

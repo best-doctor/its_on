@@ -8,8 +8,8 @@ class SplitList(fields.List):
     def deserialize(
         self,
         value: typing.Any,
-        attr: str = None,
-        data: typing.Mapping[str, typing.Any] = None,
+        attr: typing.Optional[str] = None,
+        data: typing.Optional[typing.Mapping[str, typing.Any]] = None,
         **kwargs: typing.Any,
     ) -> typing.List[typing.Any]:
         value = value or ''
@@ -55,7 +55,7 @@ class SwitchCopyFromAnotherItsOnAdminPostRequestSchema(BaseSwitchAdminPostReques
 
 class SwitchListAdminRequestSchema(Schema):
     group = fields.Str(required=False)
-    show_hidden = fields.Boolean(missing=False)
+    show_hidden = fields.Boolean(load_default=False)
 
 
 class UserDetailPostRequestSchema(Schema):

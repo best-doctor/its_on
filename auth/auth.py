@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Dict, Union
+from enum import Enum
+from typing import TYPE_CHECKING, Any, Dict, Union
 
 import aiohttp_jinja2
 from aiohttp import web
@@ -14,6 +15,7 @@ from passlib.hash import sha256_crypt
 from sqlalchemy import and_, func, not_
 
 from auth import models
+from its_on.app_keys import db_key
 
 if TYPE_CHECKING:
     from typing import Optional
@@ -35,8 +37,9 @@ async def get_login_context(error: str | None = None) -> Dict[str, Union[str | b
 
 
 async def oauth_on_login(request: web.Request, user_data: dict) -> web.Response:
-    await remember(request, HTTPFound('/zbs/switches'), 'admin')
-    return HTTPFound('/zbs/switches')
+    response = HTTPFound('/zbs/switches')
+    await remember(request, response, 'admin')
+    raise response
 
 
 @aiohttp_jinja2.template('users/login.html')
@@ -67,7 +70,7 @@ class DBAuthorizationPolicy(AbstractAuthorizationPolicy):
         self.app: Application = app
 
     async def authorized_userid(self, identity: str) -> Optional[str]:
-        if self.app.get('db') is None:
+        if self.app.get(db_key) is None:
             return None
 
         if await self._is_authorised(identity):
@@ -75,15 +78,17 @@ class DBAuthorizationPolicy(AbstractAuthorizationPolicy):
 
         return None
 
-    async def permits(self, identity: str, permission: str) -> None:
+    async def permits(
+        self, identity: str | None, permission: str | Enum, context: Any = None,
+    ) -> bool:
         """Нужно для имплементации абстрактного метода."""
-        pass
+        return True
 
     async def _is_authorised(self, identity: str) -> RowProxy:
-        async with self.app['db'].acquire() as conn:
+        async with self.app[db_key].acquire() as conn:
             where = and_(
                 models.users.c.login == identity,
                 not_(models.users.c.disabled),
             )
-            query = models.users.select().where(where).with_only_columns([func.count()])
+            query = models.users.select().where(where).with_only_columns(func.count())
             return await conn.scalar(query)

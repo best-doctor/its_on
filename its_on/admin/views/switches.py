@@ -12,6 +12,7 @@ from multidict import MultiDictProxy
 from sqlalchemy.sql import Select
 
 from auth.decorators import login_required
+from its_on.app_keys import db_key
 from its_on.admin.mixins import CreateMixin, GetObjectMixin, UpdateMixin
 from its_on.admin.permissions import CanEditSwitch
 from its_on.admin.schemes import (
@@ -48,7 +49,7 @@ class SwitchListAdminView(web.View):
         }
 
     async def get_response_data(self, request_params: Dict[str, Any]) -> List[Dict]:
-        async with self.request.app['db'].acquire() as conn:
+        async with self.request.app[db_key].acquire() as conn:
             queryset = self.filter_queryset(self.get_queryset(), request_params)
             result = await conn.execute(queryset)
             flags = await result.fetchall()
@@ -56,7 +57,7 @@ class SwitchListAdminView(web.View):
         return [annotate_switch_with_expiration_date(switch=flag) for flag in flags]
 
     async def get_distinct_groups(self, request_params: Dict[str, Any]) -> List[str]:
-        async with self.request.app['db'].acquire() as conn:
+        async with self.request.app[db_key].acquire() as conn:
             queryset = self.filter_hidden(self.get_queryset(), request_params)
             result = await conn.execute(queryset)
             flags = await result.fetchall()
@@ -92,7 +93,7 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
     model = switches
 
     async def get_context_data(
-        self, switch: Optional[RowProxy] = None, errors: ValidationError = None,
+        self, switch: Optional[RowProxy] = None, errors: Optional[ValidationError] = None,
         updated: bool = False,
     ) -> Dict[str, Any]:
         switch = switch if switch else await self.get_object(self.request)
@@ -153,7 +154,9 @@ class SwitchAddAdminView(web.View, CreateMixin):
     validator = SwitchAddAdminPostRequestSchema()
     model = switches
 
-    async def get_context_data(self, errors: ValidationError = None, user_input: Dict = None) -> Dict[str, Any]:
+    async def get_context_data(
+        self, errors: Optional[ValidationError] = None, user_input: Optional[Dict] = None,
+    ) -> Dict[str, Any]:
         context_data = {
             'errors': errors,
             'ttl': settings.FLAG_TTL_DAYS,
@@ -163,7 +166,7 @@ class SwitchAddAdminView(web.View, CreateMixin):
         return context_data
 
     async def resurrect_deleted_flag(self, form_data: MultiDictProxy) -> Optional[Dict[str, Any]]:
-        async with self.request.app['db'].acquire() as conn:
+        async with self.request.app[db_key].acquire() as conn:
             result = await conn.execute(
                 switches.select().where(switches.c.name == form_data['name']))
             already_created_switch = await result.first()
@@ -250,7 +253,7 @@ class SwitchesCopyAdminView(web.View, CreateMixin):
 
     async def _update_switch(self, switch_data: MultiDictProxy) -> None:
         switch_data.pop('updated_at')  # type: ignore
-        async with self.request.app['db'].acquire() as conn:
+        async with self.request.app[db_key].acquire() as conn:
             update_query = (
                 self.model.update()
                 .where(self.model.c.name == switch_data['name'])
@@ -267,7 +270,7 @@ class SwitchDeleteAdminView(web.View, GetObjectMixin):
 
     @login_required
     async def get(self) -> None:
-        async with self.request.app['db'].acquire() as conn:
+        async with self.request.app[db_key].acquire() as conn:
             object_pk = await self.get_object_pk(self.request)
             model_object = await self.get_object(self.request)
             update_query = self.model.update().where(self.model.c.id == object_pk).values(

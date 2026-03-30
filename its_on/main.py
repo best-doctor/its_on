@@ -17,6 +17,10 @@ from its_on.config import settings
 import uvloop
 
 from auth.auth import DBAuthorizationPolicy, oauth_on_login, oauth_on_error
+from its_on.app_keys import (
+    client_session_key, config_key,
+    oauth_auth_extras_key, oauth_authorize_url_key, oauth_client_id_key, oauth_scopes_key,
+)
 from its_on.cache import setup_cache
 from its_on.db_utils import init_pg, close_pg
 from its_on.middlewares import setup_middlewares
@@ -35,7 +39,7 @@ async def make_redis_client() -> aioredis.Redis:
 
 async def client_session(app: web.Application):  # type:ignore
     async with ClientSession() as session:
-        app['session'] = session
+        app[client_session_key] = session
         yield
 
 
@@ -49,12 +53,10 @@ async def init_app(
         authorize_url = settings.OAUTH.AUTHORIZE_URL
         scopes = None
         auth_extras = None
-        app.update(  # pylint: disable=no-member
-            CLIENT_ID=client_id,
-            AUTHORIZE_URL=authorize_url,
-            SCOPES=scopes,
-            AUTH_EXTRAS=auth_extras or {},
-        )
+        app[oauth_client_id_key] = client_id
+        app[oauth_authorize_url_key] = authorize_url
+        app[oauth_scopes_key] = scopes
+        app[oauth_auth_extras_key] = auth_extras or {}
         app.cleanup_ctx.append(client_session)
         setup_oauth_route(app)
         app.add_subapp(
@@ -70,7 +72,7 @@ async def init_app(
             ),
         )
 
-    app['config'] = settings
+    app[config_key] = settings
 
     if not redis_client:
         redis_client = await make_redis_client()
@@ -95,7 +97,7 @@ async def init_app(
         'env_notice_background_color': settings.ENVIRONMENT_NOTICE.BACKGROUND_COLOR,
     })
 
-    app['static_root_url'] = '/static'
+    app[aiohttp_jinja2.static_root_key] = '/static'
 
     app.on_startup.append(init_pg)
     app.on_cleanup.append(close_pg)

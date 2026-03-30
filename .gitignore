@@ -187,3 +187,6 @@ yum-root-*
 .tm_properties
 
 docker-compose.override.yml
+
+# PDM
+.pdm-python

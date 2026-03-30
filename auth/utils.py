@@ -2,10 +2,11 @@ from aiohttp import web
 from aiohttp_security.api import authorized_userid
 
 from auth.models import users
+from its_on.app_keys import db_key
 
 
 async def get_current_user(request: web.Request) -> users:
-    async with request.app['db'].acquire() as conn:
+    async with request.app[db_key].acquire() as conn:
         user_login = await authorized_userid(request)
 
         query = users.select().where(users.c.login == user_login)

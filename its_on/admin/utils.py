@@ -2,6 +2,8 @@ import datetime
 from typing import List, Dict
 
 from aiohttp import web
+
+from its_on.app_keys import db_key
 from aiopg.sa.result import RowProxy
 from sqlalchemy.sql import select
 
@@ -11,7 +13,7 @@ from its_on.models import switch_history, switches
 
 
 async def get_user_switches(request: web.Request, user: users) -> List[RowProxy]:
-    async with request.app['db'].acquire() as conn:
+    async with request.app[db_key].acquire() as conn:
         from its_on.models import user_switches  # Почему-то алхимия не видит этот импорт наверху
 
         user_switches_joined = (
@@ -20,7 +22,7 @@ async def get_user_switches(request: web.Request, user: users) -> List[RowProxy]
             .join(switches, user_switches.c.switch_id == switches.c.id)
         )
 
-        query = select([switches.c.name]).select_from(user_switches_joined).where(
+        query = select(switches.c.name).select_from(user_switches_joined).where(
             users.c.id == user.id)
         result = await conn.execute(query)
         user_switches = await result.fetchall()
@@ -34,7 +36,7 @@ async def get_user_switches_names(request: web.Request, user: users) -> List[str
 
 
 async def save_switch_history(request: web.Request, switch: switches, new_value: str) -> None:
-    async with request.app['db'].acquire() as conn:
+    async with request.app[db_key].acquire() as conn:
         user = await get_current_user(request)
         create_query = switch_history.insert().values(
             switch_id=switch.id,
@@ -46,9 +48,9 @@ async def save_switch_history(request: web.Request, switch: switches, new_value:
 
 
 async def get_switch_history(request: web.Request, switch: switches) -> List[RowProxy]:
-    async with request.app['db'].acquire() as conn:
-        query = switch_history.select(
-            whereclause=(switch_history.c.switch_id == switch.id),
+    async with request.app[db_key].acquire() as conn:
+        query = switch_history.select().where(
+            switch_history.c.switch_id == switch.id,
         ).order_by(switch_history.c.changed_at.desc())
         result = await conn.execute(query)
         return await result.fetchall()
