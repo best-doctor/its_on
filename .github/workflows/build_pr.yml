@@ -36,16 +36,16 @@ jobs:
           --health-retries 5
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: ['3.11']
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install --no-deps -r requirements.txt -r requirements_dev.txt
       - name: Run mdl
-        uses: actionshub/markdownlint@main
+        uses: actionshub/markdownlint@v3.1.4
       - name: Run checks
         run: make check

@@ -5,18 +5,19 @@ default:
   database:
     dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/its_on
   oauth:
-    is_used: true
-    only_oauth: false
-    client_id: '@none'
+    is_enabled: false
+    server_url: '@none'
+    realm_name: '@none'
+    client_id: 'its-on-admin'
     client_secret: '@none'
-    authorize_url: '@none'
-    token_url: '@none'
     force_https: true
-    sign_in_title: 'Sign in with "Bestdoctor ID"'
+    sign_in_title: 'Sign in with "Luchi ID"'
+    developer_role: 'developers'
   enable_db_logging: false
   cache_url: redis://127.0.0.1:6379/1
   cache_ttl: 300
   redis_url: redis://127.0.0.1:6379/1
+  session_max_age: 1800  # 30 minutes
   cors_allow_origin: ['http://localhost:8081']
   cors_allow_headers: []
   enable_switches_full_info_endpoint: false
@@ -60,9 +61,6 @@ staging:
 testing:
   environment: Test
   enable_switches_full_info_endpoint: true
-  database:
-    dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/test_its_on
-    superuser_dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/its_on
   cache_ttl: 0
   cors_allow_origin: ['http://localhost:8081']
   environment_notice:

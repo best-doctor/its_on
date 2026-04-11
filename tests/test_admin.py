@@ -4,13 +4,13 @@ import pytest
 from aiohttp.test_utils import make_mocked_request
 from aiohttp.web_exceptions import HTTPOk
 from freezegun import freeze_time
-from sqlalchemy import desc
+from sqlalchemy import desc, func, select
 
 from auth.models import users
 from its_on.models import switch_history, switches
 from its_on.utils import get_switch_badge_svg, get_switch_markdown_badge, local_timezone, utc_now
 
-from dynaconf import settings
+from its_on.config import settings
 
 
 @pytest.mark.usefixtures('setup_tables_and_data')
@@ -164,6 +164,11 @@ async def test_switch_update(client, login, switch, db_conn_acquirer):
     with freeze_time('2020-08-15'):
         await client.post('/zbs/switches/1', data={'is_active': False, 'groups': 'group1, group2'})
 
+    detail_response = await client.get('/zbs/switches/1')
+    detail_content = (await detail_response.content.read()).decode('utf-8')
+    assert 'Changed by' in detail_content
+    assert 'admin' in detail_content
+
     async with db_conn_acquirer() as conn:
         switches_query_result = await conn.execute(switches.select().where(switches.c.id == 1))
         updated_switch = await switches_query_result.first()
@@ -196,7 +201,7 @@ async def test_switch_soft_delete(client, login, switch, db_conn_acquirer):
     response = await client.get('/zbs/switches')
     content = await response.content.read()
     async with db_conn_acquirer() as conn:
-        deleted_switch = await(await conn.execute(switches.select().where(
+        deleted_switch = await (await conn.execute(switches.select().where(
             switches.c.id == 7,
         ))).first()
 
@@ -260,7 +265,7 @@ async def test_switches_copy_existing_switch_foo(
 ):
     response = await client.post(f'/zbs/switches/copy{http_get_arguments}')
     async with db_conn_acquirer() as conn:
-        result = await conn.execute(switches.count())
+        result = await conn.execute(select(func.count()).select_from(switches))
         switches_count = await result.first()
         switches_count = switches_count[0]
         result = await conn.execute(switches.select().where(switches.c.name == 'switch7'))

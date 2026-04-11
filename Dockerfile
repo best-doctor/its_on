@@ -1,4 +1,4 @@
-FROM python:3.8-slim AS builder
+FROM python:3.11-slim AS builder
 
 ARG APP_DIRECTORY=/its_on
 ARG USER_NAME=its_on
@@ -11,14 +11,14 @@ RUN python -m venv /opt/venv
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev
-RUN pip install wheel==0.37.0 --no-cache-dir
+RUN pip install wheel==0.46.3 --no-cache-dir
 ENV PATH="/opt/venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1
 COPY ./requirements.txt /
 RUN pip install -r /requirements.txt --no-cache-dir
 
 
-FROM python:3.8-slim AS app
+FROM python:3.11-slim AS app
 
 ARG APP_DIRECTORY=/its_on
 ARG USER_NAME=its_on

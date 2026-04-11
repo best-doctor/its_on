@@ -1,16 +1,16 @@
 import datetime
 
-from dynaconf.base import Settings
+from dynaconf import Dynaconf as Settings
 from freezegun import freeze_time
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.engine.strategies import EngineStrategy
+from sqlalchemy import create_engine, MetaData, text
+from sqlalchemy.engine import Engine
 
-from auth.models import users
+from auth.models import permissions, users
 from its_on.db_utils import parse_dsn
 from its_on.models import switches, user_switches, switch_history
 
 
-def get_engine(dsn: str) -> EngineStrategy:
+def get_engine(dsn: str) -> Engine:
     return create_engine(dsn, isolation_level='AUTOCOMMIT')
 
 
@@ -25,7 +25,7 @@ def setup_db(config: Settings) -> None:
         teardown_db(config)
 
         test_db_name = parse_dsn(config.DATABASE.DSN)['database']
-        conn.execute('CREATE DATABASE {0}'.format(test_db_name))
+        conn.execute(text('CREATE DATABASE {0}'.format(test_db_name)))
 
 
 def teardown_db(config: Settings) -> None:
@@ -35,7 +35,7 @@ def teardown_db(config: Settings) -> None:
     test_db_name = parse_dsn(config.DATABASE.DSN)['database']
     with engine.connect() as conn:
         # Отключаем активные сессии
-        conn.execute(
+        conn.execute(text(
             """
             SELECT pg_terminate_backend(pg_stat_activity.pid)
             FROM pg_stat_activity
@@ -43,23 +43,28 @@ def teardown_db(config: Settings) -> None:
             """.format(
                 test_db_name,
             ),
-        )
-        # Удаляем базу
-        conn.execute('DROP DATABASE IF EXISTS {0}'.format(test_db_name))
+        ))
+        conn.execute(text('DROP DATABASE IF EXISTS {0}'.format(test_db_name)))
 
 
 def create_tables(config: Settings) -> None:
     engine = get_engine(config.DATABASE.DSN)
 
     meta = MetaData()
-    meta.create_all(bind=engine, tables=[switches, users, user_switches, switch_history])
+    meta.create_all(
+        bind=engine,
+        tables=[switches, users, permissions, user_switches, switch_history],
+    )
 
 
 def drop_tables(config: Settings) -> None:
     engine = get_engine(config.DATABASE.DSN)
 
     meta = MetaData()
-    meta.drop_all(bind=engine, tables=[switches, users, user_switches, switch_history])
+    meta.drop_all(
+        bind=engine,
+        tables=[switches, users, permissions, user_switches, switch_history],
+    )
 
 
 @freeze_time(datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc))
@@ -133,14 +138,12 @@ def create_sample_data(config: Settings) -> None:
             users.insert(),
             [
                 {
-                    'id': 1,
                     'login': 'admin',
                     'passwd': '$5$rounds=535000$WLLTOp3BDURUJCpA$W0CZSO1mR8/OfIPKj/piXv9cBIXBhlnDpQcORnnQR5/',
                     'is_superuser': True,
                     'disabled': False,
                 },
                 {
-                    'id': 2,
                     'login': 'user1',
                     'passwd': '$5$rounds=535000$WLLTOp3BDURUJCpA$W0CZSO1mR8/OfIPKj/piXv9cBIXBhlnDpQcORnnQR5/',
                     'is_superuser': False,

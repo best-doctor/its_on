@@ -5,8 +5,6 @@ import json
 from typing import Any, Optional, Dict
 
 import sqlalchemy as sa
-from aiocache import Cache
-from aiocache.serializers import JsonSerializer
 from aiohttp import web
 from aiopg.sa.result import RowProxy
 from anybadge import Badge
@@ -18,12 +16,6 @@ from its_on.constants import (
     SWITCH_IS_INACTIVE_SVG_BADGE_PREFIX,
     SWITCH_NOT_FOUND_SVG_BADGE_PREFIX,
 )
-
-
-def setup_cache(app: web.Application) -> None:
-    cache = Cache.from_url(app['config']['cache_url'])
-    cache.serializer = JsonSerializer()
-    app['cache'] = cache
 
 
 def reverse(

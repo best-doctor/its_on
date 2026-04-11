@@ -6,9 +6,11 @@ import pytest
 import factory.fuzzy
 from anybadge import Badge
 from anybadge.config import MASK_ID_PREFIX
-from dynaconf import settings
+from its_on.config import settings
 from sqlalchemy.orm import Session
 
+from its_on.app_keys import db_key
+from its_on.db_utils import parse_dsn, make_dsn
 from its_on.main import init_gunicorn_app
 from its_on.models import switches
 from its_on.utils import utc_now, localize_datetime
@@ -30,7 +32,7 @@ async def client(aiohttp_client: Callable) -> None:
 
 @pytest.fixture()
 def db_conn_acquirer(client) -> Callable:
-    return client.server.app['db'].acquire
+    return client.server.app[db_key].acquire
 
 
 @pytest.fixture()
@@ -50,8 +52,21 @@ async def user_login(client):
     await client.post('/zbs/login', data={'login': 'user1', 'password': 'password'})
 
 
+@pytest.fixture(scope='session', autouse=True)
+def _configure_test_database():
+    """Derive test DSN from base DSN by adding test_ prefix to DB name."""
+    base_dsn = settings.DATABASE.DSN
+    parsed = parse_dsn(base_dsn)
+    if not parsed['database'].startswith('test_'):
+        parsed['database'] = f'test_{parsed["database"]}'
+    test_dsn = make_dsn(**parsed)
+    superuser_dsn = getattr(settings.DATABASE, 'SUPERUSER_DSN', base_dsn)
+    settings.set('DATABASE', {'DSN': test_dsn, 'SUPERUSER_DSN': superuser_dsn})
+    settings.OAUTH.IS_ENABLED = False
+
+
 @pytest.fixture(scope='session')
-def setup_database() -> Generator:
+def setup_database(_configure_test_database) -> Generator:
     setup_db(config=settings)
     yield
     teardown_db(config=settings)
@@ -268,7 +283,7 @@ def create_switch_data_factory(switch_data_factory):
 
 
 @pytest.fixture()
-async def switch_factory(loop, setup_tables: Callable, switch_data_factory) -> Callable:
+async def switch_factory(setup_tables: Callable, switch_data_factory) -> Callable:
     engine = get_engine(settings.DATABASE.DSN)
 
     async def _with_params(**kwargs) -> list:
@@ -276,7 +291,7 @@ async def switch_factory(loop, setup_tables: Callable, switch_data_factory) -> C
 
         with engine.connect() as conn:
             conn.execute(switches.insert(), switch_params)
-            query = switches.select(switches.c.name == switch_params['name'])
+            query = switches.select().where(switches.c.name == switch_params['name'])
             return conn.execute(query).fetchone()
 
     return _with_params

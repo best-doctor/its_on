@@ -2,8 +2,8 @@ from marshmallow import Schema, fields, validate, EXCLUDE
 
 
 class SwitchListRequestSchema(Schema):
-    group = fields.Str(description='group', required=True)
-    is_active = fields.Boolean(description='is active')
+    group = fields.Str(required=True, metadata={'description': 'group'})
+    is_active = fields.Boolean(metadata={'description': 'is active'})
     version = fields.Int()
 
 

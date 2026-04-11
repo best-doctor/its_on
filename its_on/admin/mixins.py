@@ -3,6 +3,8 @@ from typing import Dict, Union, Optional
 from sqlalchemy.engine import ResultProxy
 from sqlalchemy import Table
 from aiohttp.web import Request
+
+from its_on.app_keys import db_key
 from marshmallow import Schema
 from multidict import MultiDictProxy, MultiDict
 
@@ -14,9 +16,9 @@ class GetObjectMixin:
         return request.match_info.get('id')
 
     async def get_object(self, request: Request) -> ResultProxy:
-        async with request.app['db'].acquire() as conn:
+        async with request.app[db_key].acquire() as conn:
             object_id = await self.get_object_pk(request)
-            query = self.model.select(self.model.c.id == object_id)
+            query = self.model.select().where(self.model.c.id == object_id)
 
             result = await conn.execute(query)
             return await result.fetchone()
@@ -32,7 +34,7 @@ class UpdateMixin(GetObjectMixin):
         await self._update(request, validated_data)
 
     async def _update(self, request: Request, to_update: Dict[str, Union[str, bool, int]]) -> None:
-        async with request.app['db'].acquire() as conn:
+        async with request.app[db_key].acquire() as conn:
             object_pk = await self.get_object_pk(request)
             update_query = self.model.update().where(self.model.c.id == object_pk).values(to_update)
 
@@ -52,7 +54,7 @@ class CreateMixin:
         await self._create(request, validated_data)
 
     async def _create(self, request: Request, to_create: Dict[str, Union[str, bool, int]]) -> None:
-        async with request.app['db'].acquire() as conn:
+        async with request.app[db_key].acquire() as conn:
             create_query = self.model.insert().values(to_create)
 
             await conn.execute(create_query)

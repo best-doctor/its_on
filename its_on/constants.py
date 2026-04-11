@@ -1,4 +1,4 @@
-from dynaconf import settings
+from its_on.config import settings
 
 SVG_BADGE_SETTINGS = settings.FLAG_SVG_BADGE
 

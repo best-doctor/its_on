@@ -36,24 +36,24 @@ jobs:
           --health-retries 5
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: ['3.11']
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install --no-deps -r requirements.txt -r requirements_dev.txt
       - name: Run mdl
-        uses: actionshub/markdownlint@main
-      - uses: hadolint/hadolint-action@v1.5.0
+        uses: actionshub/markdownlint@v3.1.4
+      - uses: hadolint/hadolint-action@v3.3.0
         with:
           dockerfile: Dockerfile
       - name: Run checks
         run: make check
       - name: Run tests and publish coverage
-        uses: paambaati/codeclimate-action@v2.7.5
+        uses: paambaati/codeclimate-action@v9.0.0
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         with:

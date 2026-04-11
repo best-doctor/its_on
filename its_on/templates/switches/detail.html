@@ -129,6 +129,7 @@
                 <thead>
                 <tr>
                   <th>Changed at</th>
+                  <th>Changed by</th>
                   <th>Value</th>
                 </tr>
                 </thead>
@@ -138,6 +139,7 @@
                     <td>
                       {{ switch.changed_at.strftime('%d-%m-%Y %H:%M:%S') }}
                     </td>
+                    <td>{{ switch.changed_by }}</td>
                     <td>
                       {% if switch.new_value == '1' %}
                         <span class="glyphicon glyphicon-ok green"></span>

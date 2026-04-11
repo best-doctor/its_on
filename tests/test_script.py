@@ -1,6 +1,6 @@
 import pytest
 from click.testing import CliRunner
-from dynaconf import settings
+from its_on.config import settings
 from passlib.handlers.sha2_crypt import sha256_crypt
 
 from auth.models import users
