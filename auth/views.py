@@ -106,9 +106,11 @@ class KeycloakCallbackView(View):
 
 
 class LoginView(View):
-    @aiohttp_jinja2.template('users/login.html')
-    async def get(self, error: Optional[str] = None) -> Dict[str, Union[str | bool]]:
-        return await get_login_context()
+    async def get(self) -> StreamResponse:
+        if getattr(getattr(settings, 'OAUTH', None), 'IS_USED', False):
+            raise HTTPFound('/oauth/auth')
+        context = await get_login_context()
+        return await render_template_async('users/login.html', self.request, context)
 
     @aiohttp_jinja2.template('users/login.html')
     async def error(self) -> Dict[str, Union[str | bool]]:

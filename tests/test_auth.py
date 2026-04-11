@@ -288,6 +288,23 @@ async def test__keycloak_callback__missing_code(oauth_client):
 
 
 @pytest.mark.usefixtures('setup_tables_and_data')
+async def test__login_get__redirects_to_oauth_when_enabled(oauth_client):
+    response = await oauth_client.get('/zbs/login', allow_redirects=False)
+
+    assert response.status == 302
+    assert response.headers['Location'].endswith('/oauth/auth')
+
+
+@pytest.mark.usefixtures('setup_tables_and_data')
+async def test__login_get__returns_login_page_when_oauth_disabled(client):
+    response = await client.get('/zbs/login')
+
+    assert response.status == 200
+    body = (await response.content.read()).decode('utf-8')
+    assert 'Enter login' in body
+
+
+@pytest.mark.usefixtures('setup_tables_and_data')
 async def test__keycloak_callback__token_exchange_fails(
     oauth_client, mocker,
 ):

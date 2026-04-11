@@ -17,6 +17,7 @@ default:
   cache_url: redis://127.0.0.1:6379/1
   cache_ttl: 300
   redis_url: redis://127.0.0.1:6379/1
+  session_max_age: 1800  # 30 minutes
   cors_allow_origin: ['http://localhost:8081']
   cors_allow_headers: []
   enable_switches_full_info_endpoint: false
