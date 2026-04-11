@@ -49,9 +49,21 @@ async def save_switch_history(request: web.Request, switch: switches, new_value:
 
 async def get_switch_history(request: web.Request, switch: switches) -> List[RowProxy]:
     async with request.app[db_key].acquire() as conn:
-        query = switch_history.select().where(
-            switch_history.c.switch_id == switch.id,
-        ).order_by(switch_history.c.changed_at.desc())
+        query = (
+            select(
+                switch_history.c.id,
+                switch_history.c.switch_id,
+                switch_history.c.user_id,
+                switch_history.c.new_value,
+                switch_history.c.changed_at,
+                users.c.login.label('changed_by'),
+            )
+            .select_from(
+                switch_history.join(users, switch_history.c.user_id == users.c.id),
+            )
+            .where(switch_history.c.switch_id == switch.id)
+            .order_by(switch_history.c.changed_at.desc())
+        )
         result = await conn.execute(query)
         return await result.fetchall()
 

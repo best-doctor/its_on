@@ -164,6 +164,11 @@ async def test_switch_update(client, login, switch, db_conn_acquirer):
     with freeze_time('2020-08-15'):
         await client.post('/zbs/switches/1', data={'is_active': False, 'groups': 'group1, group2'})
 
+    detail_response = await client.get('/zbs/switches/1')
+    detail_content = (await detail_response.content.read()).decode('utf-8')
+    assert 'Changed by' in detail_content
+    assert 'admin' in detail_content
+
     async with db_conn_acquirer() as conn:
         switches_query_result = await conn.execute(switches.select().where(switches.c.id == 1))
         updated_switch = await switches_query_result.first()
