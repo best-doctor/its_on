@@ -189,11 +189,11 @@ async def test__get_or_create_user__does_not_duplicate(client, db_conn_acquirer)
 
 @pytest.fixture()
 async def oauth_client(aiohttp_client):
-    settings.OAUTH.IS_USED = True
+    settings.OAUTH.IS_ENABLED = True
     app = await init_gunicorn_app()
     client = await aiohttp_client(app)
     yield client
-    settings.OAUTH.IS_USED = False
+    settings.OAUTH.IS_ENABLED = False
 
 
 def _make_keycloak_mock(decoded_token):

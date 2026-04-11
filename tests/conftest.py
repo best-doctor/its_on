@@ -62,7 +62,7 @@ def _configure_test_database():
     test_dsn = make_dsn(**parsed)
     superuser_dsn = getattr(settings.DATABASE, 'SUPERUSER_DSN', base_dsn)
     settings.set('DATABASE', {'DSN': test_dsn, 'SUPERUSER_DSN': superuser_dsn})
-    settings.OAUTH.IS_USED = False
+    settings.OAUTH.IS_ENABLED = False
 
 
 @pytest.fixture(scope='session')

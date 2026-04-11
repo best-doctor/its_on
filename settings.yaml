@@ -5,7 +5,7 @@ default:
   database:
     dsn: postgresql://bestdoctor:bestdoctor@localhost:5432/its_on
   oauth:
-    is_used: false
+    is_enabled: false
     server_url: '@none'
     realm_name: '@none'
     client_id: 'its-on-admin'

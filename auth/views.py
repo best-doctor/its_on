@@ -107,7 +107,7 @@ class KeycloakCallbackView(View):
 
 class LoginView(View):
     async def get(self) -> StreamResponse:
-        if getattr(getattr(settings, 'OAUTH', None), 'IS_USED', False):
+        if getattr(getattr(settings, 'OAUTH', None), 'IS_ENABLED', False):
             raise HTTPFound('/oauth/auth')
         context = await get_login_context()
         return await render_template_async('users/login.html', self.request, context)
@@ -129,8 +129,8 @@ class LoginView(View):
         return await self.error()
 
     async def post(self) -> StreamResponse:
-        is_oauth_used = getattr(getattr(settings, 'OAUTH', None), 'IS_USED', False)
-        if is_oauth_used:
+        is_oauth_enabled = getattr(getattr(settings, 'OAUTH', None), 'IS_ENABLED', False)
+        if is_oauth_enabled:
             return await self.only_oauth_error()
         response_location = HTTPFound('/zbs/switches')
         form_data = await self.request.post()

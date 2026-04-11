@@ -25,7 +25,7 @@ def setup_routes(app: Application, base_dir: Path, cors_config: CorsConfig) -> N
     app.router.add_view('/zbs/login', LoginView, name='login_view')
     app.router.add_view('/zbs/logout', LogoutView)
 
-    if settings.OAUTH.IS_USED:
+    if settings.OAUTH.IS_ENABLED:
         app.router.add_view('/oauth/auth', KeycloakLoginView, name='oauth_login')
         app.router.add_view('/oauth/callback', KeycloakCallbackView, name='oauth_callback')
 
