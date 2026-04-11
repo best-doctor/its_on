@@ -3,7 +3,8 @@ from typing import Any
 from aiohttp import web
 from aiohttp_security.api import check_authorized
 
-from auth.utils import get_current_user, is_superuser
+from auth.enums import Permission
+from auth.utils import get_current_user, is_superuser, user_has_permission
 from its_on.admin.utils import get_user_switches
 
 
@@ -17,6 +18,8 @@ class CanEditSwitch(BasePermission):
     @classmethod
     async def is_allowed(cls, request: web.Request, object_to_check: Any = None, **kwargs: Any) -> bool:
         if await is_superuser(request):
+            return True
+        if await user_has_permission(request, Permission.SWITCHES_EDIT_ALL):
             return True
 
         user = await get_current_user(request)

@@ -1,6 +1,9 @@
 import pytest
 from multidict import MultiDict
 
+from auth.models import permissions
+from auth.enums import Permission
+
 
 async def test_users_table_available(setup_tables_and_data, client, login):
     response = await client.get('/zbs/switches')
@@ -46,6 +49,23 @@ async def test_user_switches_editing(
     response = await client.get(f'/zbs/switches/{flag_to_edit_id}')
 
     assert response.status == expected_status_code
+
+
+async def test__switches_edit_all__allows_editing_switch_without_user_switch(
+    setup_tables_and_data, client, db_conn_acquirer,
+):
+    async with db_conn_acquirer() as conn:
+        await conn.execute(
+            permissions.insert().values(
+                user_id=2,
+                perm_name=Permission.SWITCHES_EDIT_ALL,
+            ),
+        )
+
+    await client.post('/zbs/login', data={'login': 'user1', 'password': 'password'})
+    response = await client.get('/zbs/switches/4')
+
+    assert response.status == 200
 
 
 @pytest.mark.parametrize('login, password, expected_response_code', [

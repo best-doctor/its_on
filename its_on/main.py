@@ -2,8 +2,7 @@ from typing import Optional
 import logging
 import pathlib
 
-from aiohttp import web, ClientSession
-from aiohttp_oauth2 import oauth2_app
+from aiohttp import web
 from aiohttp_security import setup as setup_security
 from aiohttp_security import SessionIdentityPolicy
 import aiohttp_cors
@@ -16,15 +15,12 @@ from aiohttp_session.redis_storage import RedisStorage
 from its_on.config import settings
 import uvloop
 
-from auth.auth import DBAuthorizationPolicy, oauth_on_login, oauth_on_error
-from its_on.app_keys import (
-    client_session_key, config_key,
-    oauth_auth_extras_key, oauth_authorize_url_key, oauth_client_id_key, oauth_scopes_key,
-)
+from auth.auth import DBAuthorizationPolicy
+from its_on.app_keys import config_key
 from its_on.cache import setup_cache
 from its_on.db_utils import init_pg, close_pg
 from its_on.middlewares import setup_middlewares
-from its_on.routes import setup_routes, setup_oauth_route
+from its_on.routes import setup_routes
 
 BASE_DIR = pathlib.Path(__file__).parent.parent
 
@@ -37,40 +33,10 @@ async def make_redis_client() -> aioredis.Redis:
     return aioredis.from_url(settings.REDIS_URL, socket_connect_timeout=1)
 
 
-async def client_session(app: web.Application):  # type:ignore
-    async with ClientSession() as session:
-        app[client_session_key] = session
-        yield
-
-
 async def init_app(
     redis_client: Optional[aioredis.Redis] = None,
 ) -> web.Application:
     app = web.Application()
-
-    if settings.OAUTH.IS_USED:
-        client_id = settings.OAUTH.CLIENT_ID
-        authorize_url = settings.OAUTH.AUTHORIZE_URL
-        scopes = None
-        auth_extras = None
-        app[oauth_client_id_key] = client_id
-        app[oauth_authorize_url_key] = authorize_url
-        app[oauth_scopes_key] = scopes
-        app[oauth_auth_extras_key] = auth_extras or {}
-        app.cleanup_ctx.append(client_session)
-        setup_oauth_route(app)
-        app.add_subapp(
-            '/oauth/',
-            oauth2_app(
-                client_id=settings.OAUTH.CLIENT_ID,
-                client_secret=settings.OAUTH.CLIENT_SECRET,
-                authorize_url=settings.OAUTH.AUTHORIZE_URL,
-                token_url=settings.OAUTH.TOKEN_URL,
-                on_login=oauth_on_login,
-                on_error=oauth_on_error,
-                json_data=False,
-            ),
-        )
 
     app[config_key] = settings
 
@@ -89,6 +55,7 @@ async def init_app(
         loader=jinja2.FileSystemLoader(
             str(BASE_DIR / 'its_on' / 'templates'),
         ),
+        enable_async=True,
     )
 
     jinja2_env.globals.update({

@@ -1,20 +1,18 @@
 from __future__ import annotations
+
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, Union
 
-import aiohttp_jinja2
-from aiohttp import web
-from aiohttp.web_exceptions import HTTPFound
-from aiohttp_security import remember
-from aiopg.sa.engine import Engine
-from aiopg.sa.result import RowProxy
 from aiohttp.web import Application
 from aiohttp_security.abc import AbstractAuthorizationPolicy
+from aiopg.sa.engine import Engine
+from aiopg.sa.result import RowProxy
 from its_on.config import settings
 from passlib.hash import sha256_crypt
 from sqlalchemy import and_, func, not_
 
 from auth import models
+from auth.enums import Permission
 from its_on.app_keys import db_key
 
 if TYPE_CHECKING:
@@ -23,12 +21,11 @@ if TYPE_CHECKING:
 
 async def get_login_context(error: str | None = None) -> Dict[str, Union[str | bool]]:
     use_oauth = getattr(getattr(settings, 'OAUTH', None), 'IS_USED', False)
-    only_oauth = getattr(getattr(settings, 'OAUTH', None), 'ONLY_OAUTH', False)
     oauth_sign_in_title = getattr(getattr(settings, 'OAUTH', None), 'SIGN_IN_TITLE', '')
     context = {
         'context': '',
         'use_oauth': use_oauth,
-        'only_oauth': only_oauth,
+        'only_oauth': use_oauth,
         'oauth_sign_in_title': oauth_sign_in_title,
     }
     if error:
@@ -36,19 +33,7 @@ async def get_login_context(error: str | None = None) -> Dict[str, Union[str | b
     return context
 
 
-async def oauth_on_login(request: web.Request, user_data: dict) -> web.Response:
-    response = HTTPFound('/zbs/switches')
-    await remember(request, response, 'admin')
-    raise response
-
-
-@aiohttp_jinja2.template('users/login.html')
-async def oauth_on_error(request: web.Request) -> Dict[str, Union[str | bool]]:
-    return await get_login_context(error='OAUTH failed')
-
-
 async def check_credentials(db_engine: Engine, username: str, password: str) -> bool:
-    """Производит аутентификацию пользователя."""
     async with db_engine.acquire() as conn:
         where = and_(
             models.users.c.login == username,
@@ -63,6 +48,35 @@ async def check_credentials(db_engine: Engine, username: str, password: str) -> 
             return sha256_crypt.verify(password, password_hash)
 
     return False
+
+
+async def get_or_create_user(db_engine: Engine, login: str) -> RowProxy:
+    async with db_engine.acquire() as conn:
+        query = models.users.select().where(models.users.c.login == login)
+        result = await conn.execute(query)
+        user = await result.fetchone()
+
+        if user is not None:
+            return user
+
+        unusable_password = sha256_crypt.hash('!')
+        insert_query = models.users.insert().values(
+            login=login,
+            passwd=unusable_password,
+            is_superuser=False,
+            disabled=False,
+        )
+        await conn.execute(insert_query)
+
+        result = await conn.execute(query)
+        user = await result.fetchone()
+        await conn.execute(
+            models.permissions.insert().values(
+                user_id=user.id,
+                perm_name=Permission.SWITCHES_EDIT_ALL,
+            ),
+        )
+        return user
 
 
 class DBAuthorizationPolicy(AbstractAuthorizationPolicy):
@@ -81,8 +95,7 @@ class DBAuthorizationPolicy(AbstractAuthorizationPolicy):
     async def permits(
         self, identity: str | None, permission: str | Enum, context: Any = None,
     ) -> bool:
-        """Нужно для имплементации абстрактного метода."""
-        return False
+        return True
 
     async def _is_authorised(self, identity: str) -> RowProxy:
         async with self.app[db_key].acquire() as conn:

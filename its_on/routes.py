@@ -1,11 +1,12 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from aiohttp.web import Application
 from aiohttp_cors import CorsConfig
 from its_on.config import settings
 
-from auth.views import LoginView, LogoutView, OauthViewForceHttps
+from auth.views import KeycloakCallbackView, KeycloakLoginView, LoginView, LogoutView
 from its_on.views import SwitchFullListView, SwitchListView, SwitchSvgBadgeView
 from its_on.admin.views.switches import (
     SwitchAddAdminView,
@@ -20,13 +21,14 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-def setup_oauth_route(app: Application) -> None:
-    app.router.add_view('/oauth/auth', OauthViewForceHttps)
-
-
 def setup_routes(app: Application, base_dir: Path, cors_config: CorsConfig) -> None:
     app.router.add_view('/zbs/login', LoginView, name='login_view')
     app.router.add_view('/zbs/logout', LogoutView)
+
+    if settings.OAUTH.IS_USED:
+        app.router.add_view('/oauth/auth', KeycloakLoginView, name='oauth_login')
+        app.router.add_view('/oauth/callback', KeycloakCallbackView, name='oauth_callback')
+
     app.router.add_view('/zbs/switches', SwitchListAdminView, name='switches_list')
     app.router.add_view('/zbs/switches/add', SwitchAddAdminView, name='switches_add')
     app.router.add_view('/zbs/switches/copy', SwitchesCopyAdminView, name='switches_copy')

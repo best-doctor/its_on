@@ -5,7 +5,7 @@ from freezegun import freeze_time
 from sqlalchemy import create_engine, MetaData, text
 from sqlalchemy.engine import Engine
 
-from auth.models import users
+from auth.models import permissions, users
 from its_on.db_utils import parse_dsn
 from its_on.models import switches, user_switches, switch_history
 
@@ -51,14 +51,20 @@ def create_tables(config: Settings) -> None:
     engine = get_engine(config.DATABASE.DSN)
 
     meta = MetaData()
-    meta.create_all(bind=engine, tables=[switches, users, user_switches, switch_history])
+    meta.create_all(
+        bind=engine,
+        tables=[switches, users, permissions, user_switches, switch_history],
+    )
 
 
 def drop_tables(config: Settings) -> None:
     engine = get_engine(config.DATABASE.DSN)
 
     meta = MetaData()
-    meta.drop_all(bind=engine, tables=[switches, users, user_switches, switch_history])
+    meta.drop_all(
+        bind=engine,
+        tables=[switches, users, permissions, user_switches, switch_history],
+    )
 
 
 @freeze_time(datetime.datetime(2020, 4, 15, tzinfo=datetime.timezone.utc))
@@ -132,14 +138,12 @@ def create_sample_data(config: Settings) -> None:
             users.insert(),
             [
                 {
-                    'id': 1,
                     'login': 'admin',
                     'passwd': '$5$rounds=535000$WLLTOp3BDURUJCpA$W0CZSO1mR8/OfIPKj/piXv9cBIXBhlnDpQcORnnQR5/',
                     'is_superuser': True,
                     'disabled': False,
                 },
                 {
-                    'id': 2,
                     'login': 'user1',
                     'passwd': '$5$rounds=535000$WLLTOp3BDURUJCpA$W0CZSO1mR8/OfIPKj/piXv9cBIXBhlnDpQcORnnQR5/',
                     'is_superuser': False,
