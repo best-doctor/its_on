@@ -4,6 +4,9 @@ on:
   push:
     branches: [ master ]
 
+permissions:
+  contents: read
+
 env:
   DYNACONF_REDIS_URL: redis://localhost:6379/1
   DYNACONF_CACHE_URL: redis://localhost:6379/1
@@ -38,9 +41,9 @@ jobs:
       matrix:
         python-version: ['3.11']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -52,9 +55,18 @@ jobs:
           dockerfile: Dockerfile
       - name: Run checks
         run: make check
-      - name: Run tests and publish coverage
-        uses: paambaati/codeclimate-action@v9.0.0
+      - name: Run tests with coverage and upload to Code Climate
+        if: ${{ secrets.CC_TEST_REPORTER_ID != '' }}
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-        with:
-          coverageCommand: make coverage
+        run: |
+          set -euo pipefail
+          curl -Ls https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 -o cc-test-reporter
+          chmod +x cc-test-reporter
+          ./cc-test-reporter before-build
+          set +e
+          make coverage
+          code=$?
+          set -e
+          ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code "$code"
+          exit "$code"
