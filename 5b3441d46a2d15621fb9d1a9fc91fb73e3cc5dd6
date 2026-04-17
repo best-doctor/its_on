@@ -1,0 +1,23 @@
+.github/workflows/build.yml
+  3a4e382b6a5a3c3d 62-65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.0",
+  "base_commit_sha": "5b3441d46a2d15621fb9d1a9fc91fb73e3cc5dd6",
+  "prompts": {
+    "3a4e382b6a5a3c3d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "2bd46252-3e96-42cd-8a4c-faf870f36ab2",
+        "model": "default"
+      },
+      "human_author": "Vladislav Katolyk",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 2,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}
