@@ -56,10 +56,13 @@ jobs:
       - name: Run checks
         run: make check
       - name: Run tests with coverage and upload to Code Climate
-        if: ${{ secrets.CC_TEST_REPORTER_ID != '' }}
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         run: |
+          if [ -z "${CC_TEST_REPORTER_ID:-}" ]; then
+            echo "CC_TEST_REPORTER_ID is not set; skipping Code Climate coverage upload"
+            exit 0
+          fi
           set -euo pipefail
           curl -Ls https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 -o cc-test-reporter
           chmod +x cc-test-reporter
