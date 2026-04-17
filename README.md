@@ -1,7 +1,6 @@
 # It's on
 
 [![Build Status](https://github.com/best-doctor/its_on/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/best-doctor/its_on/actions/workflows/build.yml)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/35e678c4d05199a31eb9/test_coverage)](https://codeclimate.com/github/best-doctor/its_on/test_coverage)
 
 Flag/feature toggle service, written in aiohttp.
 

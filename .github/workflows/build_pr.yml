@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+
 env:
   DYNACONF_REDIS_URL: redis://localhost:6379/1
   DYNACONF_CACHE_URL: redis://localhost:6379/1

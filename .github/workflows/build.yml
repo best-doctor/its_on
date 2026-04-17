@@ -55,21 +55,3 @@ jobs:
           dockerfile: Dockerfile
       - name: Run checks
         run: make check
-      - name: Run tests with coverage and upload to Code Climate
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-        run: |
-          if [ -z "${CC_TEST_REPORTER_ID:-}" ]; then
-            echo "CC_TEST_REPORTER_ID is not set; skipping Code Climate coverage upload"
-            exit 0
-          fi
-          set -euo pipefail
-          curl -Ls https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 -o cc-test-reporter
-          chmod +x cc-test-reporter
-          ./cc-test-reporter before-build
-          set +e
-          make coverage
-          code=$?
-          set -e
-          ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code "$code"
-          exit "$code"
