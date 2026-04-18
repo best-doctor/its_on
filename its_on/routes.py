@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from aiohttp.web import Application
 from aiohttp_cors import CorsConfig
 from its_on.config import settings
+from its_on.probes import liveness_probe, readiness_probe, startup_probe
 
 from auth.views import KeycloakCallbackView, KeycloakLoginView, LoginView, LogoutView
 from its_on.views import SwitchFullListView, SwitchListView, SwitchSvgBadgeView
@@ -22,6 +23,14 @@ if TYPE_CHECKING:
 
 
 def setup_routes(app: Application, base_dir: Path, cors_config: CorsConfig) -> None:
+    for path, handler in (
+        ('/lullz', liveness_probe),
+        ('/readyz', readiness_probe),
+        ('/healthz', startup_probe),
+    ):
+        app.router.add_route('GET', path, handler)
+        app.router.add_route('OPTIONS', path, handler)
+
     app.router.add_view('/zbs/login', LoginView, name='login_view')
     app.router.add_view('/zbs/logout', LogoutView)
 
