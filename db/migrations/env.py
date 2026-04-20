@@ -1,15 +1,17 @@
 import os
-from logging.config import fileConfig
 import sys
+from logging.config import fileConfig
 
-from its_on.config import settings
+from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-from alembic import context
+# Repo root must be on sys.path before project imports (order matters; do not rely on cwd).
+_repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if _repo_root not in sys.path:
+    sys.path.insert(0, _repo_root)
 
-parent_dir = os.path.abspath(os.path.join(os.getcwd()))
-sys.path.append(parent_dir)
+from its_on.config import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
