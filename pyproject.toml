@@ -1,6 +1,6 @@
 [project]
 name = "its_on"
-version = "0.1.2"
+version = "0.1.3"
 description = "Flag/feature toggle service, written in aiohttp."
 authors = [
     {name = "Luchi Insurance JSC", email = "info@luchi.ru"},
