@@ -1,0 +1,41 @@
+pyproject.toml
+  640284aaf81a73fc 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "af1852368fb3eeffc2fd33d174fa9baa9b6049e9",
+  "prompts": {
+    "640284aaf81a73fc": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "b80b9bbe-ee55-463e-b429-2fdb6c4c98ef",
+        "model": "default"
+      },
+      "human_author": "Vladislav Katolyk",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    },
+    "eee6f87e8440b766": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "482e5975-44ed-49ce-aaaf-bd628e988f2c",
+        "model": "default"
+      },
+      "human_author": "Vladislav Katolyk",
+      "messages": [],
+      "total_additions": 64,
+      "total_deletions": 9,
+      "accepted_lines": 1,
+      "overriden_lines": 4
+    }
+  },
+  "humans": {
+    "h_03cf706ed0c74f": {
+      "author": "Vladislav Katolyk"
+    }
+  }
+}
