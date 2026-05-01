@@ -6,7 +6,7 @@ authors = [
     {name = "Luchi Insurance JSC", email = "info@luchi.ru"},
 ]
 dependencies = [
-    "aiohttp==3.13.3",
+    "aiohttp==3.13.5",
     "aiohttp-apispec==2.2.3",
     "aiohttp-cors==0.8.1",
     "aiohttp-jinja2==1.6",
