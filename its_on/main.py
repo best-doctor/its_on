@@ -16,6 +16,7 @@ from its_on.config import settings
 import uvloop
 
 from auth.auth import DBAuthorizationPolicy
+from auth.keycloak import close_keycloak_openid
 from its_on.app_keys import config_key
 from its_on.cache import setup_cache
 from its_on.db_utils import init_pg, close_pg
@@ -73,6 +74,7 @@ async def init_app(
     app.on_startup.append(init_pg)
     app.on_cleanup.append(close_pg)
     app.on_cleanup.append(dispose_redis_client)
+    app.on_cleanup.append(close_keycloak_openid)
 
     setup_security(app,
                    SessionIdentityPolicy(session_key='sessionkey'),

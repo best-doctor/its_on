@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from functools import lru_cache
 from typing import TYPE_CHECKING
 
 from keycloak import KeycloakOpenID
@@ -8,20 +9,33 @@ from keycloak import KeycloakOpenID
 from its_on.config import settings
 
 if TYPE_CHECKING:
-    from aiohttp.web import Request
+    from aiohttp.web import Application, Request
 
 logger = logging.getLogger(__name__)
 
 DEVELOPER_ROLE = settings.OAUTH.DEVELOPER_ROLE
+KEYCLOAK_TIMEOUT = 10
 
 
+@lru_cache(maxsize=1)
 def get_keycloak_openid() -> KeycloakOpenID:
+    # Every KeycloakOpenID opens its own requests session and httpx client,
+    # so the instance is shared instead of being built on each request.
     return KeycloakOpenID(
         server_url=settings.OAUTH.SERVER_URL,
         realm_name=settings.OAUTH.REALM_NAME,
         client_id=settings.OAUTH.CLIENT_ID,
         client_secret_key=settings.OAUTH.CLIENT_SECRET,
+        timeout=KEYCLOAK_TIMEOUT,
     )
+
+
+async def close_keycloak_openid(app: 'Application') -> None:
+    if not get_keycloak_openid.cache_info().currsize:
+        return
+
+    await get_keycloak_openid().connection.aclose()
+    get_keycloak_openid.cache_clear()
 
 
 def build_callback_url(request: Request) -> str:

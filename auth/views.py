@@ -24,6 +24,8 @@ from its_on.config import settings
 if TYPE_CHECKING:
     from typing import Optional, Dict
 
+    from aiohttp.web import Request
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,11 +35,22 @@ class OAuthCallbackError(Exception):
         super().__init__(message)
 
 
+async def render_login_error(request: 'Request', error: str) -> StreamResponse:
+    context = await get_login_context(error=error)
+    return await render_template_async('users/login.html', request, context)
+
+
 class KeycloakLoginView(View):
     async def get(self) -> StreamResponse:
         keycloak_openid = get_keycloak_openid()
         callback_url = build_callback_url(self.request)
-        auth_url = keycloak_openid.auth_url(redirect_uri=callback_url, scope='openid')
+
+        try:
+            auth_url = await keycloak_openid.a_auth_url(redirect_uri=callback_url, scope='openid')
+        except (KeycloakError, TypeError, KeyError):
+            logger.exception('Keycloak authorization url request failed')
+            return await render_login_error(self.request, 'Keycloak is unavailable')
+
         raise HTTPTemporaryRedirect(location=auth_url)
 
 
@@ -101,8 +114,7 @@ class KeycloakCallbackView(View):
         raise response
 
     async def _render_login_error(self, error: str) -> StreamResponse:
-        context = await get_login_context(error=error)
-        return await render_template_async('users/login.html', self.request, context)
+        return await render_login_error(self.request, error)
 
 
 class LoginView(View):
