@@ -7,7 +7,9 @@ from sqlalchemy import func
 
 from auth.auth import get_login_context, get_or_create_user
 from auth.utils import user_has_permission
-from auth.keycloak import get_username_from_token, has_developer_role
+from auth.keycloak import (
+    close_keycloak_openid, get_keycloak_openid, get_username_from_token, has_developer_role,
+)
 from auth.models import permissions, users
 from auth.enums import Permission
 from its_on.app_keys import db_key
@@ -202,7 +204,7 @@ def _make_keycloak_mock(decoded_token):
         return_value={'access_token': 'fake-token'},
     )
     mock.a_decode_token = AsyncMock(return_value=decoded_token)
-    mock.auth_url = MagicMock(
+    mock.a_auth_url = AsyncMock(
         return_value='https://keycloak.test/auth',
     )
     return mock
@@ -347,3 +349,82 @@ async def test__keycloak_callback__token_decode_fails(
     content = (await response.content.read()).decode('utf-8')
 
     assert 'Token validation failed' in content
+
+
+# --- Integration: Keycloak login view ---
+
+@pytest.mark.usefixtures('setup_tables_and_data')
+async def test__keycloak_login__redirects_to_keycloak(oauth_client, mocker):
+    mock_keycloak = MagicMock()
+    mock_keycloak.a_auth_url = AsyncMock(return_value='https://keycloak.test/auth?client_id=its-on')
+    mocker.patch(
+        'auth.views.get_keycloak_openid',
+        return_value=mock_keycloak,
+    )
+
+    response = await oauth_client.get('/oauth/auth', allow_redirects=False)
+
+    assert response.status == 307
+    assert response.headers['Location'] == 'https://keycloak.test/auth?client_id=its-on'
+    assert mock_keycloak.a_auth_url.await_count == 1
+
+
+@pytest.mark.parametrize(
+    'error',
+    [
+        # Keycloak behind a proxy answers 200 with an html stub instead of the well_known json.
+        TypeError("Unexpected response type on well_known. Expected 'dict', received bytes"),
+        KeycloakError('connection error'),
+        KeyError('authorization_endpoint'),
+    ],
+)
+@pytest.mark.usefixtures('setup_tables_and_data')
+async def test__keycloak_login__renders_error_when_well_known_broken(
+    oauth_client, mocker, error,
+):
+    mock_keycloak = MagicMock()
+    mock_keycloak.a_auth_url = AsyncMock(side_effect=error)
+    mocker.patch(
+        'auth.views.get_keycloak_openid',
+        return_value=mock_keycloak,
+    )
+
+    response = await oauth_client.get('/oauth/auth', allow_redirects=False)
+    content = (await response.content.read()).decode('utf-8')
+
+    assert response.status == 200
+    assert 'Keycloak is unavailable' in content
+
+
+# --- Unit: keycloak client lifecycle ---
+
+@pytest.fixture()
+def _clean_keycloak_cache():
+    get_keycloak_openid.cache_clear()
+    yield
+    get_keycloak_openid.cache_clear()
+
+
+@pytest.mark.usefixtures('_clean_keycloak_cache')
+async def test__get_keycloak_openid__reuses_single_client():
+    assert get_keycloak_openid() is get_keycloak_openid()
+
+
+@pytest.mark.usefixtures('_clean_keycloak_cache')
+async def test__close_keycloak_openid__closes_client(mocker):
+    keycloak_openid = get_keycloak_openid()
+    aclose = mocker.patch.object(keycloak_openid.connection, 'aclose', AsyncMock())
+
+    await close_keycloak_openid(MagicMock())
+
+    aclose.assert_awaited_once()
+    assert get_keycloak_openid.cache_info().currsize == 0
+
+
+@pytest.mark.usefixtures('_clean_keycloak_cache')
+async def test__close_keycloak_openid__does_not_build_unused_client(mocker):
+    keycloak_factory = mocker.patch('auth.keycloak.KeycloakOpenID')
+
+    await close_keycloak_openid(MagicMock())
+
+    keycloak_factory.assert_not_called()
