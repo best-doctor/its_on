@@ -7,7 +7,9 @@ from sqlalchemy.engine import Engine
 
 from auth.models import permissions, users
 from its_on.db_utils import parse_dsn
-from its_on.models import switches, user_switches, switch_history
+from its_on.models import (
+    environments, switch_environments, switch_history, switches, user_switches,
+)
 
 
 def get_engine(dsn: str) -> Engine:
@@ -53,7 +55,10 @@ def create_tables(config: Settings) -> None:
     meta = MetaData()
     meta.create_all(
         bind=engine,
-        tables=[switches, users, permissions, user_switches, switch_history],
+        tables=[
+            switches, users, permissions, user_switches, switch_history,
+            environments, switch_environments,
+        ],
     )
 
 
@@ -63,7 +68,10 @@ def drop_tables(config: Settings) -> None:
     meta = MetaData()
     meta.drop_all(
         bind=engine,
-        tables=[switches, users, permissions, user_switches, switch_history],
+        tables=[
+            switches, users, permissions, user_switches, switch_history,
+            environments, switch_environments,
+        ],
     )
 
 
@@ -158,5 +166,26 @@ def create_sample_data(config: Settings) -> None:
                 {'user_id': 1, 'switch_id': 5},
                 {'user_id': 1, 'switch_id': 6},
                 {'user_id': 2, 'switch_id': 7},
+            ],
+        )
+        conn.execute(
+            environments.insert(),
+            [
+                {'id': 1, 'name': 'staging'},
+                {'id': 2, 'name': 'production'},
+                {'id': 3, 'name': 'qa'},
+            ],
+        )
+        # switch1: staging включен, production выключен;
+        # switch3: мастер-рубильник выключен, staging включен;
+        # switch4: включен только на production;
+        # switch2 без записей - контрольный флаг с легаси-поведением.
+        conn.execute(
+            switch_environments.insert(),
+            [
+                {'switch_id': 1, 'environment_id': 1, 'is_active': True},
+                {'switch_id': 1, 'environment_id': 2, 'is_active': False},
+                {'switch_id': 3, 'environment_id': 1, 'is_active': True},
+                {'switch_id': 4, 'environment_id': 2, 'is_active': True},
             ],
         )
