@@ -103,6 +103,46 @@
           <label>Comment:</label>
           <textarea class="form-control" rows="5" name="comment" {% if object.deleted_at %} disabled {% endif %}>{{ object.comment }}</textarea>
         </div>
+        <br>
+        <div class="panel panel-default">
+          <div class="panel-heading"><strong>Environments</strong></div>
+          <div class="panel-body">
+            {% if all_environments %}
+              <table class="table table-striped" id="environments-table">
+                <thead>
+                <tr>
+                  <th>Enabled</th>
+                  <th>Name</th>
+                  <th>Active</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for environment in all_environments %}
+                  <tr>
+                    <td>
+                      <input type="checkbox" class="environment-enabled" name="environment_ids" value="{{ environment.id }}"
+                             {% if environment.id in switch_environments %} checked="checked" {% endif %}
+                             {% if object.deleted_at %} disabled {% endif %}>
+                    </td>
+                    <td>{{ environment.name }}</td>
+                    <td>
+                      <input type="checkbox" class="environment-active" name="environment_active_{{ environment.id }}" value="1"
+                             {% if switch_environments.get(environment.id) %} checked="checked" {% endif %}
+                             {% if environment.id not in switch_environments or object.deleted_at %} disabled {% endif %}>
+                    </td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+              <p class="help-block">
+                Without enabled environments the flag works in all environments.
+                Otherwise it is active only in the enabled environments marked as active.
+              </p>
+            {% else %}
+              <p class="help-block">No environments yet. A superuser can add them in the Environments section.</p>
+            {% endif %}
+          </div>
+        </div>
         {% if not object.deleted_at %}
         <input type="submit" class="btn btn-default" value="Save">
         <a class="btn btn-danger float-right" href="/zbs/switches/{{ object.id }}/delete"
@@ -167,6 +207,12 @@
   <script>
     $(document).ready(function () {
       $('#svg-badge-tooltip').tooltip();
+
+      $('.environment-enabled').change(function () {
+        let activeCheckbox = $(this).closest('tr').find('.environment-active');
+        activeCheckbox.prop('disabled', !this.checked);
+        activeCheckbox.prop('checked', this.checked);
+      });
 
       $('#copy-md-badge-btn').click(function () {
         // only if browser supports Clipboard API
