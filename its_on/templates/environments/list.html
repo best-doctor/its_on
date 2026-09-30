@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="col-sm-9">
+  <h2>Environments list</h2>
+  <a href="/zbs/environments/add" class="btn btn-primary">Add</a>
+  <br><br>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Used by</th>
+        <th>Created at</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for environment in environments %}
+        <tr>
+          <td>{{ environment.name }}</td>
+          <td>{{ environment.switches_count }} flags</td>
+          <td>{{ environment.created_at.strftime('%Y-%m-%d') if environment.created_at else '' }}</td>
+          <td>
+            <form action="/zbs/environments/{{ environment.id }}/delete" method="post"
+                  onsubmit="return confirm('Environment {{ environment.name }} will be removed from all flags. Are you sure?');">
+              <button type="submit" class="btn btn-link">Delete</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

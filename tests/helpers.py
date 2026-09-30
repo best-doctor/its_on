@@ -171,9 +171,9 @@ def create_sample_data(config: Settings) -> None:
         conn.execute(
             environments.insert(),
             [
-                {'id': 1, 'name': 'staging'},
-                {'id': 2, 'name': 'production'},
-                {'id': 3, 'name': 'qa'},
+                {'name': 'staging'},
+                {'name': 'production'},
+                {'name': 'qa'},
             ],
         )
         # switch1: staging включен, production выключен;

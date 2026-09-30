@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="col-sm-9">
+  <h2>Add environment</h2>
+  <br>
+
+  {% if errors %}
+    <div class="well well-sm error">{{ errors }}</div>
+  {% endif %}
+
+  <form action="/zbs/environments/add" method="post">
+    <div class="form-group">
+      <label>Name:</label>
+      <input type="text" class="form-control" name="name" value="{{ name }}"
+             placeholder="staging / production / qa-1">
+    </div>
+    <input type="submit" class="btn btn-default" value="Save">
+  </form>
+</div>
+{% endblock %}
