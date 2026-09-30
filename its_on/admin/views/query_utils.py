@@ -8,6 +8,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import not_, and_
 
 from auth.models import users
+from its_on.constants import ENVIRONMENT_REMOVED_VALUE
 from its_on.models import environments, switch_environments
 
 
@@ -67,21 +68,33 @@ async def get_switch_environments_states(request: web.Request, switch_id: int) -
 
 async def sync_switch_environments(
     request: web.Request, switch_id: int, states: Dict[int, bool],
-) -> None:
+) -> List[Tuple[str, str]]:
     """
     Приводит switch_environments флага к переданному состоянию.
 
     Лишние записи удаляются, недостающие добавляются, is_active существующих обновляется.
     Несуществующие в справочнике окружения игнорируются.
+
+    Возвращает изменения для истории: (имя окружения, '1' / '0' / ENVIRONMENT_REMOVED_VALUE).
     """
     async with request.app[db_key].acquire() as conn:
+        result = await conn.execute(environments.select())
+        names = {row.id: row.name for row in await result.fetchall()}
+        states = {env_id: is_active for env_id, is_active in states.items() if env_id in names}
+
         result = await conn.execute(
-            environments.select().with_only_columns(environments.c.id).where(
-                environments.c.id.in_(list(states)),
-            ),
+            switch_environments.select().where(switch_environments.c.switch_id == switch_id),
         )
-        known_ids = {row.id for row in await result.fetchall()}
-        states = {env_id: is_active for env_id, is_active in states.items() if env_id in known_ids}
+        current_states = {row.environment_id: row.is_active for row in await result.fetchall()}
+
+        changes = [
+            (names[env_id], '1' if is_active else '0')
+            for env_id, is_active in states.items()
+            if current_states.get(env_id) != is_active
+        ] + [
+            (names[env_id], ENVIRONMENT_REMOVED_VALUE)
+            for env_id in current_states if env_id not in states
+        ]
 
         await conn.execute(
             switch_environments.delete().where(
@@ -101,3 +114,5 @@ async def sync_switch_environments(
                     set_={'is_active': upsert.excluded.is_active},
                 ),
             )
+
+    return changes

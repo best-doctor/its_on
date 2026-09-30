@@ -72,6 +72,7 @@ switch_history = sa.Table(
     sa.Column('switch_id', sa.Integer, sa.ForeignKey(switches.c.id)),
     sa.Column('user_id', sa.Integer, sa.ForeignKey(models.users.c.id), nullable=False),
     sa.Column('new_value', sa.String(64), nullable=False),
+    sa.Column('environment', sa.String(255), nullable=True),
     sa.Column(
         'changed_at',
         AwareDateTime,

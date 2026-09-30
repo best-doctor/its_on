@@ -11,3 +11,6 @@ SWITCH_NOT_FOUND_SVG_BADGE_PREFIX = SVG_BADGE_SETTINGS.PREFIX.NOT_FOUND
 
 # Slug: строчные латинские буквы и цифры, слова разделены одиночным дефисом
 ENVIRONMENT_NAME_PATTERN = r'^[a-z0-9]+(-[a-z0-9]+)*$'
+
+# Значение в истории флага, когда окружение отвязали от флага
+ENVIRONMENT_REMOVED_VALUE = 'removed'

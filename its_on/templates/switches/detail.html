@@ -170,6 +170,7 @@
                 <tr>
                   <th>Changed at</th>
                   <th>Changed by</th>
+                  <th>Environment</th>
                   <th>Value</th>
                 </tr>
                 </thead>
@@ -180,8 +181,11 @@
                       {{ switch.changed_at.strftime('%d-%m-%Y %H:%M:%S') }}
                     </td>
                     <td>{{ switch.changed_by }}</td>
+                    <td>{{ switch.environment or 'Whole flag' }}</td>
                     <td>
-                      {% if switch.new_value == '1' %}
+                      {% if switch.new_value == 'removed' %}
+                        removed
+                      {% elif switch.new_value == '1' %}
                         <span class="glyphicon glyphicon-ok green"></span>
                       {% else %}
                         <span class="glyphicon glyphicon-remove red"></span>
@@ -211,7 +215,7 @@
       $('.environment-enabled').change(function () {
         let activeCheckbox = $(this).closest('tr').find('.environment-active');
         activeCheckbox.prop('disabled', !this.checked);
-        activeCheckbox.prop('checked', this.checked);
+        activeCheckbox.prop('checked', false);
       });
 
       $('#copy-md-badge-btn').click(function () {

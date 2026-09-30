@@ -4,7 +4,7 @@ from typing import Callable, List, Tuple
 import pytest
 from sqlalchemy import func, select
 
-from its_on.models import environments, switch_environments, switches
+from its_on.models import environments, switch_environments, switch_history, switches
 
 SWITCH_FORM = [('is_active', '1'), ('groups', 'group1, group2'), ('ttl', '5'), ('comment', 'new')]
 STAGING_ID, PRODUCTION_ID, QA_ID = 1, 2, 3
@@ -21,6 +21,20 @@ def get_environment_states(db_conn_acquirer) -> Callable:
         async with db_conn_acquirer() as conn:
             result = await conn.execute(query)
             return [(row.environment_id, row.is_active) for row in await result.fetchall()]
+
+    return _with_params
+
+
+@pytest.fixture()
+def get_environment_history(db_conn_acquirer) -> Callable:
+    async def _with_params(switch_id: int) -> List[Tuple[str, str]]:
+        query = switch_history.select().where(
+            switch_history.c.switch_id == switch_id,
+            switch_history.c.environment.isnot(None),
+        )
+        async with db_conn_acquirer() as conn:
+            result = await conn.execute(query)
+            return sorted((row.environment, row.new_value) for row in await result.fetchall())
 
     return _with_params
 
@@ -295,3 +309,127 @@ async def test__switch_detail_view__post_invalid_switch_fields__keeps_environmen
 
     assert 'At least one group is required.' in await response.text()
     assert await get_environment_states(1) == [(STAGING_ID, True), (PRODUCTION_ID, False)]
+
+
+@pytest.mark.usefixtures('setup_tables_and_data', 'login')
+async def test__switch_detail_view__post_environment_changes__saved_to_history(
+    client, get_environment_history,
+):
+    """
+    Arrange: у switch1 staging активен, production неактивен
+    Act: выключаем staging, отвязываем production, привязываем qa с активностью
+    Assert: в истории по одной записи на каждое окружение с именем и новым значением
+    """
+    data = SWITCH_FORM + [
+        ('environment_ids', str(STAGING_ID)),
+        ('environment_ids', str(QA_ID)),
+        (f'environment_active_{QA_ID}', '1'),
+    ]
+
+    await client.post('/zbs/switches/1', data=data)
+
+    assert await get_environment_history(1) == [
+        ('production', 'removed'), ('qa', '1'), ('staging', '0'),
+    ]
+
+
+@pytest.mark.usefixtures('setup_tables_and_data', 'login')
+async def test__switch_detail_view__post_unchanged_environments__no_environment_history(
+    client, get_environment_history,
+):
+    """
+    Arrange: у switch1 staging активен, production неактивен
+    Act: сохраняем форму с теми же состояниями окружений
+    Assert: записей истории по окружениям нет
+    """
+    data = SWITCH_FORM + [
+        ('environment_ids', str(STAGING_ID)),
+        ('environment_ids', str(PRODUCTION_ID)),
+        (f'environment_active_{STAGING_ID}', '1'),
+    ]
+
+    await client.post('/zbs/switches/1', data=data)
+
+    assert await get_environment_history(1) == []
+
+
+@pytest.mark.usefixtures('setup_tables_and_data', 'login')
+async def test__switch_detail_view__history_table_shows_environment_name(client):
+    """
+    Arrange: сохранили форму, отвязав production от switch1
+    Act: открываем страницу флага
+    Assert: в таблице History есть колонка Environment и запись об удалении production
+    """
+    await client.post('/zbs/switches/1', data=SWITCH_FORM + [('environment_ids', str(STAGING_ID))])
+
+    response = await client.get('/zbs/switches/1')
+
+    history_block = (await response.text()).split('id="collapseTwo"')[1]
+    assert '<th>Environment</th>' in history_block
+    assert re.search(r'<td>production</td>\s*<td>\s*removed\s*</td>', history_block)
+
+
+@pytest.mark.usefixtures('setup_tables_and_data', 'login')
+@pytest.mark.parametrize('is_active,expected_history_count', [
+    ('1', 0),
+    ('0', 1),
+], ids=['is_active_unchanged', 'is_active_changed'])
+async def test__switch_detail_view__post__writes_flag_history_only_when_is_active_changed(
+    client, db_conn_acquirer, is_active, expected_history_count,
+):
+    """
+    Arrange: switch1 активен, окружения в форме не меняются
+    Act: сохраняем форму с тем же и с другим значением is_active
+    Assert: запись об общем состоянии флага появляется только при изменении is_active
+    """
+    data = [
+        ('is_active', is_active), ('groups', 'group1, group2'), ('ttl', '5'),
+        ('environment_ids', str(STAGING_ID)), ('environment_ids', str(PRODUCTION_ID)),
+        (f'environment_active_{STAGING_ID}', '1'),
+    ]
+
+    await client.post('/zbs/switches/1', data=data)
+
+    async with db_conn_acquirer() as conn:
+        result = await conn.execute(
+            switch_history.select().where(
+                switch_history.c.switch_id == 1, switch_history.c.environment.is_(None),
+            ),
+        )
+        assert len(await result.fetchall()) == expected_history_count
+
+
+@pytest.mark.usefixtures('setup_tables_and_data', 'login')
+async def test__switch_detail_view__environment_change_only__single_history_row(
+    client, db_conn_acquirer,
+):
+    """
+    Arrange: у switch1 staging активен, production неактивен
+    Act: сохраняем форму, выключив только staging
+    Assert: в истории ровно одна запись - про staging
+    """
+    data = SWITCH_FORM + [
+        ('environment_ids', str(STAGING_ID)), ('environment_ids', str(PRODUCTION_ID)),
+    ]
+
+    await client.post('/zbs/switches/1', data=data)
+
+    async with db_conn_acquirer() as conn:
+        result = await conn.execute(switch_history.select().where(switch_history.c.switch_id == 1))
+        rows = await result.fetchall()
+    assert [(row.environment, row.new_value) for row in rows] == [('staging', '0')]
+
+
+@pytest.mark.usefixtures('setup_tables_and_data', 'login')
+async def test__switch_detail_view__history_table_labels_flag_level_changes(client):
+    """
+    Arrange: сохранили форму, выключив весь флаг
+    Act: открываем страницу флага
+    Assert: запись об общем состоянии подписана Whole flag
+    """
+    await client.post('/zbs/switches/1', data=[('is_active', '0'), ('groups', 'group1')])
+
+    response = await client.get('/zbs/switches/1')
+
+    history_block = (await response.text()).split('id="collapseTwo"')[1]
+    assert '<td>Whole flag</td>' in history_block

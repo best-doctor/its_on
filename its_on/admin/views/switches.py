@@ -137,6 +137,7 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
         await self._check_permissions()
 
         form_data = await self.request.post()
+        was_active = (await self.get_object(self.request)).is_active
 
         try:
             environment_states = self._get_environment_states(form_data)
@@ -145,9 +146,15 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
             return await self.get_context_data(errors=error)
 
         switch_object = await self.get_object(self.request)
-        await sync_switch_environments(self.request, switch_object.id, environment_states)
-        new_value = str(form_data.get('is_active'))
-        await save_switch_history(self.request, switch_object, new_value)
+        environment_changes = await sync_switch_environments(
+            self.request, switch_object.id, environment_states,
+        )
+        if switch_object.is_active != was_active:
+            await save_switch_history(self.request, switch_object, str(form_data.get('is_active')))
+        for environment_name, environment_value in environment_changes:
+            await save_switch_history(
+                self.request, switch_object, environment_value, environment=environment_name,
+            )
 
         return await self.get_context_data(updated=True)
 
