@@ -25,4 +25,5 @@ def switch_list_cache_key_builder(method: Callable, view: web.View) -> str:
     group_name = validated_data['group']
     is_active = validated_data.get('is_active')
     version = validated_data.get('version')
-    return f'switch_list__{group_name}__{version}__{is_active}'
+    environment_name = validated_data.get('environment')
+    return f'switch_list__{group_name}__{version}__{is_active}__{environment_name}'

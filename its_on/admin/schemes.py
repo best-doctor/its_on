@@ -3,6 +3,8 @@ from __future__ import annotations
 import typing
 from marshmallow import Schema, fields, validate
 
+from its_on.constants import ENVIRONMENT_NAME_PATTERN
+
 
 class SplitList(fields.List):
     def deserialize(
@@ -51,6 +53,19 @@ class SwitchCopyFromAnotherItsOnAdminPostRequestSchema(BaseSwitchAdminPostReques
     created_at = fields.DateTime(required=False, allow_none=True)
     updated_at = fields.DateTime(required=False, allow_none=True)
     deleted_at = fields.DateTime(required=False, allow_none=True)
+
+
+class EnvironmentAddAdminPostRequestSchema(Schema):
+    name = fields.Str(
+        required=True,
+        validate=[
+            validate.Length(min=1, max=255, error='Empty name is not allowed.'),
+            validate.Regexp(
+                ENVIRONMENT_NAME_PATTERN,
+                error='Name must be a slug: lowercase latin letters, digits and single hyphens.',
+            ),
+        ],
+    )
 
 
 class SwitchListAdminRequestSchema(Schema):

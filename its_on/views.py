@@ -2,6 +2,7 @@ import functools
 import json
 import textwrap
 
+import sqlalchemy as sa
 from aiocache import cached
 from aiohttp import web
 from aiohttp_apispec import request_schema, response_schema, docs
@@ -13,7 +14,7 @@ from typing import Dict, List, Optional
 from its_on.app_keys import db_key
 from its_on.admin.mixins import GetObjectMixin
 from its_on.cache import switch_list_cache_key_builder
-from its_on.models import switches
+from its_on.models import environments, switch_environments, switches
 from its_on.schemes import (
     SwitchListRequestSchema, SwitchListResponseSchema, SwitchFullListResponseSchema,
 )
@@ -65,6 +66,35 @@ class SwitchListView(CorsViewMixin, web.View):
             queryset = queryset.where(switches.c.version <= version)
         return queryset
 
+    def filter_environment(self, queryset: Select, environment_name: Optional[str] = None) -> Select:
+        """
+        Фильтрует флаги по окружению.
+
+        Флаг без единой записи в switch_environments действует глобально (как раньше).
+        Если записи есть, флаг виден только там, где для окружения он включен.
+        """
+        if environment_name is None:
+            return queryset
+        has_no_overrides = ~sa.exists(
+            sa.select(1).where(switch_environments.c.switch_id == switches.c.id),
+        )
+        is_active_in_environment = sa.exists(
+            sa.select(1)
+            .select_from(
+                switch_environments.join(
+                    environments, switch_environments.c.environment_id == environments.c.id,
+                ),
+            )
+            .where(
+                sa.and_(
+                    switch_environments.c.switch_id == switches.c.id,
+                    environments.c.name == environment_name,
+                    switch_environments.c.is_active.is_(True),
+                ),
+            ),
+        )
+        return queryset.where(sa.or_(has_no_overrides, is_active_in_environment))
+
     async def filter_queryset(self, queryset: Select) -> Select:
         validated_data = self.request['validated_data']
 
@@ -72,6 +102,7 @@ class SwitchListView(CorsViewMixin, web.View):
         queryset = self.filter_active(queryset, validated_data.get('is_active', True))
         queryset = self.filter_hidden(queryset)
         queryset = self.filter_version(queryset, validated_data.get('version'))
+        queryset = self.filter_environment(queryset, validated_data.get('environment'))
 
         return queryset
 

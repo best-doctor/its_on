@@ -1,5 +1,5 @@
 import datetime
-from typing import List, Dict
+from typing import Dict, List, Optional
 
 from aiohttp import web
 
@@ -35,13 +35,16 @@ async def get_user_switches_names(request: web.Request, user: users) -> List[str
     return [user_switch.name for user_switch in user_switches]
 
 
-async def save_switch_history(request: web.Request, switch: switches, new_value: str) -> None:
+async def save_switch_history(
+    request: web.Request, switch: switches, new_value: str, environment: Optional[str] = None,
+) -> None:
     async with request.app[db_key].acquire() as conn:
         user = await get_current_user(request)
         create_query = switch_history.insert().values(
             switch_id=switch.id,
             user_id=user.id,
             new_value=new_value,
+            environment=environment,
         )
 
         await conn.execute(create_query)
@@ -55,6 +58,7 @@ async def get_switch_history(request: web.Request, switch: switches) -> List[Row
                 switch_history.c.switch_id,
                 switch_history.c.user_id,
                 switch_history.c.new_value,
+                switch_history.c.environment,
                 switch_history.c.changed_at,
                 users.c.login.label('changed_by'),
             )

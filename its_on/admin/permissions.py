@@ -32,3 +32,9 @@ class CanEditUser(BasePermission):
     @classmethod
     async def is_allowed(cls, request: web.Request, *args: Any, **kwargs: Any) -> bool:
         return await is_superuser(request)
+
+
+class CanEditEnvironment(BasePermission):
+    @classmethod
+    async def is_allowed(cls, request: web.Request, *args: Any, **kwargs: Any) -> bool:
+        return await is_superuser(request)

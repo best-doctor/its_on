@@ -9,6 +9,11 @@ from its_on.probes import liveness_probe, readiness_probe, startup_probe
 
 from auth.views import KeycloakCallbackView, KeycloakLoginView, LoginView, LogoutView
 from its_on.views import SwitchFullListView, SwitchListView, SwitchSvgBadgeView
+from its_on.admin.views.environments import (
+    EnvironmentAddAdminView,
+    EnvironmentDeleteAdminView,
+    EnvironmentListAdminView,
+)
 from its_on.admin.views.switches import (
     SwitchAddAdminView,
     SwitchDeleteAdminView,
@@ -43,6 +48,9 @@ def setup_routes(app: Application, base_dir: Path, cors_config: CorsConfig) -> N
     app.router.add_view('/zbs/switches/copy', SwitchesCopyAdminView, name='switches_copy')
     app.router.add_view('/zbs/switches/{id}', SwitchDetailAdminView, name='switch_detail')
     app.router.add_view('/zbs/switches/{id}/delete', SwitchDeleteAdminView)
+    app.router.add_view('/zbs/environments', EnvironmentListAdminView, name='environments_list')
+    app.router.add_view('/zbs/environments/add', EnvironmentAddAdminView, name='environments_add')
+    app.router.add_view('/zbs/environments/{id}/delete', EnvironmentDeleteAdminView)
     app.router.add_view('/zbs/users', UserListAdminView)
     app.router.add_view('/zbs/users/{id}', UserDetailAdminView)
 

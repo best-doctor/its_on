@@ -82,6 +82,61 @@ async def test_switch_filter_by_version(version, expected_result, setup_tables_a
     assert await response.json() == expected_result
 
 
+@pytest.mark.parametrize('query,expected_names', [
+    ('', ['switch1', 'switch2', 'switch4']),
+    ('&environment=staging', ['switch1', 'switch2']),
+    ('&environment=production', ['switch2', 'switch4']),
+    ('&environment=qa', ['switch2']),
+    ('&environment=unknown-env', ['switch2']),
+], ids=[
+    'without_environment__legacy',
+    'staging__own_override_active',
+    'production__own_override_active',
+    'qa__only_flags_without_overrides',
+    'unknown_environment__only_flags_without_overrides',
+])
+async def test__switch_list_view__filter_by_environment(
+    setup_tables_and_data, client, query, expected_names,
+):
+    """
+    Arrange: флаги группы group1 с разными per-env состояниями и один флаг без override
+    Act: запрашиваем список флагов группы с разным значением environment
+    Assert: флаг без override виден везде, остальные - только там, где включены
+    """
+    response = await client.get(f'/api/v1/switch?group=group1{query}')
+
+    assert response.status == 200
+    assert await response.json() == {'count': len(expected_names), 'result': expected_names}
+
+
+async def test__switch_list_view__environment_does_not_show_flag_with_master_switch_off(
+    setup_tables_and_data, client,
+):
+    """
+    Arrange: switch3 выключен глобально, но для staging его override активен
+    Act: запрашиваем активные флаги группы group1 для staging
+    Assert: switch3 не попадает в ответ - мастер-рубильник сильнее override
+    """
+    response = await client.get('/api/v1/switch?group=group1&environment=staging')
+
+    assert 'switch3' not in (await response.json())['result']
+
+
+async def test__switch_list_view__environment_for_flag_without_overrides_matches_legacy(
+    setup_tables_and_data, client,
+):
+    """
+    Arrange: switch2 не имеет записей в switch_environments
+    Act: запрашиваем группу group1 без environment и с ним
+    Assert: switch2 есть в обоих ответах - поведение легаси
+    """
+    without_environment = await client.get('/api/v1/switch?group=group1')
+    with_environment = await client.get('/api/v1/switch?group=group1&environment=qa')
+
+    assert 'switch2' in (await without_environment.json())['result']
+    assert 'switch2' in (await with_environment.json())['result']
+
+
 async def test_switches_full_info(
     switches_factory, client, asserted_switch_full_info_data,
 ):

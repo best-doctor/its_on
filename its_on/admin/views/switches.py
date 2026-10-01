@@ -8,7 +8,7 @@ from aiohttp import web
 from aiopg.sa.result import RowProxy
 from its_on.config import settings
 from marshmallow.exceptions import ValidationError
-from multidict import MultiDictProxy
+from multidict import MultiDict, MultiDictProxy
 from sqlalchemy.sql import Select
 
 from auth.decorators import login_required
@@ -20,6 +20,11 @@ from its_on.admin.schemes import (
     SwitchCopyFromAnotherItsOnAdminPostRequestSchema,
     SwitchDetailAdminPostRequestSchema,
     SwitchListAdminRequestSchema,
+)
+from its_on.admin.views.query_utils import (
+    get_all_environments,
+    get_switch_environments_states,
+    sync_switch_environments,
 )
 from its_on.admin.utils import (
     annotate_switch_with_expiration_date,
@@ -107,6 +112,8 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
             'svg_badge': svg_badge,
             'markdown_badge': markdown_badge,
             'switch_history': switch_history,
+            'all_environments': await get_all_environments(self.request),
+            'switch_environments': await get_switch_environments_states(self.request, switch.id),
             'errors': errors,
             'updated': updated,
         }
@@ -130,17 +137,45 @@ class SwitchDetailAdminView(web.View, UpdateMixin):
         await self._check_permissions()
 
         form_data = await self.request.post()
+        was_active = (await self.get_object(self.request)).is_active
 
         try:
-            await self.update_object(self.request, form_data)
+            environment_states = self._get_environment_states(form_data)
+            await self.update_object(self.request, self._strip_environment_fields(form_data))
         except ValidationError as error:
             return await self.get_context_data(errors=error)
 
         switch_object = await self.get_object(self.request)
-        new_value = str(form_data.get('is_active'))
-        await save_switch_history(self.request, switch_object, new_value)
+        environment_changes = await sync_switch_environments(
+            self.request, switch_object.id, environment_states,
+        )
+        if switch_object.is_active != was_active:
+            await save_switch_history(self.request, switch_object, str(form_data.get('is_active')))
+        for environment_name, environment_value in environment_changes:
+            await save_switch_history(
+                self.request, switch_object, environment_value, environment=environment_name,
+            )
 
         return await self.get_context_data(updated=True)
+
+    def _get_environment_states(self, form_data: MultiDictProxy) -> Dict[int, bool]:
+        """Собирает {environment_id: is_active} из полей environment_ids и environment_active_*."""
+        try:
+            environment_ids = [int(env_id) for env_id in form_data.getall('environment_ids', [])]
+        except ValueError:
+            raise ValidationError('Invalid environment id.')
+
+        return {
+            env_id: form_data.get(f'environment_active_{env_id}') == '1'
+            for env_id in environment_ids
+        }
+
+    def _strip_environment_fields(self, form_data: MultiDictProxy) -> MultiDict:
+        """Убирает поля окружений: их нет в модели switches, схема валидации их не принимает."""
+        return MultiDict(
+            (key, value) for key, value in form_data.items()
+            if key != 'environment_ids' and not key.startswith('environment_active_')
+        )
 
     async def _check_permissions(self) -> None:
         object_to_check = await self.get_object(self.request)
